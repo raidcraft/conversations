@@ -9,7 +9,8 @@ public class RCConversationsPlugin extends BasePlugin {
 
     @Override
     public void enable() {
-        //TODO: implement
+
+
     }
 
     @Override

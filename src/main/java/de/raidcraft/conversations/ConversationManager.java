@@ -2,18 +2,23 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.api.conversations.ConversationProvider;
 import de.raidcraft.api.conversations.answer.Answer;
+import de.raidcraft.api.conversations.answer.SimpleAnswer;
+import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
+import mkremins.fanciful.FancyMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author mdoering
@@ -24,6 +29,8 @@ public class ConversationManager implements ConversationProvider {
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
+
+    private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
@@ -59,6 +66,18 @@ public class ConversationManager implements ConversationProvider {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Answer getAnswer(String text) {
+
+        return new SimpleAnswer(text);
+    }
+
+    @Override
+    public Answer getAnswer(FancyMessage message) {
+
+        return new SimpleAnswer(message);
     }
 
     @Override
@@ -103,7 +122,18 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
-    public void triggerConversation(Player player, ConversationHost conversationHost) {
-        //TODO: implement
+    public Optional<Conversation<Player>> startConversation(Player player, ConversationHost conversationHost) {
+
+        Optional<Conversation<Player>> conversation = conversationHost.getConversation(player);
+        if (!conversation.isPresent()) {
+            return Optional.empty();
+        }
+        conversation.get().start();
+        return conversation;
+    }
+
+    public Optional<Conversation<Player>> getActiveConversation(Player player) {
+
+        return Optional.ofNullable(activeConversations.get(player.getUniqueId()));
     }
 }

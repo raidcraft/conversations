@@ -25,6 +25,7 @@ import java.util.Optional;
 public class ConfiguredConversationTemplate implements ConversationTemplate {
 
     private final String identifier;
+    private final boolean persistant;
     private final int priority;
     private final List<Requirement<?>> requirements;
     private final Map<String, StageTemplate> stages;
@@ -32,6 +33,7 @@ public class ConfiguredConversationTemplate implements ConversationTemplate {
     public ConfiguredConversationTemplate(String identifier, ConfigurationSection config) {
 
         this.identifier = identifier;
+        this.persistant = config.getBoolean("persistant", false);
         this.priority = config.getInt("priority", 1);
         this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));
         this.stages = loadStages(config.getConfigurationSection("stages"));
@@ -60,7 +62,7 @@ public class ConfiguredConversationTemplate implements ConversationTemplate {
     }
 
     @Override
-    public Conversation createConversation(Player player, ConversationHost host) {
+    public Conversation<Player> createConversation(Player player, ConversationHost host) {
 
         return new PlayerConversation(player, this, host);
     }

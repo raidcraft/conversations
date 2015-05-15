@@ -6,6 +6,7 @@ import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
+import de.raidcraft.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
@@ -92,14 +93,13 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
-    public void loadConversation(String name, ConfigurationSection config) {
+    public void loadConversation(String identifier, ConfigurationSection config) {
 
-        conversations.put(name, new ConfiguredConversationTemplate(name, config));
-    }
-
-    @Override
-    public void registerConversation(ConfigurationSection configuration, String name) {
-        //TODO: implement
+        if (conversations.containsKey(identifier)) {
+            plugin.getLogger().warning("Tried to register duplicate conversation: " + identifier + " from " + ConfigUtil.getFileName(config));
+            return;
+        }
+        conversations.put(identifier, new ConfiguredConversationTemplate(identifier, config));
     }
 
     @Override

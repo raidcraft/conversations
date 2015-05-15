@@ -1,11 +1,13 @@
 package de.raidcraft.conversations;
 
-import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.ConversationProvider;
+import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
+import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -93,5 +95,15 @@ public class ConversationManager implements ConversationProvider {
     public void loadConversation(String name, ConfigurationSection config) {
 
         conversations.put(name, new ConfiguredConversationTemplate(name, config));
+    }
+
+    @Override
+    public void registerConversation(ConfigurationSection configuration, String name) {
+        //TODO: implement
+    }
+
+    @Override
+    public void triggerConversation(Player player, ConversationHost conversationHost) {
+        //TODO: implement
     }
 }

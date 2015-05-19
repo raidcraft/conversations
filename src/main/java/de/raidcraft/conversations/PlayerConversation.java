@@ -4,9 +4,10 @@ import com.avaje.ebean.EbeanServer;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.conversation.AbstractConversation;
 import de.raidcraft.api.conversations.conversation.Conversation;
-import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
+import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.Stage;
+import de.raidcraft.conversations.tables.TConversationVariable;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.entity.Player;
@@ -23,6 +24,48 @@ public class PlayerConversation extends AbstractConversation<Player> {
     public PlayerConversation(Player player, ConversationTemplate conversationTemplate, ConversationHost conversationHost) {
 
         super(player, conversationTemplate, conversationHost);
+    }
+
+    private Optional<TConversationVariable> findVariable(String name) {
+
+        EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
+        return Optional.ofNullable(database.find(TConversationVariable.class).where()
+                .eq("conversation", getIdentifier())
+                .eq("host", getHost().getUniqueId())
+                .eq("player", getEntity().getUniqueId())
+                .eq("name", name)
+                .findUnique());
+    }
+
+    @Override
+    public void setGlobal(String key, Object value) {
+
+        set(key, value);
+        EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
+        Optional<TConversationVariable> optional = findVariable(key);
+        TConversationVariable variable;
+        if (!optional.isPresent()) {
+            variable = new TConversationVariable();
+            variable.setConversation(getIdentifier());
+            variable.setPlayer(getEntity().getUniqueId());
+            variable.setHost(getHost().getUniqueId());
+        } else {
+            variable = optional.get();
+        }
+        variable.setValue(value.toString());
+        variable.setStage(getCurrentStage().isPresent() ? getCurrentStage().get().getIdentifier() : null);
+        variable.setTimestamp(Timestamp.from(Instant.now()));
+        database.save(variable);
+    }
+
+    @Override
+    public Object get(String path, Object def) {
+
+        Optional<TConversationVariable> variable = findVariable(path);
+        if (variable.isPresent()) {
+            set(variable.get().getName(), variable.get().getValue());
+        }
+        return super.get(path, def);
     }
 
     @Override

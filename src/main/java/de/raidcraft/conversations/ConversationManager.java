@@ -1,6 +1,7 @@
 package de.raidcraft.conversations;
 
 import de.raidcraft.api.conversations.ConversationProvider;
+import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.answer.SimpleAnswer;
 import de.raidcraft.api.conversations.conversation.Conversation;
@@ -15,10 +16,8 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * @author mdoering
@@ -29,8 +28,6 @@ public class ConversationManager implements ConversationProvider {
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
-
-    private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
@@ -124,16 +121,16 @@ public class ConversationManager implements ConversationProvider {
     @Override
     public Optional<Conversation<Player>> startConversation(Player player, ConversationHost conversationHost) {
 
-        Optional<Conversation<Player>> conversation = conversationHost.getConversation(player);
-        if (!conversation.isPresent()) {
-            return Optional.empty();
+        Optional<ConversationTemplate> conversation = conversationHost.getConversation(player);
+        if (conversation.isPresent()) {
+            return Optional.of(conversation.get().startConversation(player, conversationHost));
         }
-        conversation.get().start();
-        return conversation;
+        return Optional.empty();
     }
 
+    @Override
     public Optional<Conversation<Player>> getActiveConversation(Player player) {
 
-        return Optional.ofNullable(activeConversations.get(player.getUniqueId()));
+        return Optional.ofNullable(Conversations.ACTIVE_CONVERSATIONS.get(player.getUniqueId()));
     }
 }

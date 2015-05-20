@@ -3,10 +3,12 @@ package de.raidcraft.conversations.commands;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
+import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.conversations.RCConversationsPlugin;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,6 +32,16 @@ public class ConversationCommands {
     )
     @NestedCommand(NestedConversationCommands.class)
     public void convBaseCommand(CommandContext args, CommandSender sender) {
+
+
+    }
+
+    @Command(
+            aliases = {"rcaa"},
+            desc = "Base command for RCConversations Admin Actions."
+    )
+    @NestedCommand(NestedConversationCommands.class)
+    public void convAdminBaseCommand(CommandContext args, CommandSender sender) {
 
 
     }
@@ -78,6 +90,27 @@ public class ConversationCommands {
             if (!conversation.changePage(args.getInteger(0))) {
                 throw new CommandException("Konnte nicht zu Seite " + args.getInteger(0) + " wechseln.");
             }
+        }
+    }
+
+    public static class NestedConversationAdminCommands {
+
+        private final RCConversationsPlugin plugin;
+
+        public NestedConversationAdminCommands(RCConversationsPlugin plugin) {
+
+            this.plugin = plugin;
+        }
+
+        @Command(
+                aliases = {"reload"},
+                desc = "Reloads the Conversations Plugin."
+        )
+        @CommandPermissions("rcconversations.cmd.reload")
+        public void reload(CommandContext args, CommandSender sender) {
+
+            plugin.reload();
+            sender.sendMessage(ChatColor.GREEN + "Reloaded the RCConversations plugin successfully!");
         }
     }
 }

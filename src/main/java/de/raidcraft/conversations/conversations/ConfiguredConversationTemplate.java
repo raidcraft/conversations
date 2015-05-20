@@ -4,6 +4,7 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.Conversations;
@@ -65,5 +66,22 @@ public class ConfiguredConversationTemplate implements ConversationTemplate {
     public Conversation<Player> createConversation(Player player, ConversationHost host) {
 
         return new PlayerConversation(player, this, host);
+    }
+
+    @Override
+    public Conversation<Player> startConversation(Player player, ConversationHost host) {
+
+        Optional<Conversation<Player>> activeConversation = Conversations.removeActiveConversation(player);
+        if (activeConversation.isPresent()) {
+            if (!activeConversation.get().getTemplate().equals(this)) {
+                activeConversation.get().abort(ConversationEndReason.START_NEW_CONVERSATION);
+            } else {
+                Conversations.addActiveConversation(activeConversation.get());
+                return activeConversation.get();
+            }
+        }
+        Conversation<Player> conversation = createConversation(player, host);
+        conversation.start();
+        return conversation;
     }
 }

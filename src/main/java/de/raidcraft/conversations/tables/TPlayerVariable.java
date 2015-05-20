@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(
-        name = "rc_player_variables",
+        name = "conv_player_variables",
         uniqueConstraints = @UniqueConstraint(columnNames = {"player", "name"})
 )
 @Getter
@@ -29,6 +29,8 @@ public class TPlayerVariable {
     private int id;
     @Column(nullable = false)
     private UUID player;
+    private String conversation;
+    private String stage;
     @Column(nullable = false)
     private String name;
     private String value;

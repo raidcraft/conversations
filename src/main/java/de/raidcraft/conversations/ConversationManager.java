@@ -21,8 +21,10 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author mdoering
@@ -33,6 +35,7 @@ public class ConversationManager implements ConversationProvider {
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
+    private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
@@ -40,7 +43,23 @@ public class ConversationManager implements ConversationProvider {
         Conversations.enable(this);
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, ConfiguredStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, ConfiguredAnswer.class);
+        load();
+    }
+
+    public void reload() {
+
+        unload();
+        load();
+    }
+
+    public void load() {
+
         loadConversations(new File(plugin.getDataFolder(), "conversations"), "");
+    }
+
+    public void unload() {
+
+        conversations.clear();
     }
 
     private void loadConversations(File path, String base) {
@@ -153,6 +172,26 @@ public class ConversationManager implements ConversationProvider {
     @Override
     public Optional<Conversation<Player>> getActiveConversation(Player player) {
 
-        return Optional.ofNullable(Conversations.ACTIVE_CONVERSATIONS.get(player.getUniqueId()));
+        return Optional.ofNullable(activeConversations.get(player.getUniqueId()));
+    }
+
+    @Override
+    public Optional<Conversation<Player>> addActiveConversation(Conversation<Player> conversation) {
+
+        Optional<Conversation<Player>> activeConversation = removeActiveConversation(conversation.getEntity());
+        activeConversations.put(conversation.getEntity().getUniqueId(), conversation);
+        return activeConversation;
+    }
+
+    @Override
+    public Optional<Conversation<Player>> removeActiveConversation(Player player) {
+
+        return Optional.ofNullable(activeConversations.remove(player.getUniqueId()));
+    }
+
+    @Override
+    public boolean hasActiveConversation(Player player) {
+
+        return activeConversations.containsKey(player.getUniqueId());
     }
 }

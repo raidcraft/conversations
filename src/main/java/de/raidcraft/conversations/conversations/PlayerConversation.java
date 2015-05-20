@@ -2,8 +2,10 @@ package de.raidcraft.conversations.conversations;
 
 import com.avaje.ebean.EbeanServer;
 import de.raidcraft.RaidCraft;
+import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.AbstractConversation;
 import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.Stage;
@@ -50,6 +52,9 @@ public class PlayerConversation extends AbstractConversation<Player> {
         } else {
             variable = optional.get();
         }
+        variable.setConversation(getIdentifier());
+        Optional<Stage> currentStage = getCurrentStage();
+        if (currentStage.isPresent()) variable.setStage(currentStage.get().getIdentifier());
         variable.setValue(value.toString());
         database.save(variable);
     }
@@ -80,6 +85,32 @@ public class PlayerConversation extends AbstractConversation<Player> {
             line.send(getEntity());
         }
         return this;
+    }
+
+    @Override
+    public boolean start() {
+
+        boolean start = super.start();
+        if (start) {
+            Conversations.addActiveConversation(this);
+        }
+        return start;
+    }
+
+    @Override
+    public Optional<Stage> end(ConversationEndReason reason) {
+
+        Optional<Stage> stage = super.end(reason);
+        Conversations.removeActiveConversation(getEntity());
+        return stage;
+    }
+
+    @Override
+    public Optional<Stage> abort(ConversationEndReason reason) {
+
+        Optional<Stage> stage = super.abort(reason);
+        Conversations.removeActiveConversation(getEntity());
+        return stage;
     }
 
     @Override

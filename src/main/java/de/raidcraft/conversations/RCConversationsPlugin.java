@@ -4,15 +4,16 @@ import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.config.ConfigurationBase;
 import de.raidcraft.api.config.Setting;
+import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.quests.QuestConfigLoader;
 import de.raidcraft.api.quests.Quests;
-import de.raidcraft.conversations.actions.AbortConversationAction;
-import de.raidcraft.conversations.actions.ChangeStageAction;
-import de.raidcraft.conversations.actions.EndConversationAction;
-import de.raidcraft.conversations.actions.SetVariableAction;
+import de.raidcraft.api.conversations.actions.AbortConversationAction;
+import de.raidcraft.api.conversations.actions.ChangeStageAction;
+import de.raidcraft.api.conversations.actions.EndConversationAction;
+import de.raidcraft.api.conversations.actions.SetVariableAction;
 import de.raidcraft.conversations.commands.ConversationCommands;
-import de.raidcraft.conversations.requirements.CompareVariableRequirement;
+import de.raidcraft.api.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
 import lombok.Getter;
@@ -49,7 +50,16 @@ public class RCConversationsPlugin extends BasePlugin {
 
     @Override
     public void disable() {
-        //TODO: implement
+
+        Conversations.disable(getConversationManager());
+        getConversationManager().unload();
+    }
+
+    @Override
+    public void reload() {
+
+        getConfiguration().reload();
+        getConversationManager().reload();
     }
 
     private void registerActionAPI() {

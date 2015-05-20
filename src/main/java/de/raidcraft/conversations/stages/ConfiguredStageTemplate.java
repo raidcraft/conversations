@@ -22,7 +22,7 @@ import java.util.Optional;
  * @author mdoering
  */
 @Data
-public class ConfiguredStageTemplate implements StageTemplate {
+public abstract class ConfiguredStageTemplate implements StageTemplate {
 
     private final String identifier;
     private final ConversationTemplate conversationTemplate;
@@ -41,7 +41,10 @@ public class ConfiguredStageTemplate implements StageTemplate {
         this.requirements = ActionAPI.createRequirements(getConversationTemplate().getIdentifier() + "." + identifier, config.getConfigurationSection("requirements"));
         this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
         this.answers = loadAnswers(config.getConfigurationSection("answers"));
+        load(config.getConfigurationSection("args"));
     }
+
+    protected abstract void load(ConfigurationSection args);
 
     protected List<Answer> loadAnswers(ConfigurationSection config) {
 

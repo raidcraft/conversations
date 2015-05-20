@@ -8,10 +8,10 @@ import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
-import de.raidcraft.conversations.answers.ConfiguredAnswer;
+import de.raidcraft.conversations.answers.DefaultAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
 import de.raidcraft.conversations.conversations.ConfiguredConversationTemplate;
-import de.raidcraft.conversations.stages.ConfiguredStageTemplate;
+import de.raidcraft.conversations.stages.DefaultStageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
 import mkremins.fanciful.FancyMessage;
@@ -41,8 +41,8 @@ public class ConversationManager implements ConversationProvider {
 
         this.plugin = plugin;
         Conversations.enable(this);
-        registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, ConfiguredStageTemplate.class);
-        registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, ConfiguredAnswer.class);
+        registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
+        registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         load();
     }
 

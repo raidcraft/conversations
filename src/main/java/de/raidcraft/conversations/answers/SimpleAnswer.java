@@ -1,6 +1,7 @@
 package de.raidcraft.conversations.answers;
 
 import de.raidcraft.api.action.action.Action;
+import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import lombok.Data;
@@ -19,30 +20,33 @@ import java.util.Optional;
 public class SimpleAnswer implements Answer {
 
     private final List<Action<?>> actions;
+    private final List<Requirement<?>> requirements;
     private Optional<FancyMessage> message = Optional.empty();
     private String text;
     private ChatColor color;
 
-    public SimpleAnswer(String text, List<Action<?>> actions) {
+    public SimpleAnswer(String text, List<Action<?>> actions, List<Requirement<?>> requirements) {
 
         this.text = text;
         this.actions = actions == null ? new ArrayList<>() : actions;
+        this.requirements = requirements == null ? new ArrayList<>() : requirements;
     }
 
     public SimpleAnswer(String text) {
 
-        this(text, null);
+        this(text, null, null);
     }
 
-    public SimpleAnswer(FancyMessage message, List<Action<?>> actions) {
+    public SimpleAnswer(FancyMessage message, List<Action<?>> actions, List<Requirement<?>> requirements) {
 
         this.message = Optional.of(message);
         this.actions = actions == null ? new ArrayList<>() : actions;
+        this.requirements = requirements == null ? new ArrayList<>() : requirements;
     }
 
     public SimpleAnswer(FancyMessage message) {
 
-        this(message, null);
+        this(message, null, null);
     }
 
     @Override
@@ -63,6 +67,20 @@ public class SimpleAnswer implements Answer {
     public Answer color(ChatColor color) {
 
         this.color = color;
+        return this;
+    }
+
+    @Override
+    public Answer addConversationRequirement(Requirement<Conversation> conversationRequirement) {
+
+        requirements.add(conversationRequirement);
+        return this;
+    }
+
+    @Override
+    public Answer addPlayerRequirement(Requirement<Player> playerRequirement) {
+
+        requirements.add(playerRequirement);
         return this;
     }
 

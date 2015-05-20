@@ -10,7 +10,7 @@ import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
-import de.raidcraft.conversations.conversations.ConfiguredConversationTemplate;
+import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
@@ -34,6 +34,7 @@ public class ConversationManager implements ConversationProvider {
     private final RCConversationsPlugin plugin;
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
+    private final Map<String, Constructor<? extends ConversationTemplate>> conversationTemplates = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
 
@@ -41,6 +42,7 @@ public class ConversationManager implements ConversationProvider {
 
         this.plugin = plugin;
         Conversations.enable(this);
+        registerConversationTemplate(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE, DefaultConversationTemplate.class);
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         load();
@@ -150,13 +152,49 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
+    public void registerConversationTemplate(String type, Class<? extends ConversationTemplate> conversationTemplate) {
+
+        try {
+            Constructor<? extends ConversationTemplate> constructor = conversationTemplate.getDeclaredConstructor(String.class, ConfigurationSection.class);
+            constructor.setAccessible(true);
+            conversationTemplates.put(type, constructor);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Optional<ConversationTemplate> getConversationTemplate(String identifier, ConfigurationSection config) {
+
+        Constructor<? extends ConversationTemplate> constructor;
+        if (config.isSet("type")) {
+            constructor = conversationTemplates.get(config.getString("type"));
+        } else {
+            constructor = conversationTemplates.get(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE);
+        }
+        if (constructor != null) {
+            try {
+                return Optional.of(constructor.newInstance(identifier, config));
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public void loadConversation(String identifier, ConfigurationSection config) {
 
         if (conversations.containsKey(identifier)) {
             plugin.getLogger().warning("Tried to register duplicate conversation: " + identifier + " from " + ConfigUtil.getFileName(config));
             return;
         }
-        conversations.put(identifier, new ConfiguredConversationTemplate(identifier, config));
+        Optional<ConversationTemplate> template = getConversationTemplate(identifier, config);
+        if (!template.isPresent()) {
+            plugin.getLogger().warning("Could not find conversation template type " + config.getString("type") + " in " + ConfigUtil.getFileName(config));
+            return;
+        }
+        conversations.put(identifier, template.get());
     }
 
     @Override

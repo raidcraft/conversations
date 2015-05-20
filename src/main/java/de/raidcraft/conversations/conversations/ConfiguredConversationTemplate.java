@@ -15,6 +15,7 @@ import lombok.Data;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +24,7 @@ import java.util.Optional;
  * @author mdoering
  */
 @Data
-public class ConfiguredConversationTemplate implements ConversationTemplate {
+public abstract class ConfiguredConversationTemplate implements ConversationTemplate {
 
     private final String identifier;
     private final boolean persistant;
@@ -38,7 +39,10 @@ public class ConfiguredConversationTemplate implements ConversationTemplate {
         this.priority = config.getInt("priority", 1);
         this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));
         this.stages = loadStages(config.getConfigurationSection("stages"));
+        load(config.getConfigurationSection("args"));
     }
+
+    protected abstract void load(ConfigurationSection args);
 
     private Map<String, StageTemplate> loadStages(ConfigurationSection config) {
 
@@ -54,6 +58,12 @@ public class ConfiguredConversationTemplate implements ConversationTemplate {
             }
         }
         return stages;
+    }
+
+    @Override
+    public List<StageTemplate> getStages() {
+
+        return new ArrayList<>(stages.values());
     }
 
     @Override

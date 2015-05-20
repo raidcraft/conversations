@@ -1,4 +1,4 @@
-package de.raidcraft.conversations;
+package de.raidcraft.conversations.conversations;
 
 import com.avaje.ebean.EbeanServer;
 import de.raidcraft.RaidCraft;
@@ -7,8 +7,9 @@ import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.Stage;
-import de.raidcraft.conversations.tables.TConversationVariable;
+import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.tables.TPlayerConversation;
+import de.raidcraft.conversations.tables.TPlayerVariable;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.entity.Player;
 
@@ -26,12 +27,10 @@ public class PlayerConversation extends AbstractConversation<Player> {
         super(player, conversationTemplate, conversationHost);
     }
 
-    private Optional<TConversationVariable> findVariable(String name) {
+    private Optional<TPlayerVariable> findVariable(String name) {
 
         EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
-        return Optional.ofNullable(database.find(TConversationVariable.class).where()
-                .eq("conversation", getIdentifier())
-                .eq("host", getHost().getUniqueId())
+        return Optional.ofNullable(database.find(TPlayerVariable.class).where()
                 .eq("player", getEntity().getUniqueId())
                 .eq("name", name)
                 .findUnique());
@@ -42,26 +41,23 @@ public class PlayerConversation extends AbstractConversation<Player> {
 
         set(key, value);
         EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
-        Optional<TConversationVariable> optional = findVariable(key);
-        TConversationVariable variable;
+        Optional<TPlayerVariable> optional = findVariable(key);
+        TPlayerVariable variable;
         if (!optional.isPresent()) {
-            variable = new TConversationVariable();
-            variable.setConversation(getIdentifier());
+            variable = new TPlayerVariable();
             variable.setPlayer(getEntity().getUniqueId());
-            variable.setHost(getHost().getUniqueId());
+            variable.setName(key);
         } else {
             variable = optional.get();
         }
         variable.setValue(value.toString());
-        variable.setStage(getCurrentStage().isPresent() ? getCurrentStage().get().getIdentifier() : null);
-        variable.setTimestamp(Timestamp.from(Instant.now()));
         database.save(variable);
     }
 
     @Override
     public Object get(String path, Object def) {
 
-        Optional<TConversationVariable> variable = findVariable(path);
+        Optional<TPlayerVariable> variable = findVariable(path);
         if (variable.isPresent()) {
             set(variable.get().getName(), variable.get().getValue());
         }

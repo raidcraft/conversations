@@ -1,19 +1,24 @@
 package de.raidcraft.conversations;
 
+import de.raidcraft.api.config.SimpleConfiguration;
 import de.raidcraft.api.conversations.ConversationProvider;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
-import de.raidcraft.api.conversations.answer.SimpleAnswer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
+import de.raidcraft.conversations.answers.ConfiguredAnswer;
+import de.raidcraft.conversations.answers.SimpleAnswer;
+import de.raidcraft.conversations.conversations.ConfiguredConversationTemplate;
+import de.raidcraft.conversations.stages.ConfiguredStageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -32,6 +37,23 @@ public class ConversationManager implements ConversationProvider {
     public ConversationManager(RCConversationsPlugin plugin) {
 
         this.plugin = plugin;
+        Conversations.enable(this);
+        registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, ConfiguredStageTemplate.class);
+        registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, ConfiguredAnswer.class);
+        loadConversations(new File(plugin.getDataFolder(), "conversations"), "");
+    }
+
+    private void loadConversations(File path, String base) {
+
+        File[] files = path.listFiles();
+        if (files == null) return;
+        for (File file : files) {
+            if (file.isDirectory()) {
+                loadConversations(path, base + file.getName() + ".");
+            } else {
+                loadConversation(base + file.getName().replace(".yml", ""), plugin.configure(new SimpleConfiguration<>(plugin, file)));
+            }
+        }
     }
 
     @Override

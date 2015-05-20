@@ -1,4 +1,4 @@
-package de.raidcraft.conversations;
+package de.raidcraft.conversations.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.ActionAPI;

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author mdoering
@@ -66,12 +67,22 @@ public class SimpleStage implements Stage {
 
         try {
             if (input == null || input.equals("")) return Optional.empty();
-            int id = Integer.parseInt(input.trim()) - 1;
-            if (currentPage < this.answers.size()) {
-                List<Answer> answers = this.answers.get(currentPage);
-                if (id < answers.size()) {
-                    return Optional.of(answers.get(id));
+            List<Answer> inputAnswers = this.answers.stream()
+                    .flatMap(List::stream)
+                    .filter(answer -> answer.getType().equalsIgnoreCase(Answer.ANSWER_INPUT_TYPE))
+                    .collect(Collectors.toList());
+            if (inputAnswers.isEmpty()) {
+                int id = Integer.parseInt(input.trim()) - 1;
+                if (currentPage < this.answers.size()) {
+                    List<Answer> answers = this.answers.get(currentPage);
+                    if (id < answers.size()) {
+                        return Optional.of(answers.get(id));
+                    }
                 }
+            } else {
+                Answer answer = inputAnswers.get(0);
+                answer.processInput(getConversation(), input);
+                return Optional.of(answer);
             }
         } catch (NumberFormatException e) {
             getConversation().sendMessage(ChatColor.RED + "Bitte gebe eine Zahl ein oder klicke auf die Antwort.");

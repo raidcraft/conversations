@@ -12,9 +12,9 @@ import org.bukkit.configuration.ConfigurationSection;
 @EqualsAndHashCode(callSuper = true)
 public abstract class ConfiguredAnswer extends SimpleAnswer {
 
-    public ConfiguredAnswer(ConfigurationSection config) {
+    public ConfiguredAnswer(String type, ConfigurationSection config) {
 
-        super(config.getString("text"),
+        super(type, config.getString("text"),
                 ActionAPI.createActions(config.getConfigurationSection("actions")),
                 ActionAPI.createRequirements(config.getName(), config.getConfigurationSection("requirement")));
         load(config.getConfigurationSection("args"));

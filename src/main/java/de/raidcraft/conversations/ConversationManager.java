@@ -11,6 +11,7 @@ import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
+import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
@@ -48,6 +49,7 @@ public class ConversationManager implements ConversationProvider {
         registerConversationTemplate(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE, DefaultConversationTemplate.class);
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
+        registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
         registerConversationVariable("%name", conversation -> conversation.getEntity().getName());
         load();
     }
@@ -85,7 +87,7 @@ public class ConversationManager implements ConversationProvider {
     public void registerAnswer(String type, Class<? extends Answer> answer) {
 
         try {
-            Constructor<? extends Answer> constructor = answer.getDeclaredConstructor(ConfigurationSection.class);
+            Constructor<? extends Answer> constructor = answer.getDeclaredConstructor(String.class, ConfigurationSection.class);
             constructor.setAccessible(true);
             answerTemplates.put(type, constructor);
         } catch (NoSuchMethodException e) {
@@ -97,14 +99,16 @@ public class ConversationManager implements ConversationProvider {
     public Optional<Answer> getAnswer(StageTemplate stageTemplate, ConfigurationSection config) {
 
         Constructor<? extends Answer> constructor;
+        String type;
         if (config.isSet("type")) {
-            constructor = answerTemplates.get(config.getString("type"));
+            type = config.getString("type");
         } else {
-            constructor = answerTemplates.get(Answer.DEFAULT_ANSWER_TEMPLATE);
+            type = Answer.DEFAULT_ANSWER_TEMPLATE;
         }
+        constructor = answerTemplates.get(type);
         if (constructor != null) {
             try {
-                return Optional.of(constructor.newInstance(config));
+                return Optional.of(constructor.newInstance(type, config));
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }

@@ -7,9 +7,9 @@ import org.bukkit.configuration.ConfigurationSection;
  */
 public class DefaultAnswer extends ConfiguredAnswer {
 
-    public DefaultAnswer(ConfigurationSection config) {
+    public DefaultAnswer(String type, ConfigurationSection config) {
 
-        super(config);
+        super(type, config);
     }
 
     @Override

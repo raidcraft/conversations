@@ -19,14 +19,16 @@ import java.util.Optional;
 @Data
 public class SimpleAnswer implements Answer {
 
+    private final String type;
     private final List<Action<?>> actions;
     private final List<Requirement<?>> requirements;
     private Optional<FancyMessage> message = Optional.empty();
     private String text;
     private ChatColor color;
 
-    public SimpleAnswer(String text, List<Action<?>> actions, List<Requirement<?>> requirements) {
+    public SimpleAnswer(String type, String text, List<Action<?>> actions, List<Requirement<?>> requirements) {
 
+        this.type = type;
         this.text = text;
         this.actions = actions == null ? new ArrayList<>() : actions;
         this.requirements = requirements == null ? new ArrayList<>() : requirements;
@@ -34,11 +36,12 @@ public class SimpleAnswer implements Answer {
 
     public SimpleAnswer(String text) {
 
-        this(text, null, null);
+        this(Answer.DEFAULT_ANSWER_TEMPLATE, text, null, null);
     }
 
-    public SimpleAnswer(FancyMessage message, List<Action<?>> actions, List<Requirement<?>> requirements) {
+    public SimpleAnswer(String type, FancyMessage message, List<Action<?>> actions, List<Requirement<?>> requirements) {
 
+        this.type = type;
         this.message = Optional.of(message);
         this.actions = actions == null ? new ArrayList<>() : actions;
         this.requirements = requirements == null ? new ArrayList<>() : requirements;
@@ -46,7 +49,7 @@ public class SimpleAnswer implements Answer {
 
     public SimpleAnswer(FancyMessage message) {
 
-        this(message, null, null);
+        this(Answer.DEFAULT_ANSWER_TEMPLATE, message, null, null);
     }
 
     @Override
@@ -103,5 +106,11 @@ public class SimpleAnswer implements Answer {
 
         getActions(Conversation.class).forEach(action -> action.accept(conversation));
         getActions(Player.class).forEach(action -> action.accept(conversation.getEntity()));
+    }
+
+    @Override
+    public void processInput(Conversation conversation, String input) {
+
+
     }
 }

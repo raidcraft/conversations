@@ -5,6 +5,7 @@ import de.raidcraft.api.conversations.ConversationProvider;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
@@ -183,18 +184,19 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
-    public void loadConversation(String identifier, ConfigurationSection config) {
+    public Optional<ConversationTemplate> loadConversation(String identifier, ConfigurationSection config) {
 
         if (conversations.containsKey(identifier)) {
             plugin.getLogger().warning("Tried to register duplicate conversation: " + identifier + " from " + ConfigUtil.getFileName(config));
-            return;
+            return Optional.of(conversations.get(identifier));
         }
         Optional<ConversationTemplate> template = getConversationTemplate(identifier, config);
         if (!template.isPresent()) {
             plugin.getLogger().warning("Could not find conversation template type " + config.getString("type") + " in " + ConfigUtil.getFileName(config));
-            return;
+            return Optional.empty();
         }
         conversations.put(identifier, template.get());
+        return template;
     }
 
     @Override
@@ -214,7 +216,7 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
-    public Optional<Conversation<Player>> addActiveConversation(Conversation<Player> conversation) {
+    public Optional<Conversation<Player>> setActiveConversation(Conversation<Player> conversation) {
 
         Optional<Conversation<Player>> activeConversation = removeActiveConversation(conversation.getEntity());
         activeConversations.put(conversation.getEntity().getUniqueId(), conversation);
@@ -224,7 +226,11 @@ public class ConversationManager implements ConversationProvider {
     @Override
     public Optional<Conversation<Player>> removeActiveConversation(Player player) {
 
-        return Optional.ofNullable(activeConversations.remove(player.getUniqueId()));
+        Conversation<Player> conversation = activeConversations.remove(player.getUniqueId());
+        if (conversation != null) {
+            conversation.abort(ConversationEndReason.START_NEW_CONVERSATION);
+        }
+        return Optional.ofNullable(conversation);
     }
 
     @Override

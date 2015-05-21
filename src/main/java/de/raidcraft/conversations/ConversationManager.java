@@ -48,6 +48,7 @@ public class ConversationManager implements ConversationProvider {
         registerConversationTemplate(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE, DefaultConversationTemplate.class);
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
+        registerConversationVariable("%name", conversation -> conversation.getEntity().getName());
         load();
     }
 

@@ -86,7 +86,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
             if (!activeConversation.get().getTemplate().equals(this)) {
                 activeConversation.get().abort(ConversationEndReason.START_NEW_CONVERSATION);
             } else {
-                Conversations.addActiveConversation(activeConversation.get());
+                Conversations.setActiveConversation(activeConversation.get());
                 return activeConversation.get();
             }
         }

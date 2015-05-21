@@ -92,7 +92,7 @@ public class PlayerConversation extends AbstractConversation<Player> {
 
         boolean start = super.start();
         if (start) {
-            Conversations.addActiveConversation(this);
+            Conversations.setActiveConversation(this);
         }
         return start;
     }

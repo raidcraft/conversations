@@ -7,6 +7,7 @@ import de.raidcraft.api.conversations.conversation.AbstractConversation;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
+import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.RCConversationsPlugin;
@@ -17,12 +18,17 @@ import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author mdoering
  */
 public class PlayerConversation extends AbstractConversation<Player> {
+
+    private static final Pattern LOCAL_VAR_MATCHER = Pattern.compile("^%\\[([\\s\\d\\w_\\-a-zA-Z\u00f6\u00e4\u00fc\u00d6\u00c4\u00dc\u00df]+)\\]$");
 
     public PlayerConversation(Player player, ConversationTemplate conversationTemplate, ConversationHost conversationHost) {
 
@@ -66,14 +72,27 @@ public class PlayerConversation extends AbstractConversation<Player> {
         if (variable.isPresent()) {
             set(variable.get().getName(), variable.get().getValue());
         }
-        return super.get(path, def);
+        Object result = super.get(path, def);
+        if (result != null && result instanceof String) {
+            String message = (String) result;
+            Matcher matcher = LOCAL_VAR_MATCHER.matcher(message);
+            if (matcher.matches()) {
+                String group = matcher.group(1);
+                if (group != null && isSet(group)) {
+                    result = get(group);
+                }
+            } else {
+                result = replaceVariable(message);
+            }
+        }
+        return result;
     }
 
     @Override
     public Conversation<Player> sendMessage(String... lines) {
 
         for (String line : lines) {
-            getEntity().sendMessage(line);
+            getEntity().sendMessage(replaceVariable(line));
         }
         return this;
     }
@@ -85,6 +104,14 @@ public class PlayerConversation extends AbstractConversation<Player> {
             line.send(getEntity());
         }
         return this;
+    }
+
+    private String replaceVariable(String message) {
+
+        for (Map.Entry<String, ConversationVariable> entry : Conversations.getConversationVariables().entrySet()) {
+            message = message.replace(entry.getKey(), entry.getValue().replace(this));
+        }
+        return message;
     }
 
     @Override

@@ -7,6 +7,7 @@ import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
+import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
@@ -36,6 +37,7 @@ public class ConversationManager implements ConversationProvider {
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends ConversationTemplate>> conversationTemplates = new CaseInsensitiveMap<>();
+    private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
 
@@ -181,6 +183,18 @@ public class ConversationManager implements ConversationProvider {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void registerConversationVariable(String name, ConversationVariable variable) {
+
+        variables.put(name, variable);
+    }
+
+    @Override
+    public Map<String, ConversationVariable> getConversationVariables() {
+
+        return variables;
     }
 
     @Override

@@ -7,12 +7,19 @@ import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.conversations.RCConversationsPlugin;
+import de.raidcraft.conversations.npc.NPCEdit;
+import de.raidcraft.conversations.npc.NPCEditSettings;
+import de.raidcraft.conversations.npc.NPC_Conservations_Manager;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author mdoering
@@ -40,7 +47,7 @@ public class ConversationCommands {
             aliases = {"rcaa"},
             desc = "Base command for RCConversations Admin Actions."
     )
-    @NestedCommand(NestedConversationCommands.class)
+    @NestedCommand(NestedConversationAdminCommands.class)
     public void convAdminBaseCommand(CommandContext args, CommandSender sender) {
 
 
@@ -55,16 +62,66 @@ public class ConversationCommands {
             this.plugin = plugin;
         }
 
-        private Conversation<Player> getActiveConversation(CommandSender sender) throws CommandException {
+        @Command(
+                aliases = {"create"},
+                desc = "Create conversation NPC",
+                usage = "<conversation> <npc name>",
+                min = 1,
+                flags = "n"
+        )
+        @CommandPermissions("rcconversations.npc.create")
+        public void createNPC(CommandContext context, CommandSender sender) throws CommandException {
+
+            Player player = (Player) sender;
+            String conversationName = context.getString(0);
+            String npcName = null;
+            if (context.argsLength() > 1) {
+                npcName = context.getJoinedStrings(1);
+            }
+
+            ConversationTemplate template = findTemplate(conversationName);
+            ConfigurationSection settings = template.getHostSettings();
+            npcName = settings.getString("npc-name", npcName);
+            settings.set("talk-nearby", context.hasFlag('n'));
+            if (npcName == null) {
+                throw new CommandException("Für diese Conversation muss ein NPC-Name mitgegeben werden!");
+            }
+
+            NPC_Conservations_Manager.getInstance().spawnPersistNpcConservations(player.getLocation(), npcName, plugin.getName(), conversationName);
+
+            sender.sendMessage(org.bukkit.ChatColor.GREEN + "Der NPC wurde erfolgreich erstellt!");
+        }
+
+        @Command(
+                aliases = {"edit"},
+                desc = "Edit conversation NPC",
+                usage = "-c neuer-conversation-name",
+                flags = "c:"
+        )
+        @CommandPermissions("rcconversations.npc.create")
+        public void editNPC(CommandContext context, CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
-                throw new CommandException("Conversation Holder must be a Player.");
+                sender.sendMessage(org.bukkit.ChatColor.RED + "Ingame command!");
+                return;
             }
-            Optional<Conversation<Player>> optional = plugin.getConversationManager().getActiveConversation((Player) sender);
-            if (!optional.isPresent()) {
-                throw new CommandException("Du musst erst eine Unterhaltung beginnen bevor du darauf antworten kannst.");
+            Player player = (Player) sender;
+            String newConversation = null;
+            NPCEdit npcedit = NPCEdit.getInstance(plugin);
+
+            if (!context.hasFlag('c') && !context.hasFlag('n') && npcedit.isRegistered(player.getUniqueId())) {
+
+                npcedit.removePlayer(player.getUniqueId());
+                sender.sendMessage(org.bukkit.ChatColor.YELLOW + "Conversation Editormodus verlassen!");
             }
-            return optional.get();
+
+            if (context.hasFlag('c')) {
+                newConversation = context.getFlag('c');
+                findTemplate(newConversation);
+            }
+
+            npcedit.addPlayer(player.getUniqueId(), new NPCEditSettings(newConversation));
+            sender.sendMessage(org.bukkit.ChatColor.GREEN + "Klicke einen NPC an um deine Änderungen zu übernehmen!");
         }
 
         @Command(
@@ -90,6 +147,33 @@ public class ConversationCommands {
             if (!conversation.changePage(args.getInteger(0))) {
                 throw new CommandException("Konnte nicht zu Seite " + args.getInteger(0) + " wechseln.");
             }
+        }
+
+        private Conversation<Player> getActiveConversation(CommandSender sender) throws CommandException {
+
+            if (!(sender instanceof Player)) {
+                throw new CommandException("Conversation Holder must be a Player.");
+            }
+            Optional<Conversation<Player>> optional = plugin.getConversationManager().getActiveConversation((Player) sender);
+            if (!optional.isPresent()) {
+                throw new CommandException("Du musst erst eine Unterhaltung beginnen bevor du darauf antworten kannst.");
+            }
+            return optional.get();
+        }
+
+        private ConversationTemplate findTemplate(String identifier) throws CommandException {
+
+            List<ConversationTemplate> templates = plugin.getConversationManager().findConversationTemplate(identifier);
+
+            if (templates.isEmpty()) {
+                throw new CommandException("Es gibt keine Conversation mit dem Namen: " + identifier);
+            }
+            if (templates.size() > 1) {
+                throw new CommandException("Mehrere Conversationen mit dem Namen " + identifier + " gefunden: " +
+                        templates.stream().map(ConversationTemplate::getIdentifier).collect(Collectors.joining(",")));
+            }
+
+            return templates.get(0);
         }
     }
 

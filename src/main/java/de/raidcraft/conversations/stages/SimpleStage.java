@@ -85,7 +85,7 @@ public class SimpleStage implements Stage {
                 return Optional.of(answer);
             }
         } catch (NumberFormatException e) {
-            getConversation().sendMessage(ChatColor.RED + "Bitte gebe eine Zahl ein oder klicke auf die Antwort.");
+            getConversation().sendMessage(ChatColor.GRAY + "Ich habe deine Antwort nicht verstanden: Bitte gebe eine Zahl ein oder klicke auf die Antwort.");
         }
         return Optional.empty();
     }

@@ -1,5 +1,7 @@
 package de.raidcraft.conversations;
 
+import de.raidcraft.RaidCraft;
+import de.raidcraft.api.Component;
 import de.raidcraft.api.config.SimpleConfiguration;
 import de.raidcraft.api.conversations.ConversationProvider;
 import de.raidcraft.api.conversations.Conversations;
@@ -15,16 +17,23 @@ import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
+import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
+import de.raidcraft.util.LocationUtil;
+import de.raidcraft.util.UUIDUtil;
 import mkremins.fanciful.FancyMessage;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,19 +41,22 @@ import java.util.UUID;
 /**
  * @author mdoering
  */
-public class ConversationManager implements ConversationProvider {
+public class ConversationManager implements ConversationProvider, Component {
 
     private final RCConversationsPlugin plugin;
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends ConversationTemplate>> conversationTemplates = new CaseInsensitiveMap<>();
+    private final Map<Class<?>, Constructor<? extends ConversationHost<?>>> hostTemplates = new HashMap<>();
     private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
+    private final Map<Object, ConversationHost<?>> cachedHosts = new HashMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
         this.plugin = plugin;
+        RaidCraft.registerComponent(ConversationManager.class, this);
         Conversations.enable(this);
         registerConversationTemplate(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE, DefaultConversationTemplate.class);
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
@@ -68,6 +80,7 @@ public class ConversationManager implements ConversationProvider {
     public void unload() {
 
         conversations.clear();
+        cachedHosts.clear();
     }
 
     private void loadConversations(File path, String base) {
@@ -80,6 +93,38 @@ public class ConversationManager implements ConversationProvider {
             } else {
                 loadConversation(base + file.getName().replace(".yml", ""), plugin.configure(new SimpleConfiguration<>(plugin, file)));
             }
+        }
+    }
+
+    public void checkDistance(Player player) {
+
+        Optional<Conversation<Player>> activeConversation = getActiveConversation(player);
+        if (!activeConversation.isPresent()) {
+            return;
+        }
+
+        Location hostLocation = activeConversation.get().getHost().getLocation();
+        if (hostLocation == null) {
+            activeConversation.get().abort(ConversationEndReason.OUT_OF_RANGE);
+            return;
+        }
+
+        int distance = LocationUtil.getBlockDistance(player.getLocation(), hostLocation);
+
+        if (distance < RaidCraft.getComponent(RCConversationsPlugin.class).getConfiguration().conversationAbortWarnRadius) {
+            activeConversation.get().set("distance-warned", false);
+            return;
+        }
+
+        if (!activeConversation.get().getBoolean("distance-warned") && distance == RaidCraft.getComponent(RCConversationsPlugin.class).getConfiguration().conversationAbortWarnRadius) {
+            player.sendMessage(ChatColor.GRAY + ChatColor.ITALIC.toString() + "Du entfernst dich von deinem Gesprächspartner!");
+            activeConversation.get().set("distance-warned", true);
+            return;
+        }
+
+        if (distance > RaidCraft.getComponent(RCConversationsPlugin.class).getConfiguration().conversationAbortRadius) {
+            player.sendMessage(ChatColor.GRAY + ChatColor.ITALIC.toString() + "Ihr versteht euch nicht mehr.");
+            activeConversation.get().abort(ConversationEndReason.OUT_OF_RANGE);
         }
     }
 
@@ -172,7 +217,7 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
-    public Optional<ConversationTemplate> getConversationTemplate(String identifier, ConfigurationSection config) {
+    public Optional<ConversationTemplate> createConversationTemplate(String identifier, ConfigurationSection config) {
 
         Constructor<? extends ConversationTemplate> constructor;
         if (config.isSet("type")) {
@@ -188,6 +233,65 @@ public class ConversationManager implements ConversationProvider {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public <T> void registerConversationHost(Class<T> type, Class<? extends ConversationHost<T>> host) {
+
+        if (hostTemplates.containsKey(type)) {
+            plugin.getLogger().warning(host.getCanonicalName() + ": ConversationHost with the type " + type.getCanonicalName()
+                    + " is already registered: " + hostTemplates.get(type).getClass().getCanonicalName());
+            return;
+        }
+        try {
+            Constructor<? extends ConversationHost<T>> constructor = host.getDeclaredConstructor(type, ConfigurationSection.class);
+            constructor.setAccessible(true);
+            hostTemplates.put(type, constructor);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ConversationHost<T>> createConversationHost(T type, ConfigurationSection config) {
+
+        if (cachedHosts.containsKey(type)) {
+            return Optional.of((ConversationHost<T>) cachedHosts.get(type));
+        }
+        try {
+            for (Map.Entry<Class<?>, Constructor<? extends ConversationHost<?>>> entry : hostTemplates.entrySet()) {
+                if (entry.getKey().isAssignableFrom(type.getClass())) {
+                    ConversationHost<T> host = (ConversationHost<T>) entry.getValue().newInstance(type, config);
+                    // lets load all saved player conversations
+                    List<TPlayerConversation> conversationList = plugin.getDatabase().find(TPlayerConversation.class).where()
+                            .eq("host", host.getUniqueId())
+                            .findList();
+                    for (TPlayerConversation savedConversation : conversationList) {
+                        Optional<ConversationTemplate> template = getLoadedConversationTemplate(savedConversation.getConversation());
+                        if (!template.isPresent()) {
+                            plugin.getLogger().warning("Host tried to load unknown Saved ConversationTemplate (" + savedConversation.getId() + ") "
+                                    + savedConversation.getConversation() + " for player "
+                                    + UUIDUtil.getNameFromUUID(savedConversation.getPlayer()) + ": " + ConfigUtil.getFileName(config));
+                        } else {
+                            host.setConversation(savedConversation.getPlayer(), template.get());
+                        }
+                    }
+                    cachedHosts.put(type, host);
+                    return Optional.of(host);
+                }
+            }
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ConversationHost<T>> getConversationHost(T type) {
+
+        return Optional.of((ConversationHost<T>) cachedHosts.get(type));
     }
 
     @Override
@@ -209,7 +313,7 @@ public class ConversationManager implements ConversationProvider {
             plugin.getLogger().warning("Tried to register duplicate conversation: " + identifier + " from " + ConfigUtil.getFileName(config));
             return Optional.of(conversations.get(identifier));
         }
-        Optional<ConversationTemplate> template = getConversationTemplate(identifier, config);
+        Optional<ConversationTemplate> template = createConversationTemplate(identifier, config);
         if (!template.isPresent()) {
             plugin.getLogger().warning("Could not find conversation template type " + config.getString("type") + " in " + ConfigUtil.getFileName(config));
             return Optional.empty();
@@ -219,7 +323,31 @@ public class ConversationManager implements ConversationProvider {
     }
 
     @Override
-    public Optional<Conversation<Player>> startConversation(Player player, ConversationHost conversationHost) {
+    public Optional<ConversationTemplate> getLoadedConversationTemplate(String identifier) {
+
+        return Optional.ofNullable(conversations.get(identifier));
+    }
+
+    @Override
+    public List<ConversationTemplate> findConversationTemplate(String identifier) {
+
+        ArrayList<ConversationTemplate> templates = new ArrayList<>();
+        Optional<ConversationTemplate> template = getLoadedConversationTemplate(identifier);
+        if (template.isPresent()) {
+            templates.add(template.get());
+            return templates;
+        }
+        identifier = identifier.toLowerCase().trim();
+        for (Map.Entry<String, ConversationTemplate> entry : conversations.entrySet()) {
+            if (entry.getKey().toLowerCase().endsWith(identifier)) {
+                templates.add(entry.getValue());
+            }
+        }
+        return templates;
+    }
+
+    @Override
+    public Optional<Conversation<Player>> startConversation(Player player, ConversationHost<?> conversationHost) {
 
         Optional<ConversationTemplate> conversation = conversationHost.getConversation(player);
         if (conversation.isPresent()) {

@@ -3,16 +3,17 @@ package de.raidcraft.conversations.conversations;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.action.requirement.Requirement;
+import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
-import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
-import de.raidcraft.api.conversations.Conversations;
+import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     private final String identifier;
     private final boolean persistant;
     private final int priority;
+    private final ConfigurationSection hostSettings;
     private final List<Requirement<?>> requirements;
     private final Map<String, StageTemplate> stages;
 
@@ -37,6 +39,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
         this.identifier = identifier;
         this.persistant = config.getBoolean("persistant", false);
         this.priority = config.getInt("priority", 1);
+        this.hostSettings = config.isConfigurationSection("settings") ? config.getConfigurationSection("settings") : new MemoryConfiguration();
         this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));
         this.stages = loadStages(config.getConfigurationSection("stages"));
         load(config.getConfigurationSection("args"));
@@ -93,5 +96,11 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
         Conversation<Player> conversation = createConversation(player, host);
         conversation.start();
         return conversation;
+    }
+
+    @Override
+    public int compareTo(ConversationTemplate o) {
+
+        return Integer.compare(getPriority(), o.getPriority());
     }
 }

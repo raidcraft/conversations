@@ -5,12 +5,13 @@ import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.config.ConfigurationBase;
 import de.raidcraft.api.config.Setting;
 import de.raidcraft.api.conversations.Conversations;
-import de.raidcraft.api.conversations.actions.AbortConversationAction;
-import de.raidcraft.api.conversations.actions.ChangeStageAction;
-import de.raidcraft.api.conversations.actions.EndConversationAction;
-import de.raidcraft.api.conversations.actions.SetVariableAction;
+import de.raidcraft.conversations.actions.AbortConversationAction;
+import de.raidcraft.conversations.actions.ChangeStageAction;
+import de.raidcraft.conversations.actions.ConversationTextAction;
+import de.raidcraft.conversations.actions.EndConversationAction;
+import de.raidcraft.conversations.actions.SetVariableAction;
 import de.raidcraft.api.conversations.conversation.Conversation;
-import de.raidcraft.api.conversations.requirements.CompareVariableRequirement;
+import de.raidcraft.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
 import de.raidcraft.api.quests.QuestConfigLoader;
@@ -85,6 +86,7 @@ public class RCConversationsPlugin extends BasePlugin {
     private void registerActionAPI() {
 
         ActionAPI.register(this).global()
+                .action(new ConversationTextAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)
                 .action(new EndConversationAction(), Conversation.class)
                 .action(new AbortConversationAction(), Conversation.class)

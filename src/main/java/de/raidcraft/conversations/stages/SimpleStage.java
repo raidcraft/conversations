@@ -42,6 +42,12 @@ public class SimpleStage implements Stage {
     }
 
     @Override
+    public List<Answer> getAnswers() {
+
+        return answers.stream().flatMap(List::stream).collect(Collectors.toList());
+    }
+
+    @Override
     public Stage clearAnswers() {
 
         answers.clear();

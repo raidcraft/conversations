@@ -22,6 +22,8 @@ import de.raidcraft.conversations.listener.PlayerListener;
 import de.raidcraft.conversations.npc.ConversationsTrait;
 import de.raidcraft.conversations.npc.NPCListener;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
+import de.raidcraft.conversations.tables.TPersistentHostOptions;
+import de.raidcraft.conversations.tables.TPersistentHosts;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
 import lombok.Getter;
@@ -100,6 +102,8 @@ public class RCConversationsPlugin extends BasePlugin {
         ArrayList<Class<?>> classes = new ArrayList<>();
         classes.add(TPlayerConversation.class);
         classes.add(TPlayerVariable.class);
+        classes.add(TPersistentHostOptions.class);
+        classes.add(TPersistentHosts.class);
         return classes;
     }
 

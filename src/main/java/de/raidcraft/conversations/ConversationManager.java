@@ -2,6 +2,7 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.Component;
+import de.raidcraft.api.action.flow.Flow;
 import de.raidcraft.api.config.SimpleConfiguration;
 import de.raidcraft.api.conversations.ConversationProvider;
 import de.raidcraft.api.conversations.Conversations;
@@ -138,6 +139,28 @@ public class ConversationManager implements ConversationProvider, Component {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<Answer> createAnswers(StageTemplate template, ConfigurationSection config) {
+
+        List<Answer> answers = new ArrayList<>();
+        if (config == null) return answers;
+        // lets process our flow answers first
+        answers.addAll(Flow.parseAnswers(template, config));
+        // and now the block statements
+        for (String key : config.getKeys(false)) {
+            // handled by flow
+            if (config.isList(key)) continue;
+            ConfigurationSection section = config.getConfigurationSection(key);
+            Optional<Answer> answer = Conversations.getAnswer(template, section);
+            if (answer.isPresent()) {
+                answers.add(answer.get());
+            } else {
+                RaidCraft.LOGGER.warning("Unknown answer type " + section.getString("type") + " in " + ConfigUtil.getFileName(config));
+            }
+        }
+        return answers;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package de.raidcraft.conversations.stages;
 
-import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.requirement.Requirement;
@@ -10,11 +9,9 @@ import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
-import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,18 +45,7 @@ public abstract class ConfiguredStageTemplate implements StageTemplate {
 
     protected List<Answer> loadAnswers(ConfigurationSection config) {
 
-        List<Answer> answers = new ArrayList<>();
-        if (config == null) return answers;
-        for (String key : config.getKeys(false)) {
-            ConfigurationSection section = config.getConfigurationSection(key);
-            Optional<Answer> answer = Conversations.getAnswer(this, section);
-            if (answer.isPresent()) {
-                answers.add(answer.get());
-            } else {
-                RaidCraft.LOGGER.warning("Unknown answer type " + section.getString("type") + " in " + ConfigUtil.getFileName(config));
-            }
-        }
-        return answers;
+        return Conversations.createAnswers(this, config);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package de.raidcraft.conversations.answers;
 
+import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.answer.Answer;
@@ -74,6 +75,18 @@ public class SimpleAnswer implements Answer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public Answer addRequirement(Requirement<?> requirement) {
+
+        if (ActionAPI.matchesType(requirement, Conversation.class)) {
+            addConversationRequirement((Requirement<Conversation>) requirement);
+        } else if (ActionAPI.matchesType(requirement, Player.class)) {
+            addPlayerRequirement((Requirement<Player>) requirement);
+        }
+        return this;
+    }
+
+    @Override
     public Answer addConversationRequirement(Requirement<Conversation> conversationRequirement) {
 
         requirements.add(conversationRequirement);
@@ -84,6 +97,18 @@ public class SimpleAnswer implements Answer {
     public Answer addPlayerRequirement(Requirement<Player> playerRequirement) {
 
         requirements.add(playerRequirement);
+        return this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Answer addAction(Action<?> action) {
+
+        if (ActionAPI.matchesType(action, Conversation.class)) {
+            addConversationAction((Action<Conversation>) action);
+        } else if (ActionAPI.matchesType(action, Player.class)) {
+            addPlayerAction((Action<Player>) action);
+        }
         return this;
     }
 

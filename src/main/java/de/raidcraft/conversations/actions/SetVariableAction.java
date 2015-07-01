@@ -4,34 +4,12 @@ import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 
 /**
  * @author mdoering
  */
 @RequiredArgsConstructor
 public class SetVariableAction implements Action<Conversation> {
-
-    private final String variable;
-    private final Object value;
-    private final boolean local;
-
-    public SetVariableAction() {
-
-        variable = null;
-        value = null;
-        local = true;
-    }
-
-    @Override
-    public void accept(Conversation type) {
-
-        MemoryConfiguration config = new MemoryConfiguration();
-        config.set("variable", variable);
-        config.set("value", value);
-        config.set("local", local);
-        accept(type, config);
-    }
 
     @Override
     @Information(

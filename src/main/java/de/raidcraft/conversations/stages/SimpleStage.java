@@ -77,6 +77,40 @@ public class SimpleStage implements Stage {
     }
 
     @Override
+    public Stage showAnswers() {
+
+        while (currentPage >= this.answers.size()) currentPage--;
+
+        List<Answer> answers = this.answers.get(currentPage);
+        int i;
+        for (i = 0; i < answers.size(); i++) {
+            Answer answer = answers.get(i);
+            FancyMessage message;
+            if (answer.getMessage().isPresent()) {
+                message = answer.getMessage().get();
+            } else {
+                message = new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
+                        .then(answer.getText()).color(answer.getColor());
+            }
+            getConversation().sendMessage(message.command("/conversations answer " + (i + 1)));
+        }
+        if (this.answers.size() > 1) {
+            if (currentPage > 1) {
+                getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
+                        .then("Zurück zu Seite " + (currentPage)).color(ChatColor.GRAY)
+                        .command("/conversations page " + (currentPage - 1)));
+                i++;
+            }
+            if (currentPage > 1 && currentPage < this.answers.size() - 1) {
+                getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
+                        .then("Nächste Seite " + (currentPage + 1)).color(ChatColor.GRAY)
+                        .command("/conversations page " + (currentPage + 1)));
+            }
+        }
+        return this;
+    }
+
+    @Override
     public Optional<Answer> getAnswer(String input) {
 
         try {
@@ -124,37 +158,8 @@ public class SimpleStage implements Stage {
             getConversation().sendMessage(getText().get());
         }
         RCConversationStageTriggeredEvent event = new RCConversationStageTriggeredEvent(getConversation(), this);
-        if (this.answers.isEmpty()) {
-            RaidCraft.callEvent(event);
-            return this;
-        }
-        while (currentPage >= this.answers.size()) currentPage--;
-
-        List<Answer> answers = this.answers.get(currentPage);
-        int i;
-        for (i = 0; i < answers.size(); i++) {
-            Answer answer = answers.get(i);
-            FancyMessage message;
-            if (answer.getMessage().isPresent()) {
-                message = answer.getMessage().get();
-            } else {
-                message = new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
-                        .then(answer.getText()).color(answer.getColor());
-            }
-            getConversation().sendMessage(message.command("/conversations answer " + (i + 1)));
-        }
-        if (this.answers.size() > 1) {
-            if (currentPage > 1) {
-                getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
-                        .then("Zurück zu Seite " + (currentPage)).color(ChatColor.GRAY)
-                        .command("/conversations page " + (currentPage - 1)));
-                i++;
-            }
-            if (currentPage > 1 && currentPage < this.answers.size() - 1) {
-                getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
-                        .then("Nächste Seite " + (currentPage + 1)).color(ChatColor.GRAY)
-                        .command("/conversations page " + (currentPage + 1)));
-            }
+        if (!this.answers.isEmpty() && getTemplate().isAutoShowingAnswers()) {
+            showAnswers();
         }
         RaidCraft.callEvent(event);
         return this;

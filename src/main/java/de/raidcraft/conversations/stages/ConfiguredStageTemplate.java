@@ -28,6 +28,7 @@ public abstract class ConfiguredStageTemplate implements StageTemplate {
     private final List<Action<?>> actions;
     private final List<Action<?>> randomActions;
     private final List<Answer> answers;
+    private final boolean autoShowingAnswers;
     protected final ConfigurationSection config;
 
     public ConfiguredStageTemplate(String identifier, ConversationTemplate conversationTemplate, ConfigurationSection config) {
@@ -40,6 +41,7 @@ public abstract class ConfiguredStageTemplate implements StageTemplate {
         this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
         this.randomActions = ActionAPI.createActions(config.getConfigurationSection("random-actions"));
         this.answers = loadAnswers(config.getConfigurationSection("answers"));
+        this.autoShowingAnswers = config.getBoolean("auto-show-answers", true);
         load(config.getConfigurationSection("args"));
     }
 

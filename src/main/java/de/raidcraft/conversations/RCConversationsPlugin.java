@@ -11,6 +11,7 @@ import de.raidcraft.conversations.actions.ConversationTextAction;
 import de.raidcraft.conversations.actions.EndConversationAction;
 import de.raidcraft.conversations.actions.SetVariableAction;
 import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.conversations.actions.ShowAnswersAction;
 import de.raidcraft.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
@@ -88,6 +89,7 @@ public class RCConversationsPlugin extends BasePlugin {
     private void registerActionAPI() {
 
         ActionAPI.register(this).global()
+                .action(new ShowAnswersAction(), Conversation.class)
                 .action(new ConversationTextAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)
                 .action(new EndConversationAction(), Conversation.class)

@@ -2,6 +2,7 @@ package de.raidcraft.conversations.stages;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.action.Action;
+import de.raidcraft.api.action.action.ActionHolder;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.events.RCConversationStageTriggeredEvent;
@@ -13,6 +14,7 @@ import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +41,12 @@ public class SimpleStage implements Stage {
     public Collection<Action<?>> getActions() {
 
         return getTemplate().getActions();
+    }
+
+    @Override
+    public List<Action<?>> getRandomActions() {
+
+        return getTemplate().getRandomActions();
     }
 
     @Override
@@ -158,6 +166,12 @@ public class SimpleStage implements Stage {
         trigger();
         if (executeActions) {
             getActions(getConversation().getEntity().getClass()).forEach(action -> action.accept(getConversation().getEntity()));
+            List<Action<Object>> randomActions = ActionHolder.getFilteredActions(getRandomActions(), getConversation().getEntity().getClass());
+            Collections.shuffle(randomActions);
+            Optional<Action<Object>> any = randomActions.stream().findAny();
+            if (any.isPresent()) {
+                any.get().accept(getConversation().getEntity());
+            }
         }
         return this;
     }

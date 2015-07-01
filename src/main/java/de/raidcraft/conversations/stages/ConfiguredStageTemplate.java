@@ -26,6 +26,7 @@ public abstract class ConfiguredStageTemplate implements StageTemplate {
     private final Optional<String[]> text;
     private final List<Requirement<?>> requirements;
     private final List<Action<?>> actions;
+    private final List<Action<?>> randomActions;
     private final List<Answer> answers;
     protected final ConfigurationSection config;
 
@@ -37,6 +38,7 @@ public abstract class ConfiguredStageTemplate implements StageTemplate {
         this.text = config.getString("text") == null ? Optional.empty() : Optional.of(config.getString("text").split("\\|"));
         this.requirements = ActionAPI.createRequirements(getConversationTemplate().getIdentifier() + "." + identifier, config.getConfigurationSection("requirements"));
         this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
+        this.randomActions = ActionAPI.createActions(config.getConfigurationSection("random-actions"));
         this.answers = loadAnswers(config.getConfigurationSection("answers"));
         load(config.getConfigurationSection("args"));
     }

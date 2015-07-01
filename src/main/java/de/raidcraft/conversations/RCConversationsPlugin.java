@@ -12,6 +12,7 @@ import de.raidcraft.conversations.actions.EndConversationAction;
 import de.raidcraft.conversations.actions.SetVariableAction;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.conversations.actions.ShowAnswersAction;
+import de.raidcraft.conversations.actions.StartConversationAction;
 import de.raidcraft.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
@@ -92,6 +93,7 @@ public class RCConversationsPlugin extends BasePlugin {
                 .action(new ShowAnswersAction(), Conversation.class)
                 .action(new ConversationTextAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)
+                .action(new StartConversationAction())
                 .action(new EndConversationAction(), Conversation.class)
                 .action(new AbortConversationAction(), Conversation.class)
                 .action(new SetVariableAction(), Conversation.class)

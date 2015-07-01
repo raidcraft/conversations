@@ -52,7 +52,7 @@ public class ConversationManager implements ConversationProvider, Component {
     private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
-    private final Map<Object, ConversationHost<?>> cachedHosts = new HashMap<>();
+    private final Map<String, ConversationHost<?>> cachedHosts = new HashMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
@@ -277,10 +277,10 @@ public class ConversationManager implements ConversationProvider, Component {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<ConversationHost<T>> createConversationHost(T type, ConfigurationSection config) {
+    public <T> Optional<ConversationHost<T>> createConversationHost(String identifier, T type, ConfigurationSection config) {
 
-        if (cachedHosts.containsKey(type)) {
-            return Optional.of((ConversationHost<T>) cachedHosts.get(type));
+        if (cachedHosts.containsKey(identifier)) {
+            return Optional.of((ConversationHost<T>) cachedHosts.get(identifier));
         }
         try {
             for (Map.Entry<Class<?>, Constructor<? extends ConversationHost<?>>> entry : hostTemplates.entrySet()) {
@@ -300,7 +300,7 @@ public class ConversationManager implements ConversationProvider, Component {
                             host.setConversation(savedConversation.getPlayer(), template.get());
                         }
                     }
-                    cachedHosts.put(type, host);
+                    cachedHosts.put(identifier, host);
                     return Optional.of(host);
                 }
             }
@@ -311,10 +311,9 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> Optional<ConversationHost<T>> getConversationHost(T type) {
+    public Optional<ConversationHost<?>> getConversationHost(String id) {
 
-        return Optional.of((ConversationHost<T>) cachedHosts.get(type));
+        return Optional.ofNullable(cachedHosts.get(id));
     }
 
     @Override

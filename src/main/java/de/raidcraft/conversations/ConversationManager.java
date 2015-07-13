@@ -90,7 +90,7 @@ public class ConversationManager implements ConversationProvider, Component {
         if (files == null) return;
         for (File file : files) {
             if (file.isDirectory()) {
-                loadConversations(path, base + file.getName() + ".");
+                loadConversations(file, base + file.getName() + ".");
             } else {
                 loadConversation(base + file.getName().replace(".yml", ""), plugin.configure(new SimpleConfiguration<>(plugin, file)));
             }

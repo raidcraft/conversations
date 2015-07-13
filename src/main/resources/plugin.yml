@@ -1,5 +1,5 @@
 main: de.raidcraft.conversations.RCConversationsPlugin
-name: RCConversations 2.0
+name: RCConversations2
 version: ${project.version}#${build.number}
 description: Provides conversation with players.
 author: Silthus

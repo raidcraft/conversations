@@ -1,0 +1,9 @@
+main: de.raidcraft.conversations.RCConversationsPlugin
+name: RCConversations
+version: ${project.version}#${build.number}
+description: Provides conversation with players.
+author: Silthus
+website: http://www.raid-craft.de
+depend: [RaidCraft-API]
+softdepend: [Citizens]
+database: true

@@ -259,7 +259,7 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public <T> void registerConversationHost(Class<T> type, Class<? extends ConversationHost<T>> host) {
+    public void registerConversationHost(Class<?> type, Class<? extends ConversationHost<?>> host) {
 
         if (hostTemplates.containsKey(type)) {
             plugin.getLogger().warning(host.getCanonicalName() + ": ConversationHost with the type " + type.getCanonicalName()
@@ -267,7 +267,7 @@ public class ConversationManager implements ConversationProvider, Component {
             return;
         }
         try {
-            Constructor<? extends ConversationHost<T>> constructor = host.getDeclaredConstructor(type, ConfigurationSection.class);
+            Constructor<? extends ConversationHost<?>> constructor = host.getDeclaredConstructor(type, ConfigurationSection.class);
             constructor.setAccessible(true);
             hostTemplates.put(type, constructor);
         } catch (NoSuchMethodException e) {
@@ -314,6 +314,26 @@ public class ConversationManager implements ConversationProvider, Component {
     public Optional<ConversationHost<?>> getConversationHost(String id) {
 
         return Optional.ofNullable(cachedHosts.get(id));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ConversationHost<T>> getConversationHost(T host) {
+
+        for (ConversationHost<?> conversationHost : cachedHosts.values()) {
+            if (conversationHost.getType().equals(host)) {
+                return Optional.of((ConversationHost<T>) conversationHost);
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public <T> Optional<ConversationHost<T>> getOrCreateConversationHost(T host, ConfigurationSection config) {
+
+        Optional<ConversationHost<T>> conversationHost = getConversationHost(host);
+        if (conversationHost.isPresent()) return conversationHost;
+        return createConversationHost(UUID.randomUUID().toString(), host, config);
     }
 
     @Override

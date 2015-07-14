@@ -89,6 +89,14 @@ public class ConversationCommands {
                 throw new CommandException("Für diese Conversation muss ein NPC Name angegeben werden!");
             }
 
+            ConfigurationSection location = settings.createSection("location");
+            location.set("world", player.getWorld().getName());
+            location.set("x", player.getLocation().getBlockX());
+            location.set("y", player.getLocation().getBlockY());
+            location.set("z", player.getLocation().getBlockZ());
+            location.set("pitch", player.getLocation().getPitch());
+            location.set("yaw", player.getLocation().getYaw());
+
             Optional<ConversationHost<?>> conversationHost = plugin.getConversationManager().createConversationHost(settings);
             if (!conversationHost.isPresent()) {
                 throw new CommandException("Unable to create conversation host!");

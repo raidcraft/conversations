@@ -58,7 +58,7 @@ public class RCConversationsPlugin extends BasePlugin {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 
-                getConversationManager().loadConversation(id, config);
+                getConversationManager().createConversationHost(id, config);
             }
         });
 

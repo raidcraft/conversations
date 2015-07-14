@@ -12,6 +12,7 @@ import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
+import de.raidcraft.api.conversations.host.ConversationHostFactory;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
 import de.raidcraft.conversations.answers.InputAnswer;
@@ -48,11 +49,11 @@ public class ConversationManager implements ConversationProvider, Component {
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends ConversationTemplate>> conversationTemplates = new CaseInsensitiveMap<>();
-    private final Map<Class<?>, Constructor<? extends ConversationHost<?>>> hostTemplates = new HashMap<>();
+    private final Map<String, ConversationHostFactory<?>> hostFactories = new CaseInsensitiveMap<>();
     private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
-    private final Map<String, ConversationHost<?>> cachedHosts = new HashMap<>();
+    private final Map<String, ConversationHost<?>> cachedHosts = new CaseInsensitiveMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
@@ -259,55 +260,93 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public void registerConversationHost(Class<?> type, Class<? extends ConversationHost<?>> host) {
+    public void registerHostFactory(String identifier, ConversationHostFactory<?> factory) {
 
-        if (hostTemplates.containsKey(type)) {
-            plugin.getLogger().warning(host.getCanonicalName() + ": ConversationHost with the type " + type.getCanonicalName()
-                    + " is already registered: " + hostTemplates.get(type).getClass().getCanonicalName());
+        if (hostFactories.containsKey(identifier)) {
+            plugin.getLogger().warning("HostFactory " + identifier + " is already registered: "
+                    + hostFactories.get(identifier).getClass().getCanonicalName() + ". " +
+                    "Cannot register duplicate factory: " + factory.getClass().getCanonicalName());
             return;
         }
-        try {
-            Constructor<? extends ConversationHost<?>> constructor = host.getDeclaredConstructor(type, ConfigurationSection.class);
-            constructor.setAccessible(true);
-            hostTemplates.put(type, constructor);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+        hostFactories.put(identifier, factory);
+    }
+
+    private void loadSavedHostConversations(ConversationHost host) {
+
+        // lets load all saved player conversations
+        List<TPlayerConversation> conversationList = plugin.getDatabase().find(TPlayerConversation.class).where()
+                .eq("host", host.getUniqueId())
+                .findList();
+        for (TPlayerConversation savedConversation : conversationList) {
+            Optional<ConversationTemplate> template = getLoadedConversationTemplate(savedConversation.getConversation());
+            if (!template.isPresent()) {
+                plugin.getLogger().warning("Host tried to load unknown Saved ConversationTemplate (" + savedConversation.getId() + ") "
+                        + savedConversation.getConversation() + " for player "
+                        + UUIDUtil.getNameFromUUID(savedConversation.getPlayer()));
+            } else {
+                host.setConversation(savedConversation.getPlayer(), template.get());
+            }
         }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> Optional<ConversationHost<T>> createConversationHost(String identifier, T type, ConfigurationSection config) {
+    public Optional<ConversationHost<?>> createConversationHost(String identifier, String type, Location location) {
 
         if (cachedHosts.containsKey(identifier)) {
-            return Optional.of((ConversationHost<T>) cachedHosts.get(identifier));
+            return Optional.of(cachedHosts.get(identifier));
         }
-        try {
-            for (Map.Entry<Class<?>, Constructor<? extends ConversationHost<?>>> entry : hostTemplates.entrySet()) {
-                if (entry.getKey().isAssignableFrom(type.getClass())) {
-                    ConversationHost<T> host = (ConversationHost<T>) entry.getValue().newInstance(type, config);
-                    // lets load all saved player conversations
-                    List<TPlayerConversation> conversationList = plugin.getDatabase().find(TPlayerConversation.class).where()
-                            .eq("host", host.getUniqueId())
-                            .findList();
-                    for (TPlayerConversation savedConversation : conversationList) {
-                        Optional<ConversationTemplate> template = getLoadedConversationTemplate(savedConversation.getConversation());
-                        if (!template.isPresent()) {
-                            plugin.getLogger().warning("Host tried to load unknown Saved ConversationTemplate (" + savedConversation.getId() + ") "
-                                    + savedConversation.getConversation() + " for player "
-                                    + UUIDUtil.getNameFromUUID(savedConversation.getPlayer()) + ": " + ConfigUtil.getFileName(config));
-                        } else {
-                            host.setConversation(savedConversation.getPlayer(), template.get());
-                        }
-                    }
-                    cachedHosts.put(identifier, host);
-                    return Optional.of(host);
-                }
-            }
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+        if (!hostFactories.containsKey(type)) {
+            plugin.getLogger().warning("Could not find host factory " + type);
+            return Optional.empty();
         }
-        return Optional.empty();
+        ConversationHostFactory<?> factory = hostFactories.get(type);
+        ConversationHost<?> conversationHost = factory.create(location);
+        // load all saved player conversations and cache the host
+        loadSavedHostConversations(conversationHost);
+        cachedHosts.put(identifier, conversationHost);
+
+        return Optional.of(conversationHost);
+    }
+
+    @Override
+    public Optional<ConversationHost<?>> createConversationHost(String identifier, ConfigurationSection config) {
+
+        if (cachedHosts.containsKey(identifier)) {
+            return Optional.of(cachedHosts.get(identifier));
+        }
+        String type = config.getString("type");
+        if (!hostFactories.containsKey(type)) {
+            plugin.getLogger().warning("Could not find host factory " + type + " in " + ConfigUtil.getFileName(config));
+            return Optional.empty();
+        }
+        Location location = ConfigUtil.getLocationFromConfig(config.getConfigurationSection("location"));
+        if (location == null) {
+            plugin.getLogger().warning("Location in " + ConfigUtil.getFileName(config) + " not defined!");
+            return Optional.empty();
+        }
+        Optional<ConversationHost<?>> host = createConversationHost(identifier, type, location);
+        if (host.isPresent()) {
+            host.get().load(config.getConfigurationSection("args"));
+        }
+        return host;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Optional<ConversationHost<T>> createConversationHost(T host, ConfigurationSection config) {
+
+        String type = config.getString("type");
+        if (!hostFactories.containsKey(type)) {
+            plugin.getLogger().warning("Could not find host factory " + type + " in " + ConfigUtil.getFileName(config));
+            return Optional.empty();
+        }
+        ConversationHostFactory<T> factory = (ConversationHostFactory<T>) hostFactories.get(type);
+        ConversationHost<T> conversationHost = factory.create(host);
+        // load all saved player conversations
+        conversationHost.load(config.getConfigurationSection("args"));
+        loadSavedHostConversations(conversationHost);
+
+        return Optional.of(conversationHost);
     }
 
     @Override
@@ -333,7 +372,7 @@ public class ConversationManager implements ConversationProvider, Component {
 
         Optional<ConversationHost<T>> conversationHost = getConversationHost(host);
         if (conversationHost.isPresent()) return conversationHost;
-        return createConversationHost(UUID.randomUUID().toString(), host, config);
+        return createConversationHost(host, config);
     }
 
     @Override

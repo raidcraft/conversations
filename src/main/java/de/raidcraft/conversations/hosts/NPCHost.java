@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.Equipment;
+import net.citizensnpcs.trait.CurrentLocation;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -28,6 +29,8 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         public ConversationHost<NPC> create(Location location) {
 
             ConversationHost<NPC> host = new NPCHost(ConversationNPCManager.createNPC("UNNAMED"));
+            host.getType().addTrait(CurrentLocation.class);
+            host.getType().getTrait(CurrentLocation.class).setLocation(location);
             host.getType().spawn(location);
             return host;
         }

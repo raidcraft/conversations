@@ -104,6 +104,9 @@ public class ConversationCommands {
 
             ConversationHost<?> host = conversationHost.get();
             TPersistentHost persistentHost = new TPersistentHost(player, host);
+            persistentHost.setHostType("NPC");
+            persistentHost.setConversation(conversationName);
+
             for (String key : settings.getKeys(true)) {
                 TPersistentHostOption option = new TPersistentHostOption();
                 option.setHost(persistentHost);

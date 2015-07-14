@@ -1,4 +1,4 @@
-package de.raidcraft.conversations.npc;
+package de.raidcraft.conversations.listener;
 
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.conversations.RCConversationsPlugin;
@@ -16,8 +16,6 @@ import java.util.Optional;
 public class NPCListener implements Listener {
 
     private RCConversationsPlugin plugin;
-    // TODO: config
-    private final int maxInteractDistance = 4;
 
     public NPCListener(RCConversationsPlugin plugin) {
 

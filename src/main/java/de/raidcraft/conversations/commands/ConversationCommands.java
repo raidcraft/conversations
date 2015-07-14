@@ -8,10 +8,10 @@ import com.sk89q.minecraft.util.commands.NestedCommand;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
+import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.conversations.RCConversationsPlugin;
-import de.raidcraft.conversations.npc.NPCEdit;
-import de.raidcraft.conversations.npc.NPCEditSettings;
-import de.raidcraft.conversations.npc.NPC_Conservations_Manager;
+import de.raidcraft.conversations.tables.TPersistentHost;
+import de.raidcraft.conversations.tables.TPersistentHostOption;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -81,47 +81,31 @@ public class ConversationCommands {
 
             ConversationTemplate template = findTemplate(conversationName);
             ConfigurationSection settings = template.getHostSettings();
-            npcName = settings.getString("npc-name", npcName);
-            settings.set("talk-nearby", context.hasFlag('n'));
-            if (npcName == null) {
-                throw new CommandException("Für diese Conversation muss ein NPC-Name mitgegeben werden!");
+            settings.set("type", "NPC");
+            if (npcName != null) settings.set("name", npcName);
+            if (context.hasFlag('n')) settings.set("talk-close", true);
+
+            if (!settings.isSet("name")) {
+                throw new CommandException("Für diese Conversation muss ein NPC Name angegeben werden!");
             }
 
-            NPC_Conservations_Manager.getInstance().spawnPersistNpcConservations(player.getLocation(), npcName, plugin.getName(), conversationName);
+            Optional<ConversationHost<?>> conversationHost = plugin.getConversationManager().createConversationHost(settings);
+            if (!conversationHost.isPresent()) {
+                throw new CommandException("Unable to create conversation host!");
+            }
+
+            ConversationHost<?> host = conversationHost.get();
+            TPersistentHost persistentHost = new TPersistentHost(player, host);
+            for (String key : settings.getKeys(true)) {
+                TPersistentHostOption option = new TPersistentHostOption();
+                option.setHost(persistentHost);
+                option.setOption(key);
+                option.setValue(settings.getString(key));
+                persistentHost.getOptions().add(option);
+            }
+            plugin.getDatabase().save(persistentHost);
 
             sender.sendMessage(org.bukkit.ChatColor.GREEN + "Der NPC wurde erfolgreich erstellt!");
-        }
-
-        @Command(
-                aliases = {"edit"},
-                desc = "Edit conversation NPC",
-                usage = "-c neuer-conversation-name",
-                flags = "c:"
-        )
-        @CommandPermissions("rcconversations.npc.create")
-        public void editNPC(CommandContext context, CommandSender sender) throws CommandException {
-
-            if (!(sender instanceof Player)) {
-                sender.sendMessage(org.bukkit.ChatColor.RED + "Ingame command!");
-                return;
-            }
-            Player player = (Player) sender;
-            String newConversation = null;
-            NPCEdit npcedit = NPCEdit.getInstance(plugin);
-
-            if (!context.hasFlag('c') && !context.hasFlag('n') && npcedit.isRegistered(player.getUniqueId())) {
-
-                npcedit.removePlayer(player.getUniqueId());
-                sender.sendMessage(org.bukkit.ChatColor.YELLOW + "Conversation Editormodus verlassen!");
-            }
-
-            if (context.hasFlag('c')) {
-                newConversation = context.getFlag('c');
-                findTemplate(newConversation);
-            }
-
-            npcedit.addPlayer(player.getUniqueId(), new NPCEditSettings(newConversation));
-            sender.sendMessage(org.bukkit.ChatColor.GREEN + "Klicke einen NPC an um deine Änderungen zu übernehmen!");
         }
 
         @Command(

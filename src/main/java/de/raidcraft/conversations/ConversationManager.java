@@ -19,6 +19,8 @@ import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
+import de.raidcraft.conversations.tables.TPersistentHost;
+import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
@@ -28,6 +30,7 @@ import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -300,12 +303,7 @@ public class ConversationManager implements ConversationProvider, Component {
             return Optional.empty();
         }
         ConversationHostFactory<?> factory = hostFactories.get(type);
-        ConversationHost<?> conversationHost = factory.create(location);
-        // load all saved player conversations and cache the host
-        loadSavedHostConversations(conversationHost);
-        cachedHosts.put(identifier, conversationHost);
-
-        return Optional.of(conversationHost);
+        return Optional.of(factory.create(location));
     }
 
     @Override
@@ -326,7 +324,9 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         Optional<ConversationHost<?>> host = createConversationHost(identifier, type, location);
         if (host.isPresent()) {
-            host.get().load(config.getConfigurationSection("args"));
+            host.get().load(config);
+            loadSavedHostConversations(host.get());
+            cachedHosts.put(identifier, host.get());
         }
         return host;
     }
@@ -343,10 +343,36 @@ public class ConversationManager implements ConversationProvider, Component {
         ConversationHostFactory<T> factory = (ConversationHostFactory<T>) hostFactories.get(type);
         ConversationHost<T> conversationHost = factory.create(host);
         // load all saved player conversations
-        conversationHost.load(config.getConfigurationSection("args"));
+        conversationHost.load(config);
         loadSavedHostConversations(conversationHost);
 
         return Optional.of(conversationHost);
+    }
+
+    public Optional<ConversationHost<?>> createConversationHost(TPersistentHost host) {
+
+        Optional<Location> location = host.getLocation();
+        if (location.isPresent()) {
+            Optional<ConversationHost<?>> conversationHost = createConversationHost(UUID.randomUUID().toString(), host.getHostType(), location.get());
+            if (!conversationHost.isPresent()) {
+                plugin.getLogger().warning("unable to load persistant host " + host.getId() + " at " + location.get());
+            } else {
+                ConversationHost<?> loadedHost = conversationHost.get();
+                Optional<ConversationTemplate> conversationTemplate = getLoadedConversationTemplate(host.getConversation());
+                if (conversationTemplate.isPresent()) {
+                    loadedHost.addDefaultConversation(conversationTemplate.get());
+                } else {
+                    plugin.getLogger().warning("unable to find default conversation " + host.getConversation() + " of persistant host " + host.getId());
+                }
+                MemoryConfiguration config = new MemoryConfiguration();
+                for (TPersistentHostOption option : host.getOptions()) {
+                    config.set(option.getOption(), option.getValue());
+                }
+                loadedHost.load(config);
+            }
+            return conversationHost;
+        }
+        return Optional.empty();
     }
 
     @Override

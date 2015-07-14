@@ -4,7 +4,6 @@ import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 /**
@@ -14,14 +13,9 @@ import org.bukkit.entity.Player;
 @EqualsAndHashCode(callSuper = true)
 public class PlayerHost extends AbstractConversationHost<Player> {
 
-    public PlayerHost(Player player, ConfigurationSection config) {
+    public PlayerHost(Player player) {
 
-        super(player.getUniqueId(), player, config);
-    }
-
-    @Override
-    protected void load(ConfigurationSection config) {
-        //TODO: implement
+        super(player.getUniqueId(), player);
     }
 
     @Override

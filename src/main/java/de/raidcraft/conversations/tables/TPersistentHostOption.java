@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Setter
 @Entity
 @Table(name = "conversation_persistent_host_options")
-public class TPersistentHostOptions {
+public class TPersistentHostOption {
 
     @Id
     private int id;
@@ -20,5 +20,5 @@ public class TPersistentHostOptions {
     private String value;
 
     @ManyToOne
-    private TPersistentHosts host;
+    private TPersistentHost host;
 }

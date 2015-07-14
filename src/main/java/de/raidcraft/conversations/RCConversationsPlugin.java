@@ -5,27 +5,27 @@ import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.config.ConfigurationBase;
 import de.raidcraft.api.config.Setting;
 import de.raidcraft.api.conversations.Conversations;
+import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.api.npc.NPC_Manager;
+import de.raidcraft.api.npc.RC_Traits;
+import de.raidcraft.api.quests.QuestConfigLoader;
+import de.raidcraft.api.quests.Quests;
 import de.raidcraft.conversations.actions.AbortConversationAction;
 import de.raidcraft.conversations.actions.ChangeStageAction;
 import de.raidcraft.conversations.actions.ConversationTextAction;
 import de.raidcraft.conversations.actions.EndConversationAction;
 import de.raidcraft.conversations.actions.SetVariableAction;
-import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.conversations.actions.ShowAnswersAction;
 import de.raidcraft.conversations.actions.StartConversationAction;
-import de.raidcraft.conversations.requirements.CompareVariableRequirement;
-import de.raidcraft.api.npc.NPC_Manager;
-import de.raidcraft.api.npc.RC_Traits;
-import de.raidcraft.api.quests.QuestConfigLoader;
-import de.raidcraft.api.quests.Quests;
 import de.raidcraft.conversations.commands.ConversationCommands;
 import de.raidcraft.conversations.listener.ChatListener;
+import de.raidcraft.conversations.listener.NPCListener;
 import de.raidcraft.conversations.listener.PlayerListener;
-import de.raidcraft.conversations.npc.ConversationsTrait;
-import de.raidcraft.conversations.npc.NPCListener;
+import de.raidcraft.conversations.npc.ConversationNPCManager;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
-import de.raidcraft.conversations.tables.TPersistentHostOptions;
-import de.raidcraft.conversations.tables.TPersistentHosts;
+import de.raidcraft.conversations.requirements.CompareVariableRequirement;
+import de.raidcraft.conversations.tables.TPersistentHost;
+import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
 import lombok.Getter;
@@ -62,15 +62,23 @@ public class RCConversationsPlugin extends BasePlugin {
             }
         });
 
+        Quests.registerQuestLoader(new QuestConfigLoader("conv") {
+            @Override
+            public void loadConfig(String id, ConfigurationSection config) {
+
+                getConversationManager().loadConversation(id, config);
+            }
+        });
+
         registerEvents(new ChatListener(this));
         registerEvents(new PlayerListener(this));
 
         // register NPC traits, trait listener and load all NPC's
-        NPC_Manager.getInstance().registerTrait(ConversationsTrait.class, RC_Traits.CONSERVATION);
         NPC_Manager.getInstance().registerTrait(TalkCloseTrait.class, RC_Traits.TALK_CLOSE);
 
         Bukkit.getPluginManager().registerEvents(new NPCListener(this), this);
-        NPC_Manager.getInstance().loadNPCs(getName());
+        // load all persistant conversation hosts from the database after everything is properly registered
+        Bukkit.getScheduler().runTaskLater(this, this::loadPersistantConversationHosts, 4 * 20L);
     }
 
     @Override
@@ -83,8 +91,17 @@ public class RCConversationsPlugin extends BasePlugin {
     @Override
     public void reload() {
 
+        ConversationNPCManager.despawnNPCs();
         getConfiguration().reload();
         getConversationManager().reload();
+    }
+
+    private void loadPersistantConversationHosts() {
+
+        List<TPersistentHost> list = getDatabase().find(TPersistentHost.class).findList();
+        for (TPersistentHost host : list) {
+            getConversationManager().createConversationHost(host);
+        }
     }
 
     private void registerActionAPI() {
@@ -106,8 +123,8 @@ public class RCConversationsPlugin extends BasePlugin {
         ArrayList<Class<?>> classes = new ArrayList<>();
         classes.add(TPlayerConversation.class);
         classes.add(TPlayerVariable.class);
-        classes.add(TPersistentHostOptions.class);
-        classes.add(TPersistentHosts.class);
+        classes.add(TPersistentHostOption.class);
+        classes.add(TPersistentHost.class);
         return classes;
     }
 

@@ -30,6 +30,7 @@ import de.raidcraft.util.ConfigUtil;
 import de.raidcraft.util.LocationUtil;
 import de.raidcraft.util.UUIDUtil;
 import mkremins.fanciful.FancyMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -71,7 +72,7 @@ public class ConversationManager implements ConversationProvider, Component {
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
         registerConversationVariable("%name", conversation -> conversation.getEntity().getName());
-        load();
+        Bukkit.getScheduler().runTaskLater(plugin, this::load, 7 * 20L);
     }
 
     public void reload() {

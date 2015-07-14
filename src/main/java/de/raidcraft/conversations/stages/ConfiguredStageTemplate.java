@@ -1,42 +1,31 @@
 package de.raidcraft.conversations.stages;
 
 import de.raidcraft.api.action.ActionAPI;
-import de.raidcraft.api.action.action.Action;
-import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.stage.Stage;
-import de.raidcraft.api.conversations.stage.StageTemplate;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author mdoering
  */
 @Data
-public abstract class ConfiguredStageTemplate implements StageTemplate {
+@EqualsAndHashCode(callSuper = true)
+public abstract class ConfiguredStageTemplate extends AbstractStageTemplate {
 
-    private final String identifier;
-    private final ConversationTemplate conversationTemplate;
-    private final Optional<String[]> text;
-    private final List<Requirement<?>> requirements;
-    private final List<Action<?>> actions;
-    private final List<Action<?>> randomActions;
-    private final List<Answer> answers;
-    private final boolean autoShowingAnswers;
     protected final ConfigurationSection config;
 
     public ConfiguredStageTemplate(String identifier, ConversationTemplate conversationTemplate, ConfigurationSection config) {
 
-        this.identifier = identifier;
-        this.conversationTemplate = conversationTemplate;
+        super(identifier, conversationTemplate);
         this.config = config;
-        this.text = config.getString("text") == null ? Optional.empty() : Optional.of(config.getString("text").split("\\|"));
+        setText(config.getString("text"));
         this.requirements = ActionAPI.createRequirements(getConversationTemplate().getIdentifier() + "." + identifier, config.getConfigurationSection("requirements"));
         this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
         this.randomActions = ActionAPI.createActions(config.getConfigurationSection("random-actions"));

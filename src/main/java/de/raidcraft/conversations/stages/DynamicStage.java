@@ -1,36 +1,19 @@
 package de.raidcraft.conversations.stages;
 
-import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
-import org.bukkit.configuration.ConfigurationSection;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author mdoering
  */
-public class DynamicStage extends ConfiguredStageTemplate {
+public class DynamicStage extends AbstractStageTemplate {
 
-    public DynamicStage(String identifier, ConversationTemplate conversationTemplate, ConfigurationSection config) {
+    public DynamicStage(ConversationTemplate conversationTemplate, String text, Answer... answers) {
 
-        super(identifier, conversationTemplate, config);
-    }
-
-    @Override
-    protected void load(ConfigurationSection args) {
-
-
-    }
-
-    @Override
-    protected List<Answer> loadAnswers(ConfigurationSection config) {
-
-        List<Answer> answers = new ArrayList<>();
-        Answer answer = Conversations.getAnswer("Bla");
-        answers.add(answer);
-
-        return answers;
+        super("UNKNOWN", conversationTemplate);
+        setText(text);
+        for (Answer answer : answers) {
+            getAnswers().add(answer);
+        }
     }
 }

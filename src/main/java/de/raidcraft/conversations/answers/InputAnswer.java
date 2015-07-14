@@ -13,7 +13,7 @@ public class InputAnswer extends ConfiguredAnswer {
     public InputAnswer(String type, ConfigurationSection config) {
 
         super(type, config);
-        this.varName = config.getString("var", "var");
+        this.varName = config.getString("var", "input");
     }
 
     @Override

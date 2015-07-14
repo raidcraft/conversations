@@ -2,6 +2,7 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.Component;
+import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.flow.Flow;
 import de.raidcraft.api.config.SimpleConfiguration;
 import de.raidcraft.api.conversations.ConversationProvider;
@@ -13,12 +14,14 @@ import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
+import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
 import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
+import de.raidcraft.conversations.stages.DynamicStage;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
@@ -491,5 +494,21 @@ public class ConversationManager implements ConversationProvider, Component {
     public boolean hasActiveConversation(Player player) {
 
         return activeConversations.containsKey(player.getUniqueId());
+    }
+
+    @Override
+    public Stage createStage(Conversation conversation, String text, Answer... answers) {
+
+        return new DynamicStage(conversation.getTemplate(), text, answers).create(conversation);
+    }
+
+    @Override
+    public Answer createAnswer(String text, Action... actions) {
+
+        SimpleAnswer answer = new SimpleAnswer(text);
+        for (Action action : actions) {
+            answer.addAction(action);
+        }
+        return answer;
     }
 }

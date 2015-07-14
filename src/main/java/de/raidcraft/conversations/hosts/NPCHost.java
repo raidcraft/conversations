@@ -27,7 +27,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         @Override
         public ConversationHost<NPC> create(Location location) {
 
-            ConversationHost<NPC> host = create(ConversationNPCManager.createNPC("UNNAMED"));
+            ConversationHost<NPC> host = new NPCHost(ConversationNPCManager.createNPC("UNNAMED"));
             host.getType().spawn(location);
             return host;
         }
@@ -36,7 +36,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         public ConversationHost<NPC> create(NPC type) {
 
             NPCHost npcHost = new NPCHost(type);
-            if (!npcHost.getType().isSpawned()) {
+            if (!npcHost.getType().isSpawned() && npcHost.getType().getStoredLocation() != null) {
                 npcHost.getType().spawn(type.getStoredLocation());
             }
             return npcHost;

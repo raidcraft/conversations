@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Table(name = "conv_saved_conversations")
+@Table(name = "conversation_saved_conversations")
 public class TPlayerConversation {
 
     @Id

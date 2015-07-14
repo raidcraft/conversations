@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(
-        name = "conv_player_variables",
+        name = "conversation_player_variables",
         uniqueConstraints = @UniqueConstraint(columnNames = {"player", "name"})
 )
 @Getter

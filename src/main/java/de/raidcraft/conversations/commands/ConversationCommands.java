@@ -102,6 +102,8 @@ public class ConversationCommands {
                 throw new CommandException("Unable to create conversation host!");
             }
 
+            conversationHost.get().addDefaultConversation(template);
+
             ConversationHost<?> host = conversationHost.get();
             TPersistentHost persistentHost = new TPersistentHost(player, host);
             persistentHost.setHostType("NPC");

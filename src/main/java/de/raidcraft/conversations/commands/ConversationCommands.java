@@ -99,8 +99,8 @@ public class ConversationCommands {
             for (String key : settings.getKeys(true)) {
                 TPersistentHostOption option = new TPersistentHostOption();
                 option.setHost(persistentHost);
-                option.setOption(key);
-                option.setValue(settings.getString(key));
+                option.setConfKey(key);
+                option.setConfValue(settings.getString(key));
                 persistentHost.getOptions().add(option);
             }
             plugin.getDatabase().save(persistentHost);

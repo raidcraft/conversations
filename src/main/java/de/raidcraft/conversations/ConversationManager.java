@@ -372,7 +372,7 @@ public class ConversationManager implements ConversationProvider, Component {
                 }
                 MemoryConfiguration config = new MemoryConfiguration();
                 for (TPersistentHostOption option : host.getOptions()) {
-                    config.set(option.getOption(), option.getValue());
+                    config.set(option.getConfKey(), option.getConfValue());
                 }
                 loadedHost.load(config);
             }

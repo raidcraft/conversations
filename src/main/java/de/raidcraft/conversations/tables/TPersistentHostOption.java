@@ -16,8 +16,8 @@ public class TPersistentHostOption {
 
     @Id
     private int id;
-    private String option;
-    private String value;
+    private String confKey;
+    private String confValue;
 
     @ManyToOne
     private TPersistentHost host;

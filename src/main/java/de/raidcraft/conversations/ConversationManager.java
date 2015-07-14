@@ -20,6 +20,7 @@ import de.raidcraft.conversations.answers.DefaultAnswer;
 import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.conversations.answers.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
+import de.raidcraft.conversations.hosts.NPCHost;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
 import de.raidcraft.conversations.stages.DynamicStage;
 import de.raidcraft.conversations.tables.TPersistentHost;
@@ -72,6 +73,7 @@ public class ConversationManager implements ConversationProvider, Component {
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
         registerConversationVariable("%name", conversation -> conversation.getEntity().getName());
+        registerHostFactory("NPC", new NPCHost.NPCHostFactory());
         Bukkit.getScheduler().runTaskLater(plugin, this::load, 7 * 20L);
     }
 

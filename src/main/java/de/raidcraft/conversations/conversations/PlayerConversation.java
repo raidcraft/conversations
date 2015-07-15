@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * @author mdoering
  */
-public class PlayerConversation extends AbstractConversation<Player> {
+public class PlayerConversation extends AbstractConversation {
 
     private static final Pattern LOCAL_VAR_MATCHER = Pattern.compile("^%\\[([\\s\\d\\w_\\-a-zA-Z\u00f6\u00e4\u00fc\u00d6\u00c4\u00dc\u00df]+)\\]$");
 
@@ -39,7 +39,7 @@ public class PlayerConversation extends AbstractConversation<Player> {
 
         EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
         return Optional.ofNullable(database.find(TPlayerVariable.class).where()
-                .eq("player", getEntity().getUniqueId())
+                .eq("player", getOwner().getUniqueId())
                 .eq("name", name)
                 .findUnique());
     }
@@ -53,7 +53,7 @@ public class PlayerConversation extends AbstractConversation<Player> {
         TPlayerVariable variable;
         if (!optional.isPresent()) {
             variable = new TPlayerVariable();
-            variable.setPlayer(getEntity().getUniqueId());
+            variable.setPlayer(getOwner().getUniqueId());
             variable.setName(key);
         } else {
             variable = optional.get();
@@ -89,19 +89,19 @@ public class PlayerConversation extends AbstractConversation<Player> {
     }
 
     @Override
-    public Conversation<Player> sendMessage(String... lines) {
+    public Conversation sendMessage(String... lines) {
 
         for (String line : lines) {
-            getEntity().sendMessage(replaceVariable(line));
+            getOwner().sendMessage(replaceVariable(line));
         }
         return this;
     }
 
     @Override
-    public Conversation<Player> sendMessage(FancyMessage... lines) {
+    public Conversation sendMessage(FancyMessage... lines) {
 
         for (FancyMessage line : lines) {
-            line.send(getEntity());
+            line.send(getOwner());
         }
         return this;
     }
@@ -128,7 +128,7 @@ public class PlayerConversation extends AbstractConversation<Player> {
     public Optional<Stage> end(ConversationEndReason reason) {
 
         Optional<Stage> stage = super.end(reason);
-        Conversations.removeActiveConversation(getEntity());
+        Conversations.removeActiveConversation(getOwner());
         return stage;
     }
 
@@ -136,7 +136,7 @@ public class PlayerConversation extends AbstractConversation<Player> {
     public Optional<Stage> abort(ConversationEndReason reason) {
 
         Optional<Stage> stage = super.abort(reason);
-        Conversations.removeActiveConversation(getEntity());
+        Conversations.removeActiveConversation(getOwner());
         return stage;
     }
 
@@ -145,13 +145,13 @@ public class PlayerConversation extends AbstractConversation<Player> {
 
         EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
         TPlayerConversation entry = database.find(TPlayerConversation.class).where()
-                .eq("player", getEntity().getUniqueId())
+                .eq("player", getOwner().getUniqueId())
                 .eq("host", getHost().getUniqueId())
                 .eq("conversation", getIdentifier())
                 .findUnique();
         if (entry == null) {
             entry = new TPlayerConversation();
-            entry.setPlayer(getEntity().getUniqueId());
+            entry.setPlayer(getOwner().getUniqueId());
             entry.setHost(getHost().getUniqueId());
         }
         entry.setConversation(getIdentifier());
@@ -168,7 +168,7 @@ public class PlayerConversation extends AbstractConversation<Player> {
 
         EbeanServer database = RaidCraft.getDatabase(RCConversationsPlugin.class);
         TPlayerConversation entry = database.find(TPlayerConversation.class).where()
-                .eq("player", getEntity().getUniqueId())
+                .eq("player", getOwner().getUniqueId())
                 .eq("host", getHost().getUniqueId())
                 .eq("conversation", getIdentifier())
                 .findUnique();

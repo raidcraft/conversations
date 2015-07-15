@@ -3,6 +3,7 @@ package de.raidcraft.conversations.stages;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.action.ActionHolder;
+import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.events.RCConversationStageTriggeredEvent;
@@ -35,6 +36,12 @@ public class SimpleStage implements Stage {
         this.conversation = conversation;
         this.template = template;
         template.getAnswers().forEach(this::addAnswer);
+    }
+
+    @Override
+    public Collection<Requirement<?>> getRequirements() {
+
+        return getTemplate().getRequirements();
     }
 
     @Override
@@ -154,6 +161,12 @@ public class SimpleStage implements Stage {
     @Override
     public Stage trigger() {
 
+        return trigger(true);
+    }
+
+    @Override
+    public Stage trigger(boolean executeActions) {
+
         if (getText().isPresent()) {
             getConversation().sendMessage(getText().get());
         }
@@ -162,20 +175,17 @@ public class SimpleStage implements Stage {
             showAnswers();
         }
         RaidCraft.callEvent(event);
-        return this;
-    }
 
-    @Override
-    public Stage trigger(boolean executeActions) {
-
-        trigger();
         if (executeActions) {
-            getActions(getConversation().getEntity().getClass()).forEach(action -> action.accept(getConversation().getEntity()));
-            List<Action<Object>> randomActions = ActionHolder.getFilteredActions(getRandomActions(), getConversation().getEntity().getClass());
+            // lets execute all player actions and then all conversation actions
+            getActions(Conversation.class).forEach(action -> action.accept(conversation));
+            getActions(getConversation().getOwner().getClass()).forEach(action -> action.accept(getConversation().getOwner()));
+
+            List<Action<Object>> randomActions = ActionHolder.getFilteredActions(getRandomActions(), getConversation().getOwner().getClass());
             Collections.shuffle(randomActions);
             Optional<Action<Object>> any = randomActions.stream().findAny();
             if (any.isPresent()) {
-                any.get().accept(getConversation().getEntity());
+                any.get().accept(getConversation().getOwner());
             }
         }
         return this;

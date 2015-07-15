@@ -72,7 +72,7 @@ public class ConversationManager implements ConversationProvider, Component {
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
-        registerConversationVariable("%name", conversation -> conversation.getEntity().getName());
+        registerConversationVariable("%name", conversation -> conversation.getOwner().getName());
         registerHostFactory("NPC", new NPCHost.NPCHostFactory());
 
         Bukkit.getScheduler().runTaskLater(plugin, this::load, 5 * 20L);
@@ -487,8 +487,8 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Optional<Conversation<Player>> setActiveConversation(Conversation<Player> conversation) {
 
-        Optional<Conversation<Player>> activeConversation = removeActiveConversation(conversation.getEntity());
-        activeConversations.put(conversation.getEntity().getUniqueId(), conversation);
+        Optional<Conversation<Player>> activeConversation = removeActiveConversation(conversation.getOwner());
+        activeConversations.put(conversation.getOwner().getUniqueId(), conversation);
         return activeConversation;
     }
 

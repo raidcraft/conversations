@@ -130,7 +130,7 @@ public class SimpleAnswer implements Answer {
     public void executeActions(Conversation conversation) {
 
         getActions(Conversation.class).forEach(action -> action.accept(conversation));
-        getActions(Player.class).forEach(action -> action.accept(conversation.getEntity()));
+        getActions(Player.class).forEach(action -> action.accept(conversation.getOwner()));
     }
 
     @Override

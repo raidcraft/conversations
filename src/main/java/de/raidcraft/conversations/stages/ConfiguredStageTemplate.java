@@ -3,9 +3,7 @@ package de.raidcraft.conversations.stages;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
-import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
-import de.raidcraft.api.conversations.stage.Stage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.configuration.ConfigurationSection;
@@ -39,11 +37,5 @@ public abstract class ConfiguredStageTemplate extends AbstractStageTemplate {
     protected List<Answer> loadAnswers(ConfigurationSection config) {
 
         return Conversations.createAnswers(this, config);
-    }
-
-    @Override
-    public Stage create(Conversation conversation) {
-
-        return new SimpleStage(conversation, this);
     }
 }

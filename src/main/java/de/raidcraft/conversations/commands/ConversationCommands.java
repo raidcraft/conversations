@@ -127,7 +127,7 @@ public class ConversationCommands {
         )
         public void answer(CommandContext args, CommandSender sender) throws CommandException {
 
-            Conversation<Player> conversation = getActiveConversation(sender);
+            Conversation conversation = getActiveConversation(sender);
             Optional<Answer> answer = conversation.answer(args.getJoinedStrings(0));
             if (!answer.isPresent()) {
                 throw new CommandException("Keine gültige Antwort für " + args.getJoinedStrings(0) + " gefunden.");
@@ -140,18 +140,18 @@ public class ConversationCommands {
         )
         public void page(CommandContext args, CommandSender sender) throws CommandException {
 
-            Conversation<Player> conversation = getActiveConversation(sender);
+            Conversation conversation = getActiveConversation(sender);
             if (!conversation.changePage(args.getInteger(0))) {
                 throw new CommandException("Konnte nicht zu Seite " + args.getInteger(0) + " wechseln.");
             }
         }
 
-        private Conversation<Player> getActiveConversation(CommandSender sender) throws CommandException {
+        private Conversation getActiveConversation(CommandSender sender) throws CommandException {
 
             if (!(sender instanceof Player)) {
                 throw new CommandException("Conversation Holder must be a Player.");
             }
-            Optional<Conversation<Player>> optional = plugin.getConversationManager().getActiveConversation((Player) sender);
+            Optional<Conversation> optional = plugin.getConversationManager().getActiveConversation((Player) sender);
             if (!optional.isPresent()) {
                 throw new CommandException("Du musst erst eine Unterhaltung beginnen bevor du darauf antworten kannst.");
             }

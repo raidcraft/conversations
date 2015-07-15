@@ -76,15 +76,15 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     }
 
     @Override
-    public Conversation<Player> createConversation(Player player, ConversationHost host) {
+    public Conversation createConversation(Player player, ConversationHost host) {
 
         return new PlayerConversation(player, this, host);
     }
 
     @Override
-    public Conversation<Player> startConversation(Player player, ConversationHost host) {
+    public Conversation startConversation(Player player, ConversationHost host) {
 
-        Optional<Conversation<Player>> activeConversation = Conversations.removeActiveConversation(player);
+        Optional<Conversation> activeConversation = Conversations.removeActiveConversation(player);
         if (activeConversation.isPresent()) {
             if (!activeConversation.get().getTemplate().equals(this)) {
                 activeConversation.get().abort(ConversationEndReason.START_NEW_CONVERSATION);
@@ -93,7 +93,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
                 return activeConversation.get();
             }
         }
-        Conversation<Player> conversation = createConversation(player, host);
+        Conversation conversation = createConversation(player, host);
         conversation.start();
         return conversation;
     }

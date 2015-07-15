@@ -5,7 +5,6 @@ import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.conversations.ConversationManager;
 import de.raidcraft.conversations.RCConversationsPlugin;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,7 +28,7 @@ public class ChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
 
         ConversationManager manager = plugin.getConversationManager();
-        Optional<Conversation<Player>> activeConversation = manager.getActiveConversation(event.getPlayer());
+        Optional<Conversation> activeConversation = manager.getActiveConversation(event.getPlayer());
         if (!activeConversation.isPresent()) {
             return;
         }

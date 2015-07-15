@@ -60,7 +60,7 @@ public class ConversationManager implements ConversationProvider, Component {
     private final Map<String, ConversationHostFactory<?>> hostFactories = new CaseInsensitiveMap<>();
     private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
-    private final Map<UUID, Conversation<Player>> activeConversations = new HashMap<>();
+    private final Map<UUID, Conversation> activeConversations = new HashMap<>();
     private final Map<String, ConversationHost<?>> cachedHosts = new CaseInsensitiveMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
@@ -110,7 +110,7 @@ public class ConversationManager implements ConversationProvider, Component {
 
     public void checkDistance(Player player) {
 
-        Optional<Conversation<Player>> activeConversation = getActiveConversation(player);
+        Optional<Conversation> activeConversation = getActiveConversation(player);
         if (!activeConversation.isPresent()) {
             return;
         }
@@ -469,7 +469,7 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public Optional<Conversation<Player>> startConversation(Player player, ConversationHost<?> conversationHost) {
+    public Optional<Conversation> startConversation(Player player, ConversationHost<?> conversationHost) {
 
         Optional<ConversationTemplate> conversation = conversationHost.getConversation(player);
         if (conversation.isPresent()) {
@@ -479,23 +479,23 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public Optional<Conversation<Player>> getActiveConversation(Player player) {
+    public Optional<Conversation> getActiveConversation(Player player) {
 
         return Optional.ofNullable(activeConversations.get(player.getUniqueId()));
     }
 
     @Override
-    public Optional<Conversation<Player>> setActiveConversation(Conversation<Player> conversation) {
+    public Optional<Conversation> setActiveConversation(Conversation conversation) {
 
-        Optional<Conversation<Player>> activeConversation = removeActiveConversation(conversation.getOwner());
+        Optional<Conversation> activeConversation = removeActiveConversation(conversation.getOwner());
         activeConversations.put(conversation.getOwner().getUniqueId(), conversation);
         return activeConversation;
     }
 
     @Override
-    public Optional<Conversation<Player>> removeActiveConversation(Player player) {
+    public Optional<Conversation> removeActiveConversation(Player player) {
 
-        Conversation<Player> conversation = activeConversations.remove(player.getUniqueId());
+        Conversation conversation = activeConversations.remove(player.getUniqueId());
         if (conversation != null) {
             conversation.abort(ConversationEndReason.START_NEW_CONVERSATION);
         }

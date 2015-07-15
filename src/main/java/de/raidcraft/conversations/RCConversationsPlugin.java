@@ -28,6 +28,7 @@ import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
+import de.raidcraft.conversations.trigger.HostTrigger;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -107,6 +108,7 @@ public class RCConversationsPlugin extends BasePlugin {
     private void registerActionAPI() {
 
         ActionAPI.register(this).global()
+                .trigger(new HostTrigger())
                 .action(new ShowAnswersAction(), Conversation.class)
                 .action(new ConversationTextAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)

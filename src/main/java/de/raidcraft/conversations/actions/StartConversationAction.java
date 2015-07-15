@@ -5,6 +5,7 @@ import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
+import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -33,12 +34,18 @@ public class StartConversationAction implements Action<Player> {
                     + config.getString("conv") + " defined in " + ConfigUtil.getFileName(config));
             return;
         }
-        Optional<ConversationHost<?>> host = Conversations.getConversationHost(config.getString("host"));
-        if (!host.isPresent()) {
-            RaidCraft.LOGGER.warning("Invalid Conversation Host with id "
-                    + config.getString("host") + " defined in " + ConfigUtil.getFileName(config));
-            return;
+        ConversationHost<?> host;
+        if (config.isSet("host")) {
+            Optional<ConversationHost<?>> conversationHost = Conversations.getConversationHost(config.getString("host"));
+            if (!conversationHost.isPresent()) {
+                RaidCraft.LOGGER.warning("Invalid Conversation Host with id "
+                        + config.getString("host") + " defined in " + ConfigUtil.getFileName(config));
+                return;
+            }
+            host = conversationHost.get();
+        } else {
+            host = new PlayerHost(player);
         }
-        template.get().startConversation(player, host.get());
+        template.get().startConversation(player, host);
     }
 }

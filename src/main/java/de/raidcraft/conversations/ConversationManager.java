@@ -388,6 +388,14 @@ public class ConversationManager implements ConversationProvider, Component {
         return Optional.ofNullable(cachedHosts.get(id));
     }
 
+    public Optional<String> getConversationHostIdentifier(ConversationHost<?> host) {
+
+        return cachedHosts.entrySet().stream()
+                .filter(cachedHost -> cachedHost.getValue().equals(host))
+                .map(Map.Entry::getKey)
+                .findAny();
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<ConversationHost<T>> getConversationHost(T host) {

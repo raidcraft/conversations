@@ -58,7 +58,7 @@ public class RCConversationsPlugin extends BasePlugin {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 
-                getConversationManager().createConversationHost(id, config);
+                Conversations.createConversationHost(id, config);
             }
         });
 
@@ -66,7 +66,7 @@ public class RCConversationsPlugin extends BasePlugin {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 
-                getConversationManager().loadConversation(id, config);
+                Conversations.loadConversation(id, config);
             }
         });
 
@@ -78,7 +78,7 @@ public class RCConversationsPlugin extends BasePlugin {
 
         Bukkit.getPluginManager().registerEvents(new NPCListener(this), this);
         // load all persistant conversation hosts from the database after everything is properly registered
-        Bukkit.getScheduler().runTaskLater(this, this::loadPersistantConversationHosts, 4 * 20L);
+        Bukkit.getScheduler().runTaskLater(this, this::loadPersistantConversationHosts, 6 * 20L);
     }
 
     @Override

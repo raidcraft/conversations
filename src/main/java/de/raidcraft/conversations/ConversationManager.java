@@ -74,7 +74,8 @@ public class ConversationManager implements ConversationProvider, Component {
         registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
         registerConversationVariable("%name", conversation -> conversation.getEntity().getName());
         registerHostFactory("NPC", new NPCHost.NPCHostFactory());
-        Bukkit.getScheduler().runTaskLater(plugin, this::load, 7 * 20L);
+
+        Bukkit.getScheduler().runTaskLater(plugin, this::load, 5 * 20L);
     }
 
     public void reload() {

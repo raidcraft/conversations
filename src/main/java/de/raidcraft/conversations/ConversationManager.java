@@ -74,7 +74,7 @@ public class ConversationManager implements ConversationProvider, Component {
         registerConversationTemplate(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE, DefaultConversationTemplate.class);
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
-        registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
+        registerAnswer(Answer.DEFAULT_INPUT_TYPE, InputAnswer.class);
 
         registerConversationVariable(Pattern.compile("%name"), (matcher, conversation) -> conversation.getOwner().getName());
         registerConversationVariable(Pattern.compile("%\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> conversation.getString(matcher.group(1)));
@@ -170,6 +170,9 @@ public class ConversationManager implements ConversationProvider, Component {
             // handled by flow
             if (config.isList(key)) continue;
             ConfigurationSection section = config.getConfigurationSection(key);
+            if (key.equals("input") && !section.isSet("type")) {
+                section.set("type", Answer.DEFAULT_INPUT_TYPE);
+            }
             Optional<Answer> answer = Conversations.getAnswer(template, section);
             if (answer.isPresent()) {
                 answers.add(answer.get());

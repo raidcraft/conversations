@@ -15,18 +15,17 @@ public class CompareVariableRequirement implements Requirement<Conversation> {
             desc = "Compares the given variable against the given value.",
             conf = {
                     "variable: <identifier>",
-                    "value: <expected value>",
-                    "operator: < <= == => >"
+                    "operator: < <= == => > !=",
+                    "value: <expected value>"
             }
     )
     public boolean test(Conversation conversation, ConfigurationSection config) {
 
         String operator = config.getString("operator", "eq");
-        String variable = conversation.getString(config.getString("variable"));
-        String value = config.getString("value");
-        try {
-            double compare = Double.parseDouble(variable);
-            double expected = Double.parseDouble(value);
+        Object variable = conversation.get(config.getString("variable"));
+        if (variable instanceof Double || variable instanceof Integer) {
+            double compare = Double.parseDouble(variable.toString());
+            double expected = config.getDouble("value");
             switch (operator) {
                 case ">":
                 case "gt":
@@ -48,8 +47,23 @@ public class CompareVariableRequirement implements Requirement<Conversation> {
                 default:
                     return compare == expected;
             }
-        } catch (NumberFormatException e) {
-            return value.equalsIgnoreCase(variable);
+        } else if (variable instanceof Boolean) {
+            boolean var = (Boolean) variable;
+            switch (operator) {
+                case "==":
+                    return var == config.getBoolean("value");
+                case "!=":
+                    return var != config.getBoolean("value");
+            }
+        } else if (variable instanceof String) {
+            String var = (String) variable;
+            switch (operator) {
+                case "==":
+                    return var.equalsIgnoreCase(config.getString("value"));
+                case "!=":
+                    return !var.equalsIgnoreCase(config.getString("value"));
+            }
         }
+        return false;
     }
 }

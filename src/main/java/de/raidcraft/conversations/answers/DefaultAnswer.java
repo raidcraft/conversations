@@ -1,5 +1,6 @@
 package de.raidcraft.conversations.answers;
 
+import de.raidcraft.api.conversations.answer.ConfiguredAnswer;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**

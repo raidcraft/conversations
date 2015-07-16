@@ -28,6 +28,7 @@ import java.util.Optional;
 public abstract class ConfiguredConversationTemplate implements ConversationTemplate {
 
     private final String identifier;
+    private final String conversationType;
     private final boolean persistant;
     private final int priority;
     private final ConfigurationSection hostSettings;
@@ -37,6 +38,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     public ConfiguredConversationTemplate(String identifier, ConfigurationSection config) {
 
         this.identifier = identifier;
+        this.conversationType = config.getString("conv-type", Conversation.DEFAULT_TYPE);
         this.persistant = config.getBoolean("persistant", false);
         this.priority = config.getInt("priority", 1);
         this.hostSettings = config.isConfigurationSection("settings") ? config.getConfigurationSection("settings") : new MemoryConfiguration();
@@ -78,7 +80,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     @Override
     public Conversation createConversation(Player player, ConversationHost host) {
 
-        return new PlayerConversation(player, this, host);
+        return Conversations.createConversation(getConversationType(), player, this, host);
     }
 
     @Override

@@ -2,23 +2,17 @@ package de.raidcraft.conversations.conversations;
 
 import com.avaje.ebean.EbeanServer;
 import de.raidcraft.RaidCraft;
-import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.AbstractConversation;
-import de.raidcraft.api.conversations.conversation.Conversation;
-import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
-import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
-import mkremins.fanciful.FancyMessage;
 import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -86,58 +80,6 @@ public class PlayerConversation extends AbstractConversation {
             }
         }
         return result;
-    }
-
-    @Override
-    public Conversation sendMessage(String... lines) {
-
-        for (String line : lines) {
-            getOwner().sendMessage(replaceVariable(line));
-        }
-        return this;
-    }
-
-    @Override
-    public Conversation sendMessage(FancyMessage... lines) {
-
-        for (FancyMessage line : lines) {
-            line.send(getOwner());
-        }
-        return this;
-    }
-
-    private String replaceVariable(String message) {
-
-        for (Map.Entry<String, ConversationVariable> entry : Conversations.getConversationVariables().entrySet()) {
-            message = message.replace(entry.getKey(), entry.getValue().replace(this));
-        }
-        return message;
-    }
-
-    @Override
-    public boolean start() {
-
-        boolean start = super.start();
-        if (start) {
-            Conversations.setActiveConversation(this);
-        }
-        return start;
-    }
-
-    @Override
-    public Optional<Stage> end(ConversationEndReason reason) {
-
-        Optional<Stage> stage = super.end(reason);
-        Conversations.removeActiveConversation(getOwner());
-        return stage;
-    }
-
-    @Override
-    public Optional<Stage> abort(ConversationEndReason reason) {
-
-        Optional<Stage> stage = super.abort(reason);
-        Conversations.removeActiveConversation(getOwner());
-        return stage;
     }
 
     @Override

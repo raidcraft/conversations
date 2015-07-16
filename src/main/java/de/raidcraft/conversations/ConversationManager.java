@@ -18,7 +18,7 @@ import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
 import de.raidcraft.conversations.answers.InputAnswer;
-import de.raidcraft.conversations.answers.SimpleAnswer;
+import de.raidcraft.api.conversations.answer.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.hosts.NPCHost;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
@@ -57,6 +57,7 @@ public class ConversationManager implements ConversationProvider, Component {
     private final Map<String, Constructor<? extends Answer>> answerTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends StageTemplate>> stageTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends ConversationTemplate>> conversationTemplates = new CaseInsensitiveMap<>();
+    private final Map<String, Constructor<? extends Conversation>> conversationTypes = new CaseInsensitiveMap<>();
     private final Map<String, ConversationHostFactory<?>> hostFactories = new CaseInsensitiveMap<>();
     private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
@@ -267,6 +268,34 @@ public class ConversationManager implements ConversationProvider, Component {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void registerConversationType(String type, Class<? extends Conversation> conversation) {
+
+        try {
+            Constructor<? extends Conversation> constructor = conversation.getDeclaredConstructor(Player.class, ConversationTemplate.class, ConversationHost.class);
+            constructor.setAccessible(true);
+            conversationTypes.put(type, constructor);
+            plugin.getLogger().info("registered conversation type " + type + " -> " + conversation.getCanonicalName());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Conversation createConversation(String type, Player player, ConversationTemplate template, ConversationHost host) {
+
+        try {
+            if (!conversationTypes.containsKey(type)) {
+                type = Conversation.DEFAULT_TYPE;
+            }
+            Constructor<? extends Conversation> constructor = conversationTypes.get(type);
+            return constructor.newInstance(player, template, host);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

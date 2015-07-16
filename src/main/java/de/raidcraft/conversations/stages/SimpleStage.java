@@ -30,12 +30,20 @@ public class SimpleStage implements Stage {
     private final StageTemplate template;
     private final List<List<Answer>> answers = new ArrayList<>();
     private int currentPage = 0;
+    private boolean abortActions = false;
 
     public SimpleStage(Conversation conversation, StageTemplate template) {
 
         this.conversation = conversation;
         this.template = template;
         template.getAnswers().forEach(this::addAnswer);
+    }
+
+    @Override
+    public void abortActionExecution() {
+
+        abortActions = true;
+        getAnswers().forEach(Answer::abortActionExecution);
     }
 
     @Override
@@ -122,22 +130,18 @@ public class SimpleStage implements Stage {
 
         try {
             if (input == null || input.equals("")) return Optional.empty();
-            List<Answer> inputAnswers = this.answers.stream()
-                    .flatMap(List::stream)
-                    .filter(answer -> answer.getType().equalsIgnoreCase(Answer.ANSWER_INPUT_TYPE))
-                    .collect(Collectors.toList());
-            if (inputAnswers.isEmpty()) {
-                int id = Integer.parseInt(input.trim()) - 1;
-                if (currentPage < this.answers.size()) {
-                    List<Answer> answers = this.answers.get(currentPage);
-                    if (id < answers.size()) {
-                        return Optional.of(answers.get(id));
-                    }
+            for (Answer answer : this.answers.stream().flatMap(List::stream).collect(Collectors.toList())) {
+                if (answer.processInput(getConversation(), input)) {
+                    return Optional.of(answer);
                 }
-            } else {
-                Answer answer = inputAnswers.get(0);
-                answer.processInput(getConversation(), input);
-                return Optional.of(answer);
+            }
+            // if not answer processed the input we will try to select by the id
+            int id = Integer.parseInt(input.trim()) - 1;
+            if (currentPage < this.answers.size()) {
+                List<Answer> answers = this.answers.get(currentPage);
+                if (id < answers.size()) {
+                    return Optional.of(answers.get(id));
+                }
             }
         } catch (NumberFormatException e) {
             getConversation().sendMessage(ChatColor.GRAY + "Ich habe deine Antwort nicht verstanden: Bitte gebe eine Zahl ein oder klicke auf die Antwort.");
@@ -177,14 +181,21 @@ public class SimpleStage implements Stage {
         RaidCraft.callEvent(event);
 
         if (executeActions) {
+            abortActions = false;
             // lets execute all player actions and then all conversation actions
-            getActions(Conversation.class).forEach(action -> action.accept(conversation));
-            getActions(getConversation().getOwner().getClass()).forEach(action -> action.accept(getConversation().getOwner()));
+            for (Action<Object> action : getActions(Conversation.class)) {
+                if (abortActions) break;
+                action.accept(getConversation());
+            }
+            for (Action<Object> action : getActions(getConversation().getOwner().getClass())) {
+                if (abortActions) break;
+                action.accept(getConversation().getOwner());
+            }
 
             List<Action<Object>> randomActions = ActionHolder.getFilteredActions(getRandomActions(), getConversation().getOwner().getClass());
             Collections.shuffle(randomActions);
             Optional<Action<Object>> any = randomActions.stream().findAny();
-            if (any.isPresent()) {
+            if (!abortActions && any.isPresent()) {
                 any.get().accept(getConversation().getOwner());
             }
         }

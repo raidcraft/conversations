@@ -1,5 +1,6 @@
 package de.raidcraft.conversations.answers;
 
+import de.raidcraft.api.conversations.answer.ConfiguredAnswer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -22,8 +23,10 @@ public class InputAnswer extends ConfiguredAnswer {
     }
 
     @Override
-    public void processInput(Conversation conversation, String input) {
+    public boolean processInput(Conversation conversation, String input) {
 
         conversation.set(varName, input);
+        conversation.setLastInput(input);
+        return true;
     }
 }

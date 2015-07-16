@@ -5,6 +5,7 @@ import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
 import de.raidcraft.api.items.CustomItemException;
+import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.ConversationNPCManager;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import lombok.Data;
@@ -14,6 +15,7 @@ import net.citizensnpcs.api.trait.trait.Equipment;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
+import org.bukkit.metadata.FixedMetadataValue;
 
 /**
  * @author mdoering
@@ -57,6 +59,12 @@ public class NPCHost extends AbstractConversationHost<NPC> {
 
         if (config.isConfigurationSection("equipment")) {
             loadEquipment(config.getConfigurationSection("equipment"));
+        }
+
+        if (config.isList("entity-metakeys")) {
+            config.getStringList("entity-metakeys").forEach(key -> {
+                getType().getEntity().setMetadata(key, new FixedMetadataValue(RaidCraft.getComponent(RCConversationsPlugin.class), true));
+            });
         }
     }
 

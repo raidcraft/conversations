@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * @author mdoering
@@ -59,7 +60,7 @@ public class ConversationManager implements ConversationProvider, Component {
     private final Map<String, Constructor<? extends ConversationTemplate>> conversationTemplates = new CaseInsensitiveMap<>();
     private final Map<String, Constructor<? extends Conversation>> conversationTypes = new CaseInsensitiveMap<>();
     private final Map<String, ConversationHostFactory<?>> hostFactories = new CaseInsensitiveMap<>();
-    private final Map<String, ConversationVariable> variables = new CaseInsensitiveMap<>();
+    private final Map<Pattern, ConversationVariable> variables = new HashMap<>();
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation> activeConversations = new HashMap<>();
     private final Map<String, ConversationHost<?>> cachedHosts = new CaseInsensitiveMap<>();
@@ -73,7 +74,10 @@ public class ConversationManager implements ConversationProvider, Component {
         registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         registerAnswer(Answer.ANSWER_INPUT_TYPE, InputAnswer.class);
-        registerConversationVariable("%name", conversation -> conversation.getOwner().getName());
+
+        registerConversationVariable(Pattern.compile("%name"), (matcher, conversation) -> conversation.getOwner().getName());
+        registerConversationVariable(Pattern.compile("%\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> conversation.getString(matcher.group(1)));
+
         registerHostFactory("NPC", new NPCHost.NPCHostFactory());
 
         Bukkit.getScheduler().runTaskLater(plugin, this::load, 5 * 20L);
@@ -446,13 +450,13 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public void registerConversationVariable(String name, ConversationVariable variable) {
+    public void registerConversationVariable(Pattern pattern, ConversationVariable variable) {
 
-        variables.put(name, variable);
+        variables.put(pattern, variable);
     }
 
     @Override
-    public Map<String, ConversationVariable> getConversationVariables() {
+    public Map<Pattern, ConversationVariable> getConversationVariables() {
 
         return variables;
     }

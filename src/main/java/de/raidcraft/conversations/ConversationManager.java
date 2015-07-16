@@ -182,14 +182,20 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Optional<Answer> getAnswer(StageTemplate stageTemplate, ConfigurationSection config) {
 
-        Constructor<? extends Answer> constructor;
+
         String type;
         if (config.isSet("type")) {
             type = config.getString("type");
         } else {
             type = Answer.DEFAULT_ANSWER_TEMPLATE;
         }
-        constructor = answerTemplates.get(type);
+        return getAnswer(type, config);
+    }
+
+    @Override
+    public Optional<Answer> getAnswer(String type, ConfigurationSection config) {
+
+        Constructor<? extends Answer> constructor = answerTemplates.get(type);
         if (constructor != null) {
             try {
                 return Optional.of(constructor.newInstance(type, config));
@@ -555,5 +561,16 @@ public class ConversationManager implements ConversationProvider, Component {
             answer.addAction(action);
         }
         return answer;
+    }
+
+    @Override
+    public <T extends Answer> Optional<Answer> createAnswer(Class<T> answerClass, Action... actions) {
+
+        for (Map.Entry<String, Constructor<? extends Answer>> entry : answerTemplates.entrySet()) {
+            if (entry.getValue().getDeclaringClass().equals(answerClass)) {
+                return getAnswer(entry.getKey(), new MemoryConfiguration());
+            }
+        }
+        return Optional.empty();
     }
 }

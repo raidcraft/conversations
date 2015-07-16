@@ -21,6 +21,7 @@ import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.api.conversations.answer.SimpleAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.hosts.NPCHost;
+import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
 import de.raidcraft.conversations.stages.DynamicStage;
 import de.raidcraft.conversations.tables.TPersistentHost;
@@ -515,6 +516,17 @@ public class ConversationManager implements ConversationProvider, Component {
             return Optional.of(conversation.get().startConversation(player, conversationHost));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Conversation> startConversation(Player player, String conversation) {
+
+        if (!conversations.containsKey(conversation)) {
+            plugin.getLogger().warning("Tried to start unknown conversation " + conversation + " for " + player.getName());
+            return Optional.empty();
+        }
+        ConversationTemplate template = conversations.get(conversation);
+        return Optional.of(template.startConversation(player, new PlayerHost(player)));
     }
 
     @Override

@@ -1,10 +1,12 @@
 package de.raidcraft.conversations.npc;
 
 import de.raidcraft.RaidCraft;
+import de.raidcraft.api.conversations.events.ConversationHostProximityEvent;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.conversations.ConversationManager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.util.ChunkLocation;
+import de.raidcraft.util.LocationUtil;
 import de.raidcraft.util.TimeUtil;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
@@ -100,6 +102,18 @@ public class TalkCloseTask implements Runnable {
         double tmpDistance = -1;
         UUID lastNpcTalk = playerTalkedMap.get(player.getUniqueId());
         for (NPC npc : this.talkChunks.get(new ChunkLocation(player.getLocation()))) {
+            Optional<ConversationHost<NPC>> host = plugin.getConversationManager().getConversationHost(npc);
+            if (host.isPresent()) {
+                Optional<String> hostIdentifier = plugin.getConversationManager().getConversationHostIdentifier(host.get());
+                if (hostIdentifier.isPresent()) {
+                    ConversationHostProximityEvent event = new ConversationHostProximityEvent(
+                            hostIdentifier.get(),
+                            host.get(),
+                            LocationUtil.getBlockDistance(player.getLocation(), host.get().getLocation()),
+                            player);
+                    RaidCraft.callEvent(event);
+                }
+            }
             if (lastNpcTalk == npc.getUniqueId()) {
                 continue;
             }
@@ -117,9 +131,6 @@ public class TalkCloseTask implements Runnable {
         //  iter over all player
         ConversationManager conversationManager = plugin.getConversationManager();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (conversationManager.hasActiveConversation(player)) {
-                continue;
-            }
             // if no npc in your current chunk
             if (!talkChunks.containsKey(new ChunkLocation(player.getLocation().getChunk()))) {
                 continue;
@@ -128,6 +139,9 @@ public class TalkCloseTask implements Runnable {
             NPC nearest_npc = getNPCinRange(player);
             if (nearest_npc == null) {
                 return;
+            }
+            if (conversationManager.hasActiveConversation(player)) {
+                continue;
             }
             // talk
             Optional<ConversationHost<NPC>> host = conversationManager.getConversationHost(nearest_npc);

@@ -13,6 +13,7 @@ import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -196,11 +197,6 @@ public class SimpleStage implements Stage {
                 }
             }
         }
-        RCConversationStageTriggeredEvent event = new RCConversationStageTriggeredEvent(getConversation(), this);
-        if (!this.answers.isEmpty() && getTemplate().isAutoShowingAnswers()) {
-            showAnswers();
-        }
-        RaidCraft.callEvent(event);
 
         if (executeActions) {
             abortActions = false;
@@ -209,7 +205,7 @@ public class SimpleStage implements Stage {
                 if (abortActions) break;
                 action.accept(getConversation());
             }
-            for (Action<Object> action : getActions(getConversation().getOwner().getClass())) {
+            for (Action<Object> action : getActions(Player.class)) {
                 if (abortActions) break;
                 action.accept(getConversation().getOwner());
             }
@@ -221,6 +217,12 @@ public class SimpleStage implements Stage {
                 any.get().accept(getConversation().getOwner());
             }
         }
+
+        RCConversationStageTriggeredEvent event = new RCConversationStageTriggeredEvent(getConversation(), this);
+        if (!this.answers.isEmpty() && getTemplate().isAutoShowingAnswers()) {
+            showAnswers();
+        }
+        RaidCraft.callEvent(event);
         return this;
     }
 }

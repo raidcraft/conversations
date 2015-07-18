@@ -179,7 +179,20 @@ public class SimpleStage implements Stage {
     public Stage trigger(boolean executeActions) {
 
         if (getText().isPresent()) {
-            getConversation().sendMessage(getText().get());
+            Optional hostName = getConversation().getHost().getName();
+            String[] text = getText().get();
+            if (text.length > 0) {
+                if (hostName.isPresent()) {
+                    getConversation().sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.GOLD
+                            + hostName.get() + ChatColor.DARK_GRAY + "]" + ChatColor.GOLD + ": "
+                            + ChatColor.AQUA + text[0]);
+                } else {
+                    getConversation().sendMessage(ChatColor.AQUA + text[0]);
+                }
+                for (int i = 1; i < text.length; i++) {
+                    getConversation().sendMessage(text[i]);
+                }
+            }
         }
         RCConversationStageTriggeredEvent event = new RCConversationStageTriggeredEvent(getConversation(), this);
         if (!this.answers.isEmpty() && getTemplate().isAutoShowingAnswers()) {

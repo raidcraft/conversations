@@ -46,13 +46,17 @@ public class NPCHost extends AbstractConversationHost<NPC> {
     public NPCHost(NPC npc) {
 
         super(npc.getUniqueId(), npc);
+        setName(npc.getName());
     }
 
     @Override
     public void load(ConfigurationSection config) {
 
         super.load(config);
-        if (config.isSet("name")) getType().setName(config.getString("name"));
+        if (config.isSet("name")) {
+            getType().setName(config.getString("name"));
+            setName(getType().getName());
+        }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));
         if (config.isSet("talk-close")) getType().addTrait(TalkCloseTrait.class);

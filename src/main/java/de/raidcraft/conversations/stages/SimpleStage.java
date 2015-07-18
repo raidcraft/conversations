@@ -111,7 +111,7 @@ public class SimpleStage implements Stage {
                 }
             }
             if (message != null) {
-                getConversation().sendMessage(message.command("/conversations answer " + (i + 1)));
+                getConversation().sendMessage(message.command("/conversations answer " + getTemplate().getIdentifier() + " " + (i + 1)));
             } else {
                 RaidCraft.LOGGER.warning("Answer Message Text ist not specified in " + ConfigUtil.getFileName(getConversation().getTemplate().getHostSettings()));
             }

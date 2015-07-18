@@ -9,6 +9,7 @@ import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
+import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
@@ -123,12 +124,18 @@ public class ConversationCommands {
 
         @Command(
                 aliases = {"answer"},
-                desc = "Answers to the current conversation."
+                desc = "Answers to the current conversation.",
+                min = 2,
+                help = "<stage_name> <answer>"
         )
         public void answer(CommandContext args, CommandSender sender) throws CommandException {
 
             Conversation conversation = getActiveConversation(sender);
-            Optional<Answer> answer = conversation.answer(args.getJoinedStrings(0));
+            Optional<Stage> stage = conversation.getStage(args.getString(0));
+            if (!stage.isPresent()) {
+                throw new CommandException("Stage " + args.getString(0) + " in Conversation " + conversation.getName() + " not found!");
+            }
+            Optional<Answer> answer = conversation.answer(stage.get(), args.getJoinedStrings(1));
             if (!answer.isPresent()) {
                 throw new CommandException("Keine gültige Antwort für " + args.getJoinedStrings(0) + " gefunden.");
             }

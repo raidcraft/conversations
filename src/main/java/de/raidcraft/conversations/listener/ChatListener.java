@@ -1,8 +1,8 @@
 package de.raidcraft.conversations.listener;
 
-import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
+import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.ConversationManager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import org.bukkit.event.EventHandler;
@@ -33,21 +33,27 @@ public class ChatListener implements Listener {
             return;
         }
 
-
         String[] exitWords = plugin.getConfiguration().exitWords;
+        Conversation conversation = activeConversation.get();
+
         for (String exitWord : exitWords) {
             if (exitWord.equalsIgnoreCase(event.getMessage())) {
-                activeConversation.get().abort(ConversationEndReason.PLAYER_ABORT);
+                conversation.abort(ConversationEndReason.PLAYER_ABORT);
                 event.setCancelled(true);
                 return;
             }
         }
 
-        // trigger conversation and hide chat message
-        Optional<Answer> answer = activeConversation.get().answer(event.getMessage());
-        if (answer.isPresent()) {
+        Optional<Stage> currentStage = conversation.getCurrentStage();
+        if (!currentStage.isPresent()) {
+            event.getPlayer().sendMessage("Du befindest dich in keiner gültigen Stage und kannst aktuell nicht antworten!");
             event.setCancelled(true);
+            return;
         }
+
+        // trigger conversation and hide chat message
+        conversation.answer(currentStage.get(), event.getMessage());
+        event.setCancelled(true);
     }
 
 }

@@ -133,7 +133,7 @@ public class SimpleStage implements Stage {
     }
 
     @Override
-    public Optional<Answer> getAnswer(String input) {
+    public Optional<Answer> processAnswer(String input) {
 
         try {
             if (input == null || input.equals("")) return Optional.empty();
@@ -150,9 +150,10 @@ public class SimpleStage implements Stage {
                     return Optional.of(answers.get(id));
                 }
             }
-        } catch (NumberFormatException e) {
-            getConversation().sendMessage(ChatColor.GRAY + "Ich habe deine Antwort nicht verstanden: Bitte gebe eine Zahl ein oder klicke auf die Antwort.");
+        } catch (NumberFormatException ignored) {
         }
+        getConversation().sendMessage(ChatColor.GRAY + "Ich habe deine Antwort nicht verstanden.",
+                "Bitte gebe eine Antwort ein oder klicke darauf:");
         return Optional.empty();
     }
 

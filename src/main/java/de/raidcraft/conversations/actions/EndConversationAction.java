@@ -19,10 +19,15 @@ public class EndConversationAction implements Action<Conversation> {
     public void accept(Conversation conversation, ConfigurationSection config) {
 
         String reason = config.getString("reason");
-        ConversationEndReason endReason = ConversationEndReason.fromString(reason);
-        if (endReason == null) {
-            endReason = ConversationEndReason.CUSTOM;
-            endReason.setMessage(reason);
+        ConversationEndReason endReason;
+        if (reason == null) {
+            endReason = ConversationEndReason.SILENT;
+        } else {
+            endReason = ConversationEndReason.fromString(reason);
+            if (endReason == null) {
+                endReason = ConversationEndReason.CUSTOM;
+                endReason.setMessage(reason);
+            }
         }
         conversation.end(endReason);
     }

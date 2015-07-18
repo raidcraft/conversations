@@ -12,7 +12,6 @@ import de.raidcraft.api.quests.QuestConfigLoader;
 import de.raidcraft.api.quests.Quests;
 import de.raidcraft.conversations.actions.AbortConversationAction;
 import de.raidcraft.conversations.actions.ChangeStageAction;
-import de.raidcraft.conversations.actions.ConversationTextAction;
 import de.raidcraft.conversations.actions.EndConversationAction;
 import de.raidcraft.conversations.actions.SetVariableAction;
 import de.raidcraft.conversations.actions.ShowAnswersAction;
@@ -112,7 +111,6 @@ public class RCConversationsPlugin extends BasePlugin {
         ActionAPI.register(this).global()
                 .trigger(new HostTrigger())
                 .action(new ShowAnswersAction(), Conversation.class)
-                .action(new ConversationTextAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)
                 .action(new StartConversationAction())
                 .action(new EndConversationAction(), Conversation.class)

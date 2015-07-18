@@ -179,7 +179,7 @@ public class SimpleStage implements Stage {
     public Stage trigger(boolean executeActions) {
 
         if (getText().isPresent()) {
-            Optional hostName = getConversation().getHost().getName();
+            Optional<String> hostName = getConversation().getHost().getName();
             String[] text = getText().get();
             if (text.length > 0) {
                 if (hostName.isPresent()) {

@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class TalkCloseTask implements Runnable {
         if (TalkCloseTrait.getNPCs().size() == 0) {
             return;
         }
-        TalkCloseTrait.getNPCs().forEach(this::generateTalkChunk);
+        new ArrayList<>(TalkCloseTrait.getNPCs()).forEach(this::generateTalkChunk);
         taskid = Bukkit.getScheduler().scheduleSyncRepeatingTask(
                 plugin, this, -1, TimeUtil.secondsToTicks(talkDelayInSeconds));
     }

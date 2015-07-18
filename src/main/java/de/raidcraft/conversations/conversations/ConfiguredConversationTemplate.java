@@ -16,7 +16,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,9 +65,9 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     }
 
     @Override
-    public List<StageTemplate> getStages() {
+    public Map<String, StageTemplate> getStages() {
 
-        return new ArrayList<>(stages.values());
+        return new CaseInsensitiveMap<>(stages);
     }
 
     @Override

@@ -11,9 +11,11 @@ import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.RCConversationsPlugin;
+import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -121,6 +123,43 @@ public class ConversationCommands {
             plugin.getDatabase().save(persistentHost);
 
             sender.sendMessage(org.bukkit.ChatColor.GREEN + "Der NPC wurde erfolgreich erstellt!");
+        }
+
+        @Command(
+                aliases = {"start"},
+                desc = "Starts the given conversation.",
+                min = 1,
+                flags = "p:",
+                help = "<conversation id> [-p <player>] [host]"
+        )
+        @CommandPermissions("rcconversations.admin.start")
+        public void start(CommandContext args, CommandSender sender) throws CommandException {
+
+            Optional<ConversationTemplate> conversationTemplate = plugin.getConversationManager().getLoadedConversationTemplate(args.getString(0));
+            if (!conversationTemplate.isPresent()) {
+                throw new CommandException("Es gibt keine Conversation mit der ID: " + args.getString(0));
+            }
+
+            Player player = (Player) sender;
+            if (args.hasFlag('p')) {
+                player = Bukkit.getPlayer(args.getFlag('p'));
+                if (player == null) {
+                    throw new CommandException("Der Spieler " + args.getFlag('p') + " ist nicht online");
+                }
+            }
+
+            ConversationHost conversationHost;
+            if (args.argsLength() > 1) {
+                Optional<ConversationHost<?>> host = plugin.getConversationManager().getConversationHost(args.getString(1));
+                if (!host.isPresent()) {
+                    throw new CommandException("Es gibt keinen Host mit der ID: " + args.getString(1));
+                }
+                conversationHost = host.get();
+            } else {
+                conversationHost = new PlayerHost(player);
+            }
+
+            conversationTemplate.get().startConversation(player, conversationHost);
         }
 
         @Command(

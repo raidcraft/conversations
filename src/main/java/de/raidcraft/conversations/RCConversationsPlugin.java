@@ -55,7 +55,7 @@ public class RCConversationsPlugin extends BasePlugin {
         registerCommands(ConversationCommands.class);
         registerActionAPI();
 
-        Quests.registerQuestLoader(new QuestConfigLoader("host") {
+        Quests.registerQuestLoader(new QuestConfigLoader("host", 50) {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 
@@ -63,7 +63,7 @@ public class RCConversationsPlugin extends BasePlugin {
             }
         });
 
-        Quests.registerQuestLoader(new QuestConfigLoader("conv") {
+        Quests.registerQuestLoader(new QuestConfigLoader("conv", 10) {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 

@@ -67,6 +67,7 @@ public class ConversationManager implements ConversationProvider, Component {
     private final Map<String, ConversationTemplate> conversations = new CaseInsensitiveMap<>();
     private final Map<UUID, Conversation> activeConversations = new HashMap<>();
     private final Map<String, ConversationHost<?>> cachedHosts = new CaseInsensitiveMap<>();
+    private final Map<ConversationHost, ConfigurationSection> queuedHosts = new HashMap<>();
 
     public ConversationManager(RCConversationsPlugin plugin) {
 
@@ -85,6 +86,13 @@ public class ConversationManager implements ConversationProvider, Component {
         registerHostFactory("NPC", new NPCHost.NPCHostFactory());
 
         Bukkit.getScheduler().runTaskLater(plugin, this::load, 5 * 20L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Map.Entry<ConversationHost, ConfigurationSection> entry : queuedHosts.entrySet()) {
+                entry.getKey().load(entry.getValue());
+                loadSavedHostConversations(entry.getKey());
+            }
+            queuedHosts.clear();
+        }, 15 * 20L);
     }
 
     public void reload() {
@@ -377,8 +385,7 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         Optional<ConversationHost<?>> host = createConversationHost(identifier, type, location);
         if (host.isPresent()) {
-            host.get().load(config);
-            loadSavedHostConversations(host.get());
+            queuedHosts.put(host.get(), config);
             cachedHosts.put(identifier, host.get());
         }
         return host;

@@ -139,7 +139,8 @@ public class RCConversationsPlugin extends BasePlugin {
 
         @Setting("conversation.abort-warn-radius")
         public int conversationAbortWarnRadius = 5;
-
+        @Setting("host.proximity-max-range")
+        public int maxHostProximityRange = 10;
         @Setting("conversation.abort-radius")
         public int conversationAbortRadius = 10;
         @Setting("conversation.exit-words")

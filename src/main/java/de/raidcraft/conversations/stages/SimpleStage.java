@@ -151,9 +151,9 @@ public class SimpleStage implements Stage {
                 }
             }
         } catch (NumberFormatException ignored) {
+            getConversation().sendMessage(ChatColor.GRAY + "Ich habe deine Antwort nicht verstanden.",
+                    "Bitte gebe eine Antwort ein oder klicke darauf:");
         }
-        getConversation().sendMessage(ChatColor.GRAY + "Ich habe deine Antwort nicht verstanden.",
-                "Bitte gebe eine Antwort ein oder klicke darauf:");
         return Optional.empty();
     }
 
@@ -177,6 +177,7 @@ public class SimpleStage implements Stage {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Stage trigger(boolean executeActions) {
 
         if (getText().isPresent()) {

@@ -1,5 +1,6 @@
 package de.raidcraft.conversations.listener;
 
+import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.stage.Stage;
@@ -52,8 +53,10 @@ public class ChatListener implements Listener {
         }
 
         // trigger conversation and hide chat message
-        conversation.answer(currentStage.get(), event.getMessage());
-        event.setCancelled(true);
+        Optional<Answer> answer = conversation.answer(currentStage.get(), event.getMessage());
+        if (answer.isPresent()) {
+            event.setCancelled(true);
+        }
     }
 
 }

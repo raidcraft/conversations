@@ -9,6 +9,7 @@ import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.events.RCConversationStageTriggeredEvent;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
+import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
@@ -100,14 +101,20 @@ public class SimpleStage implements Stage {
         int i;
         for (i = 0; i < answers.size(); i++) {
             Answer answer = answers.get(i);
-            FancyMessage message;
+            FancyMessage message = null;
             if (answer.getMessage().isPresent()) {
                 message = answer.getMessage().get();
             } else {
-                message = new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
-                        .then(answer.getText()).color(answer.getColor());
+                if (answer.getText().isPresent()) {
+                    message = new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
+                            .then(answer.getText().get()).color(answer.getColor());
+                }
             }
-            getConversation().sendMessage(message.command("/conversations answer " + (i + 1)));
+            if (message != null) {
+                getConversation().sendMessage(message.command("/conversations answer " + (i + 1)));
+            } else {
+                RaidCraft.LOGGER.warning("Answer Message Text ist not specified in " + ConfigUtil.getFileName(getConversation().getTemplate().getHostSettings()));
+            }
         }
         if (this.answers.size() > 1) {
             if (currentPage > 1) {

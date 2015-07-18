@@ -19,6 +19,7 @@ import de.raidcraft.conversations.actions.ShowAnswersAction;
 import de.raidcraft.conversations.actions.StartConversationAction;
 import de.raidcraft.conversations.commands.ConversationCommands;
 import de.raidcraft.conversations.listener.ChatListener;
+import de.raidcraft.conversations.listener.ConversationListener;
 import de.raidcraft.conversations.listener.NPCListener;
 import de.raidcraft.conversations.listener.PlayerListener;
 import de.raidcraft.conversations.npc.ConversationNPCManager;
@@ -73,6 +74,7 @@ public class RCConversationsPlugin extends BasePlugin {
 
         registerEvents(new ChatListener(this));
         registerEvents(new PlayerListener(this));
+        registerEvents(new ConversationListener(this));
 
         // register NPC traits, trait listener and load all NPC's
         NPC_Manager.getInstance().registerTrait(TalkCloseTrait.class, RC_Traits.TALK_CLOSE);

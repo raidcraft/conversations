@@ -377,7 +377,7 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         Optional<ConversationHost<?>> host = createConversationHost(identifier, type, location);
         if (host.isPresent()) {
-            host.get().load(config.getConfigurationSection("args"));
+            host.get().load(config);
             loadSavedHostConversations(host.get());
             cachedHosts.put(identifier, host.get());
         }

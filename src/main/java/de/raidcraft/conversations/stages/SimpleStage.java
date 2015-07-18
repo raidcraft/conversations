@@ -210,12 +210,8 @@ public class SimpleStage implements Stage {
                 action.accept(getConversation().getOwner());
             }
 
-            List<Action<Object>> randomActions = ActionHolder.getFilteredActions(getRandomActions(), getConversation().getOwner().getClass());
-            Collections.shuffle(randomActions);
-            Optional<Action<Object>> any = randomActions.stream().findAny();
-            if (!abortActions && any.isPresent()) {
-                any.get().accept(getConversation().getOwner());
-            }
+            executeRandomAction(ActionHolder.getFilteredActions(getRandomActions(), Player.class), getConversation().getOwner());
+            executeRandomAction(ActionHolder.getFilteredActions(getRandomActions(), Conversation.class), getConversation());
         }
 
         RCConversationStageTriggeredEvent event = new RCConversationStageTriggeredEvent(getConversation(), this);
@@ -224,5 +220,14 @@ public class SimpleStage implements Stage {
         }
         RaidCraft.callEvent(event);
         return this;
+    }
+
+    private <T> void executeRandomAction(List<Action<T>> actions, T entity) {
+
+        Collections.shuffle(actions);
+        Optional<Action<T>> any = actions.stream().findAny();
+        if (!abortActions && any.isPresent()) {
+            any.get().accept(entity);
+        }
     }
 }

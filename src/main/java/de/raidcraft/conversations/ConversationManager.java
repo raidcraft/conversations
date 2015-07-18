@@ -36,6 +36,7 @@ import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
@@ -477,8 +478,12 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Optional<ConversationTemplate> loadConversation(String identifier, ConfigurationSection config) {
 
-        if (conversations.containsKey(identifier)) {
-            plugin.getLogger().warning("Reloading conversation " + identifier + " from " + ConfigUtil.getFileName(config));
+        if (config.isList("worlds")) {
+            List<String> worlds = config.getStringList("worlds");
+            if (Bukkit.getWorlds().stream().map(World::getName).noneMatch(worlds::contains)) {
+                plugin.getLogger().info("Not loading " + identifier + " because the required worlds are not loaded.");
+                return Optional.empty();
+            }
         }
         Optional<ConversationTemplate> template = createConversationTemplate(identifier, config);
         if (!template.isPresent()) {

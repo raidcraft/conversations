@@ -477,8 +477,7 @@ public class ConversationManager implements ConversationProvider, Component {
     public Optional<ConversationTemplate> loadConversation(String identifier, ConfigurationSection config) {
 
         if (conversations.containsKey(identifier)) {
-            plugin.getLogger().warning("Tried to register duplicate conversation: " + identifier + " from " + ConfigUtil.getFileName(config));
-            return Optional.of(conversations.get(identifier));
+            plugin.getLogger().warning("Reloading conversation " + identifier + " from " + ConfigUtil.getFileName(config));
         }
         Optional<ConversationTemplate> template = createConversationTemplate(identifier, config);
         if (!template.isPresent()) {

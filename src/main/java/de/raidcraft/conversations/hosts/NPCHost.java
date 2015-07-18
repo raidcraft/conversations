@@ -132,4 +132,10 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         }
         return getType().getStoredLocation();
     }
+
+    @Override
+    public void delete() {
+
+        getType().destroy();
+    }
 }

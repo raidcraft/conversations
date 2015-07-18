@@ -9,7 +9,12 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +28,7 @@ public class TPersistentHost {
 
     @Id
     private int id;
+    private UUID host;
     private UUID creator;
     private String conversation;
     private String hostType;
@@ -39,6 +45,7 @@ public class TPersistentHost {
 
     public TPersistentHost(Player creator, ConversationHost<?> host) {
 
+        this.host = host.getUniqueId();
         this.creator = creator.getUniqueId();
         this.world = host.getLocation().getWorld().getName();
         this.x = host.getLocation().getBlockX();

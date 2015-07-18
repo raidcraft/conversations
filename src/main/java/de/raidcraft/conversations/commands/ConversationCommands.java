@@ -117,12 +117,42 @@ public class ConversationCommands {
                 option.setHost(persistentHost);
                 option.setConfKey(key);
                 option.setConfValue(settings.getString(key));
-                plugin.getDatabase().save(option);
                 persistentHost.getOptions().add(option);
             }
             plugin.getDatabase().save(persistentHost);
+            plugin.getDatabase().save(persistentHost.getOptions());
 
             sender.sendMessage(org.bukkit.ChatColor.GREEN + "Der NPC wurde erfolgreich erstellt!");
+        }
+
+        @Command(
+                aliases = {"delete", "remove"},
+                desc = "Removes the nearest host with the given ID.",
+                flags = "r:",
+                help = "[host id] [-r <radius>]"
+        )
+        @CommandPermissions("rcconversations.admin.delete")
+        public void delete(CommandContext args, CommandSender sender) throws CommandException {
+
+            ConversationHost conversationHost;
+            if (args.argsLength() > 0) {
+                Optional<ConversationHost<?>> host = plugin.getConversationManager().getConversationHost(args.getString(0));
+                if (!host.isPresent()) {
+                    throw new CommandException("Host " + args.getString(0) + " not found!");
+                }
+                conversationHost = host.get();
+            } else {
+                List<ConversationHost> hosts = plugin.getConversationManager().getNearbyHosts(((Player) sender).getLocation(), args.getFlagInteger('r', 3));
+                if (!hosts.isEmpty()) {
+                    throw new CommandException("No conversation hosts nearby (" + args.getFlagInteger('r', 3) + " blocks) found!");
+                }
+                if (hosts.size() > 1) {
+                    throw new CommandException("Multiple hosts nearby (" + args.getFlagInteger('r', 3) + " blocks) found! Please choose a smaller radius or specify the ID.");
+                }
+                conversationHost = hosts.get(0);
+            }
+            plugin.getConversationManager().deleteConversationHost(conversationHost);
+            sender.sendMessage(ChatColor.GREEN + "Host " + conversationHost.getName() + " has been removed successfully!");
         }
 
         @Command(

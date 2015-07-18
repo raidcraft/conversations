@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author mdoering
@@ -588,5 +589,27 @@ public class ConversationManager implements ConversationProvider, Component {
             }
         }
         return Optional.empty();
+    }
+
+    public void deleteConversationHost(ConversationHost host) {
+
+        host.delete();
+        TPersistentHost persistentHost = plugin.getDatabase().find(TPersistentHost.class).where().eq("host", host.getUniqueId()).findUnique();
+        if (persistentHost != null) {
+            plugin.getDatabase().delete(persistentHost);
+        }
+        for (Map.Entry<String, ConversationHost<?>> entry : cachedHosts.entrySet()) {
+            if (entry.getValue().equals(host)) {
+                cachedHosts.remove(entry.getKey());
+                break;
+            }
+        }
+    }
+
+    public List<ConversationHost> getNearbyHosts(Location location, int radius) {
+
+        return cachedHosts.values().stream()
+                .filter(host -> LocationUtil.isWithinRadius(location, host.getLocation(), radius))
+                .collect(Collectors.toList());
     }
 }

@@ -23,4 +23,10 @@ public class PlayerHost extends AbstractConversationHost<Player> {
 
         return getType().getLocation();
     }
+
+    @Override
+    public void delete() {
+
+        throw new UnsupportedOperationException("Cannot delete player host!");
+    }
 }

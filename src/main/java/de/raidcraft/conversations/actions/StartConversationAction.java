@@ -22,8 +22,8 @@ public class StartConversationAction implements Action<Player> {
             value = "conversation.start",
             desc = "Starts the given conversation with the given host.",
             conf = {
-                    "host: host to start conversation with",
-                    "conv: conversation to start"
+                    "conv: <conv id>",
+                    "host: [optional host]"
             }
     )
     public void accept(Player player, ConfigurationSection config) {

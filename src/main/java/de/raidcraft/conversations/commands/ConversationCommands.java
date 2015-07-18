@@ -115,6 +115,7 @@ public class ConversationCommands {
                 option.setHost(persistentHost);
                 option.setConfKey(key);
                 option.setConfValue(settings.getString(key));
+                plugin.getDatabase().save(option);
                 persistentHost.getOptions().add(option);
             }
             plugin.getDatabase().save(persistentHost);

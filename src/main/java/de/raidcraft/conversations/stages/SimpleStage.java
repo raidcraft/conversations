@@ -18,8 +18,11 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +34,7 @@ public class SimpleStage implements Stage {
     private final Conversation conversation;
     private final StageTemplate template;
     private final List<List<Answer>> answers = new ArrayList<>();
+    private final Map<UUID, Answer> activeAnswers = new HashMap<>();
     private int currentPage = 0;
     private boolean abortActions = false;
 
@@ -98,6 +102,9 @@ public class SimpleStage implements Stage {
 
         while (currentPage >= this.answers.size()) currentPage--;
 
+        // lets clear all current answers to make new answers unique clickable
+        activeAnswers.clear();
+
         List<Answer> answers = this.answers.get(currentPage);
         int i;
         for (i = 0; i < answers.size(); i++) {
@@ -112,7 +119,10 @@ public class SimpleStage implements Stage {
                 }
             }
             if (message != null) {
-                getConversation().sendMessage(message.command("/conversations answer " + getTemplate().getIdentifier() + " " + (i + 1)));
+                // lets generate a random uuid for the answer making it impossible to answer outside the current stage and answers
+                UUID answerUUID = UUID.randomUUID();
+                activeAnswers.put(answerUUID, answer);
+                getConversation().sendMessage(message.command("/conv answer " + answerUUID.toString()));
             } else {
                 RaidCraft.LOGGER.warning("Answer Message Text ist not specified in " + ConfigUtil.getFileName(getConversation().getTemplate().getHostSettings()));
             }
@@ -121,13 +131,13 @@ public class SimpleStage implements Stage {
             if (currentPage > 1) {
                 getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
                         .then("Zurück zu Seite " + (currentPage)).color(ChatColor.GRAY)
-                        .command("/conversations page " + (currentPage - 1)));
+                        .command("/conv page " + (currentPage - 1)));
                 i++;
             }
             if (currentPage > 1 && currentPage < this.answers.size() - 1) {
                 getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
                         .then("Nächste Seite " + (currentPage + 1)).color(ChatColor.GRAY)
-                        .command("/conversations page " + (currentPage + 1)));
+                        .command("/conv page " + (currentPage + 1)));
             }
         }
         return this;
@@ -136,8 +146,18 @@ public class SimpleStage implements Stage {
     @Override
     public Optional<Answer> processAnswer(String input) {
 
+        if (input == null || input.equals("")) return Optional.empty();
         try {
-            if (input == null || input.equals("")) return Optional.empty();
+            UUID answerUUID = UUID.fromString(input);
+            // we have a clicked direct answer lets see if it is active
+            if (!activeAnswers.containsKey(answerUUID)) {
+                getConversation().sendMessage(ChatColor.RED + "Du kannst nur auf die aktuelle Konversation antworten!");
+                return Optional.empty();
+            }
+            return Optional.of(activeAnswers.get(answerUUID));
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
             for (Answer answer : this.answers.stream().flatMap(List::stream).collect(Collectors.toList())) {
                 if (answer.processInput(getConversation(), input)) {
                     return Optional.of(answer);

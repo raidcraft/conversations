@@ -5,11 +5,9 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
-import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
-import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.conversations.tables.TPersistentHost;
@@ -195,20 +193,13 @@ public class ConversationCommands {
         @Command(
                 aliases = {"answer"},
                 desc = "Answers to the current conversation.",
-                min = 2,
-                help = "<stage_name> <answer>"
+                min = 1,
+                help = "<answer_uuid>"
         )
         public void answer(CommandContext args, CommandSender sender) throws CommandException {
 
             Conversation conversation = getActiveConversation(sender);
-            Optional<Stage> stage = conversation.getStage(args.getString(0));
-            if (!stage.isPresent()) {
-                throw new CommandException("Stage " + args.getString(0) + " in Conversation " + conversation.getName() + " not found!");
-            }
-            Optional<Answer> answer = conversation.answer(stage.get(), args.getJoinedStrings(1));
-            if (!answer.isPresent()) {
-                throw new CommandException("Keine gültige Antwort für " + args.getJoinedStrings(0) + " gefunden.");
-            }
+            conversation.answer(args.getJoinedStrings(0));
         }
 
         @Command(

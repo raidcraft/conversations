@@ -1,8 +1,8 @@
 package de.raidcraft.conversations.stages;
 
 import de.raidcraft.RaidCraft;
+import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.action.action.Action;
-import de.raidcraft.api.action.action.ActionHolder;
 import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
@@ -221,17 +221,26 @@ public class SimpleStage implements Stage {
         if (executeActions) {
             abortActions = false;
             // lets execute all player actions and then all conversation actions
-            for (Action<Object> action : getActions(Conversation.class)) {
+            for (Action<?> action : getActions()) {
                 if (abortActions) break;
-                action.accept(getConversation());
-            }
-            for (Action<Object> action : getActions(Player.class)) {
-                if (abortActions) break;
-                action.accept(getConversation().getOwner());
+                if (ActionAPI.matchesType(action, Player.class)) {
+                    ((Action<Player>) action).accept(getConversation().getOwner());
+                } else if (ActionAPI.matchesType(action, Conversation.class)) {
+                    ((Action<Conversation>) action).accept(getConversation());
+                }
             }
 
-            executeRandomAction(ActionHolder.getFilteredActions(getRandomActions(), Player.class), getConversation().getOwner());
-            executeRandomAction(ActionHolder.getFilteredActions(getRandomActions(), Conversation.class), getConversation());
+            List<Action<?>> randomActions = getRandomActions();
+            Collections.shuffle(randomActions);
+            Optional<Action<?>> randomAction = randomActions.stream().findAny();
+            if (!abortActions && randomAction.isPresent()) {
+                Action<?> action = randomAction.get();
+                if (ActionAPI.matchesType(action, Player.class)) {
+                    ((Action<Player>) action).accept(getConversation().getOwner());
+                } else if (ActionAPI.matchesType(action, Conversation.class)) {
+                    ((Action<Conversation>) action).accept(getConversation());
+                }
+            }
         }
 
         RCConversationStageTriggeredEvent event = new RCConversationStageTriggeredEvent(getConversation(), this);
@@ -240,14 +249,5 @@ public class SimpleStage implements Stage {
         }
         RaidCraft.callEvent(event);
         return this;
-    }
-
-    private <T> void executeRandomAction(List<Action<T>> actions, T entity) {
-
-        Collections.shuffle(actions);
-        Optional<Action<T>> any = actions.stream().findAny();
-        if (!abortActions && any.isPresent()) {
-            any.get().accept(entity);
-        }
     }
 }

@@ -2,6 +2,7 @@ package de.raidcraft.conversations.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.ActionAPI;
+import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.Conversation;
@@ -32,6 +33,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     private final int priority;
     private final ConfigurationSection hostSettings;
     private final List<Requirement<?>> requirements;
+    private final List<Action<?>> actions;
     private final Map<String, StageTemplate> stages;
 
     public ConfiguredConversationTemplate(String identifier, ConfigurationSection config) {
@@ -42,6 +44,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
         this.priority = config.getInt("priority", 1);
         this.hostSettings = config.isConfigurationSection("settings") ? config.getConfigurationSection("settings") : new MemoryConfiguration();
         this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));
+        this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
         this.stages = loadStages(config.getConfigurationSection("stages"));
         load(config.getConfigurationSection("args"));
     }
@@ -83,6 +86,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Conversation startConversation(Player player, ConversationHost host) {
 
         Optional<Conversation> activeConversation = Conversations.removeActiveConversation(player);
@@ -94,7 +98,18 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
                 return activeConversation.get();
             }
         }
+
+        // lets execute all actions of this conversation
         Conversation conversation = createConversation(player, host);
+        for (Action<?> action : getActions()) {
+            if (conversation.isAbortActionExecution()) break;
+            if (ActionAPI.matchesType(action, Player.class)) {
+                ((Action<Player>) action).accept(player);
+            } else if (ActionAPI.matchesType(action, Conversation.class)) {
+                ((Action<Conversation>) action).accept(conversation);
+            }
+        }
+
         conversation.start();
         return conversation;
     }

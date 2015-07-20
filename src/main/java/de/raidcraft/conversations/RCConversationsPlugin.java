@@ -11,6 +11,7 @@ import de.raidcraft.api.npc.RC_Traits;
 import de.raidcraft.api.quests.QuestConfigLoader;
 import de.raidcraft.api.quests.Quests;
 import de.raidcraft.conversations.actions.AbortConversationAction;
+import de.raidcraft.conversations.actions.AbortConversationActions;
 import de.raidcraft.conversations.actions.ChangeStageAction;
 import de.raidcraft.conversations.actions.EndConversationAction;
 import de.raidcraft.conversations.actions.SetVariableAction;
@@ -110,6 +111,7 @@ public class RCConversationsPlugin extends BasePlugin {
 
         ActionAPI.register(this).global()
                 .trigger(new HostTrigger())
+                .action(new AbortConversationActions(), Conversation.class)
                 .action(new ShowAnswersAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)
                 .action(new StartConversationAction())

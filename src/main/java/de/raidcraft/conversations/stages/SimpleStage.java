@@ -11,6 +11,7 @@ import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * @author mdoering
  */
 @Data
+@EqualsAndHashCode(callSuper = false, of = {"conversation", "template"})
 public class SimpleStage implements Stage {
 
     private final Conversation conversation;

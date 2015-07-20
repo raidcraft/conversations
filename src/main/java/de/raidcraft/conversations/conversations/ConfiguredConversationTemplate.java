@@ -13,6 +13,7 @@ import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ import java.util.Optional;
  * @author mdoering
  */
 @Data
+@EqualsAndHashCode(callSuper = false, of = {"identifier"})
 public abstract class ConfiguredConversationTemplate implements ConversationTemplate {
 
     private final String identifier;

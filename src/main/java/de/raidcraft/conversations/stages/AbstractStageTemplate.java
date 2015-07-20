@@ -8,6 +8,7 @@ import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * @author mdoering
  */
 @Data
+@EqualsAndHashCode(callSuper = false, of = {"identifier", "conversationTemplate"})
 public abstract class AbstractStageTemplate implements StageTemplate {
 
     private final String identifier;

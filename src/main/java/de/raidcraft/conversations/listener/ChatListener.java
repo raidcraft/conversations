@@ -53,7 +53,7 @@ public class ChatListener implements Listener {
         }
 
         // trigger conversation and hide chat message
-        Optional<Answer> answer = conversation.answer(currentStage.get(), event.getMessage());
+        Optional<Answer> answer = conversation.answer(event.getMessage());
         if (answer.isPresent()) {
             event.setCancelled(true);
         }

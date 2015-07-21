@@ -6,6 +6,7 @@ import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.Conversation;
+import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.events.RCConversationStageTriggeredEvent;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
@@ -250,6 +251,11 @@ public class SimpleStage implements Stage {
             showAnswers();
         }
         RaidCraft.callEvent(event);
+
+        if (getConversation().getTemplate().isAutoEnding() && getConversation().getStages().size() < 2) {
+            // automatically end the conversation silently if one one stage is defined and auto-end == true
+            getConversation().end(ConversationEndReason.SILENT);
+        }
         return this;
     }
 }

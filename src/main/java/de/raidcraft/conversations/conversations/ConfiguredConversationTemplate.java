@@ -32,6 +32,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     private final String identifier;
     private final String conversationType;
     private final boolean persistant;
+    private final boolean autoEnding;
     private final int priority;
     private final ConfigurationSection hostSettings;
     private final List<Requirement<?>> requirements;
@@ -43,6 +44,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
         this.identifier = identifier;
         this.conversationType = config.getString("conv-type", Conversation.DEFAULT_TYPE);
         this.persistant = config.getBoolean("persistant", false);
+        this.autoEnding = config.getBoolean("auto-end", true);
         this.priority = config.getInt("priority", 1);
         this.hostSettings = config.isConfigurationSection("settings") ? config.getConfigurationSection("settings") : new MemoryConfiguration();
         this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));

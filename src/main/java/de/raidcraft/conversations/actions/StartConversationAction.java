@@ -5,6 +5,7 @@ import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
+import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.util.ConfigUtil;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,7 +24,8 @@ public class StartConversationAction implements Action<Player> {
             desc = "Starts the given conversation with the given host.",
             conf = {
                     "conv: <conv id>",
-                    "host: [optional host]"
+                    "host: [optional host]",
+                    "stage: [optional stage to start at]"
             }
     )
     public void accept(Player player, ConfigurationSection config) {
@@ -46,6 +48,15 @@ public class StartConversationAction implements Action<Player> {
         } else {
             host = new PlayerHost(player);
         }
-        template.get().startConversation(player, host);
+        if (config.isSet("stage")) {
+            Optional<StageTemplate> stage = template.get().getStage(config.getString("stage"));
+            if (!stage.isPresent()) {
+                RaidCraft.LOGGER.warning("Invalid Stage " + config.getString("stage") + "defined in " + template.get().getIdentifier());
+                return;
+            }
+            template.get().startConversation(player, host, stage.get());
+        } else {
+            template.get().startConversation(player, host);
+        }
     }
 }

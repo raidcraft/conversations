@@ -90,8 +90,14 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Conversation startConversation(Player player, ConversationHost host) {
+
+        return startConversation(player, host, null);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Conversation startConversation(Player player, ConversationHost host, StageTemplate stage) {
 
         Optional<Conversation> activeConversation = Conversations.removeActiveConversation(player);
         if (activeConversation.isPresent()) {
@@ -112,6 +118,10 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
             } else if (ActionAPI.matchesType(action, Conversation.class)) {
                 ((Action<Conversation>) action).accept(conversation);
             }
+        }
+
+        if (stage != null) {
+            conversation.setCurrentStage(stage.create(conversation));
         }
 
         conversation.start();

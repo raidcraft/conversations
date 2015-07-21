@@ -139,6 +139,9 @@ public class RCConversationsPlugin extends BasePlugin {
             super(plugin, "config.yml");
         }
 
+        @Setting("debug")
+        public boolean debug = true;
+
         @Setting("conversation.abort-warn-radius")
         public int conversationAbortWarnRadius = 5;
         @Setting("host.proximity-max-range")

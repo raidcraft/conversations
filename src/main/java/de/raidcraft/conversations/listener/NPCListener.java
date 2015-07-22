@@ -42,7 +42,8 @@ public class NPCListener implements Listener {
         // lets get the now active conversation and compare it to the previous one
         Optional<Conversation> newActiveConversation = Conversations.getActiveConversation(event.getClicker());
         // nothing changed if both conversation are equal
-        if (activeConversation.equals(newActiveConversation)) {
+        if ((!activeConversation.isPresent() && !newActiveConversation.isPresent())
+                || (activeConversation.isPresent() && newActiveConversation.isPresent() && activeConversation.equals(newActiveConversation))) {
             host.get().startConversation(event.getClicker());
         }
     }

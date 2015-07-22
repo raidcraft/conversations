@@ -1,6 +1,7 @@
 package de.raidcraft.conversations.npc;
 
 import de.raidcraft.RaidCraft;
+import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.events.ConversationHostProximityEvent;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.conversations.ConversationManager;
@@ -136,7 +137,9 @@ public class TalkCloseTask implements Runnable {
             if (!talkChunks.containsKey(new ChunkLocation(player.getLocation().getChunk()))) {
                 continue;
             }
-            if (conversationManager.hasActiveConversation(player)) {
+            Optional<Conversation> activeConversation = conversationManager.getActiveConversation(player);
+            if (activeConversation.isPresent()) {
+                playerTalkedMap.put(player.getUniqueId(), activeConversation.get().getHost().getUniqueId());
                 continue;
             }
             // check distance

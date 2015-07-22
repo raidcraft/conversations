@@ -117,6 +117,7 @@ public class TalkCloseTask implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void run() {
         //  iter over all player
         ConversationManager conversationManager = plugin.getConversationManager();
@@ -124,7 +125,7 @@ public class TalkCloseTask implements Runnable {
             // lets fire our host proximity events
             List<ConversationHost> hosts = plugin.getConversationManager().getNearbyHosts(player.getLocation(), plugin.getConfiguration().maxHostProximityRange);
             for (ConversationHost host : hosts) {
-                Optional<String> identifier = plugin.getConversationManager().getConversationHostIdentifier(host);
+                Optional<String> identifier = host.getIdentifier();
                 if (identifier.isPresent()) {
                     RaidCraft.callEvent(new ConversationHostProximityEvent(
                             identifier.get(),

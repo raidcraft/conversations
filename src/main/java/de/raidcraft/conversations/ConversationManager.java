@@ -357,7 +357,7 @@ public class ConversationManager implements ConversationProvider, Component {
             return Optional.empty();
         }
         ConversationHostFactory<?> factory = hostFactories.get(type);
-        return Optional.of(factory.create(location));
+        return Optional.of(factory.create(identifier, location));
     }
 
     @Override
@@ -433,14 +433,6 @@ public class ConversationManager implements ConversationProvider, Component {
     public Optional<ConversationHost<?>> getConversationHost(String id) {
 
         return Optional.ofNullable(cachedHosts.get(id));
-    }
-
-    public Optional<String> getConversationHostIdentifier(ConversationHost<?> host) {
-
-        return cachedHosts.entrySet().stream()
-                .filter(cachedHost -> cachedHost.getValue().equals(host))
-                .map(Map.Entry::getKey)
-                .findAny();
     }
 
     @Override

@@ -17,6 +17,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.Optional;
+
 /**
  * @author mdoering
  */
@@ -27,15 +29,15 @@ public class NPCHost extends AbstractConversationHost<NPC> {
     public static class NPCHostFactory implements ConversationHostFactory<NPC> {
 
         @Override
-        public ConversationHost<NPC> create(Location location) {
+        public ConversationHost<NPC> create(String identifier, Location location) {
 
-            return new NPCHost(ConversationNPCManager.spawnNPC("UNNAMED", location));
+            return new NPCHost(identifier, ConversationNPCManager.spawnNPC("UNNAMED", location));
         }
 
         @Override
         public ConversationHost<NPC> create(NPC type) {
 
-            NPCHost npcHost = new NPCHost(type);
+            NPCHost npcHost = new NPCHost(null, type);
             if (!npcHost.getType().isSpawned() && npcHost.getType().getStoredLocation() != null) {
                 npcHost.getType().spawn(type.getStoredLocation());
             }
@@ -43,9 +45,9 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         }
     }
 
-    public NPCHost(NPC npc) {
+    public NPCHost(String identifier, NPC npc) {
 
-        super(npc.getUniqueId(), npc);
+        super(npc.getUniqueId(), Optional.ofNullable(identifier), npc);
         setName(npc.getName());
     }
 

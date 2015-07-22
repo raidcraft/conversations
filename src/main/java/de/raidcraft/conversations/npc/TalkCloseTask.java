@@ -150,7 +150,7 @@ public class TalkCloseTask implements Runnable {
             }
             // talk
             Optional<ConversationHost<NPC>> host = conversationManager.getConversationHost(nearest_npc);
-            if (host.isPresent()) {
+            if (host.isPresent() && nearest_npc.hasTrait(TalkCloseTrait.class)) {
                 host.get().startConversation(player);
                 playerTalkedMap.put(player.getUniqueId(), nearest_npc.getUniqueId());
             }

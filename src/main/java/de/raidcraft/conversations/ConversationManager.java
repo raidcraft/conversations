@@ -548,11 +548,7 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Optional<Conversation> removeActiveConversation(Player player) {
 
-        Conversation conversation = activeConversations.remove(player.getUniqueId());
-        if (conversation != null) {
-            conversation.abort(ConversationEndReason.START_NEW_CONVERSATION);
-        }
-        return Optional.ofNullable(conversation);
+        return Optional.ofNullable(activeConversations.remove(player.getUniqueId()));
     }
 
     @Override

@@ -85,7 +85,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(0, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                e.printStackTrace();
+                RaidCraft.LOGGER.warning(e.getMessage());
             }
 
             try {
@@ -94,7 +94,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(1, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                e.printStackTrace();
+                RaidCraft.LOGGER.warning(e.getMessage());
             }
 
             try {
@@ -103,7 +103,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(2, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                e.printStackTrace();
+                RaidCraft.LOGGER.warning(e.getMessage());
             }
 
             try {
@@ -112,7 +112,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(3, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                e.printStackTrace();
+                RaidCraft.LOGGER.warning(e.getMessage());
             }
 
             try {
@@ -121,7 +121,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(4, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                e.printStackTrace();
+                RaidCraft.LOGGER.warning(e.getMessage());
             }
         }
     }

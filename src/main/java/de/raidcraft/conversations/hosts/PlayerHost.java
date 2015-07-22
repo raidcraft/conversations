@@ -15,7 +15,7 @@ public class PlayerHost extends AbstractConversationHost<Player> {
 
     public PlayerHost(Player player) {
 
-        super(player.getUniqueId(), player);
+        super(player.getUniqueId(), null, player);
     }
 
     @Override

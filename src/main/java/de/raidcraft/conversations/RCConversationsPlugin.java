@@ -2,6 +2,7 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.ActionAPI;
+import de.raidcraft.api.config.Comment;
 import de.raidcraft.api.config.ConfigurationBase;
 import de.raidcraft.api.config.Setting;
 import de.raidcraft.api.conversations.Conversations;
@@ -153,6 +154,12 @@ public class RCConversationsPlugin extends BasePlugin {
         public boolean debug_stage_trigger = true;
         @Setting("debug.stage.change")
         public boolean debug_stage_change = true;
+
+        @Setting("talk-close.distance")
+        public int talkCloseDistance = 3;
+        @Setting("talk-close.cooldown")
+        @Comment("cooldown in seconds to trigger talk close")
+        public double talkCloseCooldown = 30;
 
         @Setting("conversation.abort-warn-radius")
         public int conversationAbortWarnRadius = 5;

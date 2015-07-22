@@ -8,7 +8,6 @@ import de.raidcraft.conversations.ConversationManager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.util.ChunkLocation;
 import de.raidcraft.util.LocationUtil;
-import de.raidcraft.util.TimeUtil;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -37,11 +36,13 @@ public class TalkCloseTask implements Runnable {
     // TODO: move to config
     // must be < 16
     private double distance = 5;
-    private int talkDelayInSeconds = 1;
+    private double talkCloseCooldown = 30;
 
     private TalkCloseTask() {
 
         plugin = RaidCraft.getComponent(RCConversationsPlugin.class);
+        distance = plugin.getConfiguration().talkCloseDistance;
+        talkCloseCooldown = plugin.getConfiguration().talkCloseCooldown;
     }
 
     public static TalkCloseTask getInstance() {
@@ -94,7 +95,7 @@ public class TalkCloseTask implements Runnable {
         }
         new ArrayList<>(TalkCloseTrait.getNPCs()).forEach(this::generateTalkChunk);
         taskid = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-                plugin, this, -1, TimeUtil.secondsToTicks(talkDelayInSeconds));
+                plugin, this, -1, 20L * 10);
     }
 
     private NPC getNPCinRange(Player player) {

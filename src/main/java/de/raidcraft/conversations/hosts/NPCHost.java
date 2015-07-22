@@ -8,6 +8,7 @@ import de.raidcraft.api.items.CustomItemException;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.ConversationNPCManager;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
+import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
@@ -85,7 +86,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(0, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage());
+                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
             }
 
             try {
@@ -94,7 +95,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(1, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage());
+                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
             }
 
             try {
@@ -103,7 +104,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(2, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage());
+                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
             }
 
             try {
@@ -112,7 +113,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(3, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage());
+                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
             }
 
             try {
@@ -121,7 +122,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                     equipmentTrait.set(4, RaidCraft.getItem(itemName));
                 }
             } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage());
+                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
             }
         }
     }

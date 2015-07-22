@@ -46,7 +46,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void convStart(RCConversationStartEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_start) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
                 + " STARTED for "
                 + event.getPlayer().getName()
@@ -56,7 +56,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void convEnd(RCConversationEndedEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_end) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
                 + " ENDED for "
                 + event.getPlayer().getName()
@@ -67,7 +67,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void convAbort(RCConversationAbortedEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_abort) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
                 + " ABORTED for "
                 + event.getPlayer().getName()
@@ -78,7 +78,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void stageTriggered(RCConversationStageTriggeredEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_stage_trigger) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
                 + " TRIGGERED STAGE "
                 + event.getStage().getIdentifier()
@@ -90,7 +90,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void stageChanged(RCConversationChangedStageEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_stage_change) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
                 + " CHANGED STAGE"
                 + " from " + (event.getOldStage().isPresent() ? event.getOldStage().get().getIdentifier() : "N/A")
@@ -102,7 +102,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void hostProximity(ConversationHostProximityEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_proximity) return;
         plugin.getLogger().info("Host PROXIMITY FIRED"
                 + " for " + event.getHostIdentifier()
                 + " by " + event.getPlayer().getName()
@@ -113,7 +113,7 @@ public class ConversationListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void hostProximity(ConversationHostInteractEvent event) {
 
-        if (!plugin.getConfiguration().debug) return;
+        if (!plugin.getConfiguration().debug_interact) return;
         plugin.getLogger().info("Host INTERACT FIRED"
                         + " for " + event.getHostIdentifier()
                         + " by " + event.getPlayer().getName());

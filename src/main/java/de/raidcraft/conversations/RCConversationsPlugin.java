@@ -139,8 +139,20 @@ public class RCConversationsPlugin extends BasePlugin {
             super(plugin, "config.yml");
         }
 
-        @Setting("debug")
-        public boolean debug = true;
+        @Setting("debug.trigger.proximity")
+        public boolean debug_proximity = true;
+        @Setting("debug.trigger.proximity")
+        public boolean debug_interact = true;
+        @Setting("debug.conv.start")
+        public boolean debug_start = true;
+        @Setting("debug.conv.abort")
+        public boolean debug_abort = true;
+        @Setting("debug.conv.end")
+        public boolean debug_end = true;
+        @Setting("debug.stage.trigger")
+        public boolean debug_stage_trigger = true;
+        @Setting("debug.stage.change")
+        public boolean debug_stage_change = true;
 
         @Setting("conversation.abort-warn-radius")
         public int conversationAbortWarnRadius = 5;

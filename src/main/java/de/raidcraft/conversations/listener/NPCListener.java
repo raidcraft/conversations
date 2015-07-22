@@ -35,7 +35,7 @@ public class NPCListener implements Listener {
         // so we can check if the conversation changed during the event (e.g. conversation.start action)
         Optional<Conversation> activeConversation = Conversations.getActiveConversation(event.getClicker());
         // lets trigger the host interact event to allow actions and stuff to react
-        Optional<String> identifier = Conversations.getConversationHostIdentifier(host.get());
+        Optional<String> identifier = host.get().getIdentifier();
         if (!identifier.isPresent()) return;
         ConversationHostInteractEvent hostInteractEvent = new ConversationHostInteractEvent(identifier.get(), host.get(), event.getClicker());
         RaidCraft.callEvent(hostInteractEvent);

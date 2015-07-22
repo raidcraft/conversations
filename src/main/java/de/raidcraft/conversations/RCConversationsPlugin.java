@@ -141,7 +141,7 @@ public class RCConversationsPlugin extends BasePlugin {
 
         @Setting("debug.trigger.proximity")
         public boolean debug_proximity = true;
-        @Setting("debug.trigger.proximity")
+        @Setting("debug.trigger.interact")
         public boolean debug_interact = true;
         @Setting("debug.conv.start")
         public boolean debug_start = true;

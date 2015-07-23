@@ -2,6 +2,7 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.Component;
+import de.raidcraft.api.action.Timer;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.flow.Flow;
 import de.raidcraft.api.config.SimpleConfiguration;
@@ -31,6 +32,7 @@ import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
 import de.raidcraft.util.LocationUtil;
+import de.raidcraft.util.TimeUtil;
 import de.raidcraft.util.UUIDUtil;
 import mkremins.fanciful.FancyMessage;
 import org.bukkit.Bukkit;
@@ -82,6 +84,13 @@ public class ConversationManager implements ConversationProvider, Component {
 
         registerConversationVariable(Pattern.compile("%name"), (matcher, conversation) -> conversation.getOwner().getName());
         registerConversationVariable(Pattern.compile("%\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> conversation.getString(matcher.group(1)));
+        registerConversationVariable(Pattern.compile("%\\*\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> {
+            Optional<Timer> activeTimer = Timer.getActiveTimer(conversation.getOwner(), matcher.group(1));
+            if (activeTimer.isPresent()) {
+                return TimeUtil.getFormattedTime(TimeUtil.ticksToSeconds(activeTimer.get().getRemainingTime()));
+            }
+            return "[Invalid Timer]";
+        });
 
         registerHostFactory("NPC", new NPCHost.NPCHostFactory());
 

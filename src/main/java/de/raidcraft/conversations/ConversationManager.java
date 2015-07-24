@@ -88,7 +88,7 @@ public class ConversationManager implements ConversationProvider, Component {
         RaidCraft.registerPlayerVariable(Pattern.compile("%\\*\\[([\\w_\\-\\d]+)\\]"), (matcher, player) -> {
             Optional<Timer> activeTimer = Timer.getActiveTimer(player, matcher.group(1));
             if (activeTimer.isPresent()) {
-                return TimeUtil.getFormattedTime(TimeUtil.ticksToSeconds(activeTimer.get().getRemainingTime()));
+                return TimeUtil.getAccurrateShortFormatedTime(TimeUtil.ticksToMillis(activeTimer.get().getRemainingTime()));
             }
             return "[Invalid Timer]";
         });

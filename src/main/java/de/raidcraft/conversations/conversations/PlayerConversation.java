@@ -76,7 +76,7 @@ public class PlayerConversation extends AbstractConversation {
                     result = get(group);
                 }
             } else {
-                result = replaceVariable(message);
+                result = RaidCraft.replaceVariables(getOwner(), message);
             }
         }
         return result;

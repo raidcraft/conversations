@@ -117,8 +117,9 @@ public class SimpleStage implements Stage {
                 message = answer.getMessage().get();
             } else {
                 if (answer.getText().isPresent()) {
+                    String text = RaidCraft.replaceVariables(getConversation().getOwner(), answer.getText().get());
                     message = new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
-                            .then(answer.getText().get()).color(answer.getColor());
+                            .then(text).color(answer.getColor());
                 }
             }
             if (message != null) {

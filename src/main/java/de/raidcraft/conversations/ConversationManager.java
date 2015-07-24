@@ -82,10 +82,11 @@ public class ConversationManager implements ConversationProvider, Component {
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         registerAnswer(Answer.DEFAULT_INPUT_TYPE, InputAnswer.class);
 
-        registerConversationVariable(Pattern.compile("%name"), (matcher, conversation) -> conversation.getOwner().getName());
         registerConversationVariable(Pattern.compile("%\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> conversation.getString(matcher.group(1)));
-        registerConversationVariable(Pattern.compile("%\\*\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> {
-            Optional<Timer> activeTimer = Timer.getActiveTimer(conversation.getOwner(), matcher.group(1));
+
+        RaidCraft.registerPlayerVariable(Pattern.compile("%name"), (matcher, player) -> player.getName());
+        RaidCraft.registerPlayerVariable(Pattern.compile("%\\*\\[([\\w_\\-\\d]+)\\]"), (matcher, player) -> {
+            Optional<Timer> activeTimer = Timer.getActiveTimer(player, matcher.group(1));
             if (activeTimer.isPresent()) {
                 return TimeUtil.getFormattedTime(TimeUtil.ticksToSeconds(activeTimer.get().getRemainingTime()));
             }

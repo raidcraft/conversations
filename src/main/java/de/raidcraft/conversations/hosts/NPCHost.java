@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.Equipment;
+import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
@@ -62,7 +63,8 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));
-        if (config.isSet("talk-close")) getType().addTrait(TalkCloseTrait.class);
+        if (config.getBoolean("talk-close")) getType().addTrait(TalkCloseTrait.class);
+        if (config.getBoolean("look-close")) getType().addTrait(LookClose.class);
 
         if (config.isConfigurationSection("equipment")) {
             loadEquipment(config.getConfigurationSection("equipment"));

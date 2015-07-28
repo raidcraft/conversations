@@ -131,7 +131,7 @@ public class ConversationManager implements ConversationProvider, Component {
     public void checkDistance(Player player) {
 
         Optional<Conversation> activeConversation = getActiveConversation(player);
-        if (!activeConversation.isPresent()) {
+        if (!activeConversation.isPresent() || !activeConversation.get().getTemplate().isEndingOutOfRange()) {
             return;
         }
 

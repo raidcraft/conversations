@@ -6,6 +6,7 @@ import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.ConversationManager;
 import de.raidcraft.conversations.RCConversationsPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -34,29 +35,34 @@ public class ChatListener implements Listener {
             return;
         }
 
-        String[] exitWords = plugin.getConfiguration().exitWords;
-        Conversation conversation = activeConversation.get();
+        // we need to synchronize the player chat event because actions cannot be executed async
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            String[] exitWords = plugin.getConfiguration().exitWords;
+            Conversation conversation = activeConversation.get();
 
-        for (String exitWord : exitWords) {
-            if (exitWord.equalsIgnoreCase(event.getMessage())) {
-                conversation.abort(ConversationEndReason.PLAYER_ABORT);
+            for (String exitWord : exitWords) {
+                if (exitWord.equalsIgnoreCase(event.getMessage())) {
+                    if (conversation.getTemplate().isExitable()) {
+                        conversation.abort(ConversationEndReason.PLAYER_ABORT);
+                    }
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+
+            Optional<Stage> currentStage = conversation.getCurrentStage();
+            if (!currentStage.isPresent()) {
+                event.getPlayer().sendMessage("Du befindest dich in keiner gültigen Stage und kannst aktuell nicht antworten!");
                 event.setCancelled(true);
                 return;
             }
-        }
 
-        Optional<Stage> currentStage = conversation.getCurrentStage();
-        if (!currentStage.isPresent()) {
-            event.getPlayer().sendMessage("Du befindest dich in keiner gültigen Stage und kannst aktuell nicht antworten!");
-            event.setCancelled(true);
-            return;
-        }
-
-        // trigger conversation and hide chat message
-        Optional<Answer> answer = conversation.answer(event.getMessage());
-        if (answer.isPresent()) {
-            event.setCancelled(true);
-        }
+            // trigger conversation and hide chat message
+            Optional<Answer> answer = conversation.answer(event.getMessage());
+            if (answer.isPresent()) {
+                event.setCancelled(true);
+            }
+        }, 1L);
     }
 
 }

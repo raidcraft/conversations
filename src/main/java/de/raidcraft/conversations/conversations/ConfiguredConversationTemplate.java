@@ -33,6 +33,9 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
     private final String conversationType;
     private final boolean persistant;
     private final boolean autoEnding;
+    private final boolean blockingConversationStart;
+    private final boolean endingOutOfRange;
+    private final boolean exitable;
     private final int priority;
     private final ConfigurationSection hostSettings;
     private final List<Requirement<?>> requirements;
@@ -45,6 +48,9 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
         this.conversationType = config.getString("conv-type", Conversation.DEFAULT_TYPE);
         this.persistant = config.getBoolean("persistant", false);
         this.autoEnding = config.getBoolean("auto-end", false);
+        this.blockingConversationStart = config.getBoolean("block-conv-start", false);
+        this.exitable = !config.getBoolean("block-end", false);
+        this.endingOutOfRange = config.getBoolean("end-out-of-range", exitable);
         this.priority = config.getInt("priority", 1);
         this.hostSettings = config.isConfigurationSection("settings") ? config.getConfigurationSection("settings") : new MemoryConfiguration();
         this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));
@@ -101,6 +107,9 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
 
         Optional<Conversation> activeConversation = Conversations.removeActiveConversation(player);
         if (activeConversation.isPresent()) {
+            if (activeConversation.get().getTemplate().isBlockingConversationStart()) {
+                return activeConversation.get();
+            }
             if (!activeConversation.get().getTemplate().equals(this)) {
                 activeConversation.get().abort(ConversationEndReason.START_NEW_CONVERSATION);
             } else {

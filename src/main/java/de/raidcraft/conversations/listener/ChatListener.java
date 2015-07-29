@@ -35,6 +35,7 @@ public class ChatListener implements Listener {
             return;
         }
 
+        event.setCancelled(true);
         // we need to synchronize the player chat event because actions cannot be executed async
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             String[] exitWords = plugin.getConfiguration().exitWords;

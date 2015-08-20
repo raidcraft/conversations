@@ -224,7 +224,7 @@ public class SimpleStage implements Stage {
 
         if (executeActions) {
             abortActions = false;
-            // lets execute all player actions and then all conversation actions
+            // lets execute all player actions and all conversation actions
             for (Action<?> action : getActions()) {
                 if (abortActions) break;
                 if (ActionAPI.matchesType(action, Player.class)) {

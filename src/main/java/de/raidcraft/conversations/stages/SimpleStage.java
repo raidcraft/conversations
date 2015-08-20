@@ -95,6 +95,9 @@ public class SimpleStage implements Stage {
         }
         if (answers.size() < StageTemplate.MAX_ANSWERS) {
             answers.add(answer);
+        } else {
+            this.answers.add(new ArrayList<>());
+            return addAnswer(answer);
         }
         this.answers.add(answers);
         return this;

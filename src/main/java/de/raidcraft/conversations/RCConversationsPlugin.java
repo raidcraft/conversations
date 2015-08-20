@@ -98,6 +98,7 @@ public class RCConversationsPlugin extends BasePlugin {
         ConversationNPCManager.despawnNPCs();
         getConfiguration().reload();
         getConversationManager().reload();
+        loadPersistantConversationHosts();
     }
 
     private void loadPersistantConversationHosts() {

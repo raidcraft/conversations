@@ -111,6 +111,7 @@ public class ConversationCommands {
             persistentHost.setConversation(conversationName);
 
             for (String key : settings.getKeys(true)) {
+                if (settings.isConfigurationSection(key)) continue;
                 TPersistentHostOption option = new TPersistentHostOption();
                 option.setHost(persistentHost);
                 option.setConfKey(key);

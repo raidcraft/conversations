@@ -595,6 +595,20 @@ public class ConversationManager implements ConversationProvider, Component {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<ConversationHost<?>> spawnConversationHost(String pluginName, String name, String conversationName, Location location) {
+
+        Optional<ConversationHost<?>> npc = createConversationHost(pluginName, UUID.randomUUID().toString(), "NPC", location);
+        if (npc.isPresent()) {
+            NPCHost conversationHost = (NPCHost) npc.get();
+            conversationHost.setName(name);
+            Optional<ConversationTemplate> template = getLoadedConversationTemplate(conversationName);
+            template.ifPresent(conversationHost::addDefaultConversation);
+            return npc;
+        }
+        return Optional.empty();
+    }
+
     public void deleteConversationHost(ConversationHost host) {
 
         host.delete();

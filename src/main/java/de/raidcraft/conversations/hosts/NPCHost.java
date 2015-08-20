@@ -5,8 +5,8 @@ import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
 import de.raidcraft.api.items.CustomItemException;
+import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
-import de.raidcraft.conversations.npc.ConversationNPCManager;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
@@ -31,9 +31,9 @@ public class NPCHost extends AbstractConversationHost<NPC> {
     public static class NPCHostFactory implements ConversationHostFactory<NPC> {
 
         @Override
-        public ConversationHost<NPC> create(String identifier, Location location) {
+        public ConversationHost<NPC> create(String plugin, String identifier, Location location) {
 
-            return new NPCHost(identifier, ConversationNPCManager.spawnNPC("UNNAMED", location));
+            return new NPCHost(identifier, NPC_Manager.getInstance().spawnNonPersistNpc(location, "UNNAMED", plugin));
         }
 
         @Override

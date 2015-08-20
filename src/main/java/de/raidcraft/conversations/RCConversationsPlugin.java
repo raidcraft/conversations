@@ -23,7 +23,6 @@ import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
 import de.raidcraft.conversations.listener.NPCListener;
 import de.raidcraft.conversations.listener.PlayerListener;
-import de.raidcraft.conversations.npc.ConversationNPCManager;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import de.raidcraft.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.conversations.tables.TPersistentHost;
@@ -61,7 +60,7 @@ public class RCConversationsPlugin extends BasePlugin {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 
-                Conversations.createConversationHost(id, config);
+                Conversations.createConversationHost("Quests", id, config);
             }
         });
 
@@ -95,7 +94,7 @@ public class RCConversationsPlugin extends BasePlugin {
     @Override
     public void reload() {
 
-        ConversationNPCManager.despawnNPCs();
+        NPC_Manager.getInstance().clear(getName());
         getConfiguration().reload();
         getConversationManager().reload();
         loadPersistantConversationHosts();

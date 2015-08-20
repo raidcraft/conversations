@@ -357,7 +357,7 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public Optional<ConversationHost<?>> createConversationHost(String identifier, String type, Location location) {
+    public Optional<ConversationHost<?>> createConversationHost(String creatingPlugin, String identifier, String type, Location location) {
 
         if (cachedHosts.containsKey(identifier)) {
             return Optional.of(cachedHosts.get(identifier));
@@ -367,11 +367,11 @@ public class ConversationManager implements ConversationProvider, Component {
             return Optional.empty();
         }
         ConversationHostFactory<?> factory = hostFactories.get(type);
-        return Optional.of(factory.create(identifier, location));
+        return Optional.of(factory.create(creatingPlugin, identifier, location));
     }
 
     @Override
-    public Optional<ConversationHost<?>> createConversationHost(String identifier, ConfigurationSection config) {
+    public Optional<ConversationHost<?>> createConversationHost(String creatingPlugin, String identifier, ConfigurationSection config) {
 
         if (cachedHosts.containsKey(identifier)) {
             return Optional.of(cachedHosts.get(identifier));
@@ -386,7 +386,7 @@ public class ConversationManager implements ConversationProvider, Component {
             plugin.getLogger().warning("Location in " + ConfigUtil.getFileName(config) + " not defined!");
             return Optional.empty();
         }
-        Optional<ConversationHost<?>> host = createConversationHost(identifier, type, location);
+        Optional<ConversationHost<?>> host = createConversationHost(creatingPlugin, identifier, type, location);
         if (host.isPresent()) {
             host.get().load(config);
             loadSavedHostConversations(host.get());
@@ -417,7 +417,7 @@ public class ConversationManager implements ConversationProvider, Component {
 
         Optional<Location> location = host.getLocation();
         if (location.isPresent()) {
-            Optional<ConversationHost<?>> conversationHost = createConversationHost(UUID.randomUUID().toString(), host.getHostType(), location.get());
+            Optional<ConversationHost<?>> conversationHost = createConversationHost(plugin.getName(), UUID.randomUUID().toString(), host.getHostType(), location.get());
             if (!conversationHost.isPresent()) {
                 plugin.getLogger().warning("unable to load persistant host " + host.getId() + " at " + location.get());
             } else {

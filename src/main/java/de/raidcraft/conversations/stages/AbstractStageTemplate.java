@@ -30,7 +30,7 @@ public abstract class AbstractStageTemplate implements StageTemplate {
     protected List<Action<?>> actions = new ArrayList<>();
     protected List<Action<?>> randomActions = new ArrayList<>();
     protected List<Answer> answers = new ArrayList<>();
-    protected boolean autoShowingAnswers = false;
+    protected boolean autoShowingAnswers = true;
 
     public AbstractStageTemplate(String identifier, ConversationTemplate conversationTemplate) {
 

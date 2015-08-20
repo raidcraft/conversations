@@ -98,7 +98,7 @@ public class ConversationCommands {
             location.set("pitch", player.getLocation().getPitch());
             location.set("yaw", player.getLocation().getYaw());
 
-            Optional<ConversationHost<?>> conversationHost = plugin.getConversationManager().createConversationHost(settings);
+            Optional<ConversationHost<?>> conversationHost = plugin.getConversationManager().createConversationHost(plugin.getName(), settings);
             if (!conversationHost.isPresent()) {
                 throw new CommandException("Unable to create conversation host!");
             }

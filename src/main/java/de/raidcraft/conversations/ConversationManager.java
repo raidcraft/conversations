@@ -433,7 +433,7 @@ public class ConversationManager implements ConversationProvider, Component {
                     config.set(option.getConfKey(), option.getConfValue());
                 }
                 loadedHost.load(config);
-                cachedHosts.put(UUID.randomUUID().toString(), loadedHost);
+                cachedHosts.put(loadedHost.getUniqueId().toString(), loadedHost);
             }
             return conversationHost;
         }

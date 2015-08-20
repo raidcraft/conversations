@@ -136,7 +136,7 @@ public class SimpleStage implements Stage {
             }
         }
         if (this.answers.size() > 1) {
-            if (currentPage > 1) {
+            if (currentPage > 0) {
                 getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
                         .then("Zurück zu Seite " + (currentPage)).color(ChatColor.GRAY)
                         .command("/conv page " + (currentPage - 1)));

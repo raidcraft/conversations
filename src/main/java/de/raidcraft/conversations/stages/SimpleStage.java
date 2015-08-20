@@ -142,7 +142,7 @@ public class SimpleStage implements Stage {
                         .command("/conv page " + (currentPage - 1)));
                 i++;
             }
-            if (currentPage > 1 && currentPage < this.answers.size() - 1) {
+            if (currentPage < this.answers.size() - 1) {
                 getConversation().sendMessage(new FancyMessage(i + 1 + ": ").color(ChatColor.AQUA)
                         .then("Nächste Seite " + (currentPage + 1)).color(ChatColor.GRAY)
                         .command("/conv page " + (currentPage + 1)));

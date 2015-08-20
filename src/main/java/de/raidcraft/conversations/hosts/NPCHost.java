@@ -70,7 +70,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             loadEquipment(config.getConfigurationSection("equipment"));
         }
 
-        if (config.isList("entity-metakeys")) {
+        if (config.isList("entity-metakeys") && getType().isSpawned()) {
             config.getStringList("entity-metakeys").forEach(key -> {
                 getType().getEntity().setMetadata(key, new FixedMetadataValue(RaidCraft.getComponent(RCConversationsPlugin.class), true));
             });

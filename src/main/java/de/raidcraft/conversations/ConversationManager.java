@@ -603,8 +603,10 @@ public class ConversationManager implements ConversationProvider, Component {
             NPCHost conversationHost = (NPCHost) npc.get();
             conversationHost.getType().setName(name);
             Optional<ConversationTemplate> template = getLoadedConversationTemplate(conversationName);
-            template.ifPresent(conversationHost::addDefaultConversation);
-            conversationHost.load(template.get().getHostSettings());
+            if (template.isPresent()) {
+                conversationHost.addDefaultConversation(template.get());
+                conversationHost.load(template.get().getHostSettings());
+            }
             return npc;
         }
         return Optional.empty();

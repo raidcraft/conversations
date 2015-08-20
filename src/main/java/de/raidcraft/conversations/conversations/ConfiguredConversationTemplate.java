@@ -125,7 +125,7 @@ public abstract class ConfiguredConversationTemplate implements ConversationTemp
             if (ActionAPI.matchesType(action, Player.class)) {
                 ((Action<Player>) action).accept(player);
             } else if (ActionAPI.matchesType(action, Conversation.class)) {
-                ((Action<Conversation>) action).accept(conversation);
+                ((Action<Conversation>) action).withPlayer(conversation.getOwner()).accept(conversation);
             }
         }
 

@@ -230,7 +230,7 @@ public class SimpleStage implements Stage {
                 if (ActionAPI.matchesType(action, Player.class)) {
                     ((Action<Player>) action).accept(getConversation().getOwner());
                 } else if (ActionAPI.matchesType(action, Conversation.class)) {
-                    ((Action<Conversation>) action).accept(getConversation());
+                    ((Action<Conversation>) action).withPlayer(getConversation().getOwner()).accept(getConversation());
                 }
             }
 
@@ -242,7 +242,7 @@ public class SimpleStage implements Stage {
                 if (ActionAPI.matchesType(action, Player.class)) {
                     ((Action<Player>) action).accept(getConversation().getOwner());
                 } else if (ActionAPI.matchesType(action, Conversation.class)) {
-                    ((Action<Conversation>) action).accept(getConversation());
+                    ((Action<Conversation>) action).withPlayer(getConversation().getOwner()).accept(getConversation());
                 }
             }
         }

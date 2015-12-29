@@ -24,7 +24,7 @@
     <name>RCConversations 2.0</name>
 
     <scm>
-        <developerConnection>scm:git:ssh://git@git.raid-craft.de:22109/raid-craft-de/rcconversations-2-0.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@git.raid-craft.de:2222/raid-craft-de/rcconversations-2-0.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 

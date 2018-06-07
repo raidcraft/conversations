@@ -11,13 +11,7 @@ import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
 import de.raidcraft.api.quests.QuestConfigLoader;
 import de.raidcraft.api.quests.Quests;
-import de.raidcraft.conversations.actions.AbortConversationAction;
-import de.raidcraft.conversations.actions.AbortConversationActions;
-import de.raidcraft.conversations.actions.ChangeStageAction;
-import de.raidcraft.conversations.actions.EndConversationAction;
-import de.raidcraft.conversations.actions.SetVariableAction;
-import de.raidcraft.conversations.actions.ShowAnswersAction;
-import de.raidcraft.conversations.actions.StartConversationAction;
+import de.raidcraft.conversations.actions.*;
 import de.raidcraft.conversations.commands.ConversationCommands;
 import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
@@ -122,7 +116,6 @@ public class RCConversationsPlugin extends BasePlugin {
                 .requirement(new CompareVariableRequirement(), Conversation.class);
     }
 
-    @Override
     public List<Class<?>> getDatabaseClasses() {
 
         ArrayList<Class<?>> classes = new ArrayList<>();

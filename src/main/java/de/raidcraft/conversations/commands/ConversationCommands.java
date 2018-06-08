@@ -1,15 +1,11 @@
 package de.raidcraft.conversations.commands;
 
-import com.sk89q.minecraft.util.commands.Command;
-import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.CommandException;
-import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.minecraft.util.commands.NestedCommand;
+import com.sk89q.minecraft.util.commands.*;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.host.ConversationHost;
+import de.raidcraft.api.conversations.host.PlayerHost;
 import de.raidcraft.conversations.RCConversationsPlugin;
-import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
 import net.md_5.bungee.api.ChatColor;
@@ -155,13 +151,13 @@ public class ConversationCommands {
         }
 
         @Command(
-                aliases = {"start"},
+                aliases = {"startStage"},
                 desc = "Starts the given conversation.",
                 min = 1,
                 flags = "p:",
                 help = "<conversation id> [-p <player>] [host]"
         )
-        @CommandPermissions("rcconversations.admin.start")
+        @CommandPermissions("rcconversations.admin.startStage")
         public void start(CommandContext args, CommandSender sender) throws CommandException {
 
             Optional<ConversationTemplate> conversationTemplate = plugin.getConversationManager().getLoadedConversationTemplate(args.getString(0));

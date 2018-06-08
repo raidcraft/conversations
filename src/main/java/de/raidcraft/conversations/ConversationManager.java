@@ -16,6 +16,7 @@ import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.conversation.ConversationVariable;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
+import de.raidcraft.api.conversations.host.PlayerHost;
 import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.api.conversations.stage.StageTemplate;
 import de.raidcraft.conversations.answers.DefaultAnswer;
@@ -23,9 +24,8 @@ import de.raidcraft.conversations.answers.InputAnswer;
 import de.raidcraft.conversations.conversations.DefaultConversationTemplate;
 import de.raidcraft.conversations.conversations.PlayerConversation;
 import de.raidcraft.conversations.hosts.NPCHost;
-import de.raidcraft.conversations.hosts.PlayerHost;
 import de.raidcraft.conversations.stages.DefaultStageTemplate;
-import de.raidcraft.conversations.stages.DynamicStage;
+import de.raidcraft.conversations.stages.DynamicStageTemplate;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
@@ -69,7 +69,7 @@ public class ConversationManager implements ConversationProvider, Component {
         Conversations.enable(this);
         registerConversationTemplate(ConversationTemplate.DEFAULT_CONVERSATION_TEMPLATE, DefaultConversationTemplate.class);
         registerConversationType(Conversation.DEFAULT_TYPE, PlayerConversation.class);
-        registerStage(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
+        registerStageTemplate(StageTemplate.DEFAULT_STAGE_TEMPLATE, DefaultStageTemplate.class);
         registerAnswer(Answer.DEFAULT_ANSWER_TEMPLATE, DefaultAnswer.class);
         registerAnswer(Answer.DEFAULT_INPUT_TYPE, InputAnswer.class);
 
@@ -228,7 +228,7 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public void registerStage(String type, Class<? extends StageTemplate> stage) {
+    public void registerStageTemplate(String type, Class<? extends StageTemplate> stage) {
 
         try {
             Constructor<? extends StageTemplate> constructor = stage.getDeclaredConstructor(String.class, ConversationTemplate.class, ConfigurationSection.class);
@@ -281,7 +281,11 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         if (constructor != null) {
             try {
-                return Optional.of(constructor.newInstance(identifier, config));
+                Optional<ConversationTemplate> template = Optional.of(constructor.newInstance(identifier, config));
+                if (template.isPresent()) {
+                    template.get().loadConfig(config);
+                }
+                return template;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -331,14 +335,14 @@ public class ConversationManager implements ConversationProvider, Component {
 
     private void loadSavedHostConversations(ConversationHost host) {
 
-        // lets load all saved player conversations
+        // lets loadConfig all saved player conversations
         List<TPlayerConversation> conversationList = plugin.getDatabase().find(TPlayerConversation.class).where()
                 .eq("host", host.getUniqueId())
                 .findList();
         for (TPlayerConversation savedConversation : conversationList) {
             Optional<ConversationTemplate> template = getLoadedConversationTemplate(savedConversation.getConversation());
             if (!template.isPresent()) {
-                plugin.getLogger().warning("Host tried to load unknown Saved ConversationTemplate (" + savedConversation.getId() + ") "
+                plugin.getLogger().warning("Host tried to loadConfig unknown Saved ConversationTemplate (" + savedConversation.getId() + ") "
                         + savedConversation.getConversation() + " for player "
                         + UUIDUtil.getNameFromUUID(savedConversation.getPlayer()));
             } else {
@@ -397,7 +401,7 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         ConversationHostFactory<T> factory = (ConversationHostFactory<T>) hostFactories.get(type);
         ConversationHost<T> conversationHost = factory.create(host);
-        // load all saved player conversations
+        // loadConfig all saved player conversations
         conversationHost.load(config);
         loadSavedHostConversations(conversationHost);
 
@@ -410,14 +414,14 @@ public class ConversationManager implements ConversationProvider, Component {
         if (location.isPresent()) {
             Optional<ConversationHost<?>> conversationHost = createConversationHost(plugin.getName(), UUID.randomUUID().toString(), host.getHostType(), location.get());
             if (!conversationHost.isPresent()) {
-                plugin.getLogger().warning("unable to load persistant host " + host.getId() + " at " + location.get());
+                plugin.getLogger().warning("unable to loadConfig persistent host " + host.getId() + " at " + location.get());
             } else {
                 ConversationHost<?> loadedHost = conversationHost.get();
                 Optional<ConversationTemplate> conversationTemplate = getLoadedConversationTemplate(host.getConversation());
                 if (conversationTemplate.isPresent()) {
                     loadedHost.addDefaultConversation(conversationTemplate.get());
                 } else {
-                    plugin.getLogger().warning("unable to find default conversation " + host.getConversation() + " of persistant host " + host.getId());
+                    plugin.getLogger().warning("unable to find default conversation " + host.getConversation() + " of persistent host " + host.getId());
                 }
                 MemoryConfiguration config = new MemoryConfiguration();
                 for (TPersistentHostOption option : host.getOptions()) {
@@ -479,12 +483,22 @@ public class ConversationManager implements ConversationProvider, Component {
                 return Optional.empty();
             }
         }
+        // TODO: refactor to directly loadConfig configured conversation template by using generics
         Optional<ConversationTemplate> template = createConversationTemplate(identifier, config);
+
         if (!template.isPresent()) {
             plugin.getLogger().warning("Could not find conversation template type " + config.getString("type") + " in " + ConfigUtil.getFileName(config));
             return Optional.empty();
         }
-        conversations.put(identifier, template.get());
+
+        template.get().loadConfig(config);
+
+        return Optional.of(registerConversationTemplate(template.get()));
+    }
+
+    @Override
+    public ConversationTemplate registerConversationTemplate(ConversationTemplate template) {
+        conversations.put(template.getIdentifier(), template);
         return template;
     }
 
@@ -517,7 +531,7 @@ public class ConversationManager implements ConversationProvider, Component {
 
         Optional<ConversationTemplate> conversation = conversationHost.getConversation(player);
         if (conversation.isPresent()) {
-            return Optional.of(conversation.get().startConversation(player, conversationHost));
+            return Optional.of(startConversation(player, conversation.get(), conversationHost));
         }
         return Optional.empty();
     }
@@ -526,11 +540,21 @@ public class ConversationManager implements ConversationProvider, Component {
     public Optional<Conversation> startConversation(Player player, String conversation) {
 
         if (!conversations.containsKey(conversation)) {
-            plugin.getLogger().warning("Tried to start unknown conversation " + conversation + " for " + player.getName());
+            plugin.getLogger().warning("Tried to startStage unknown conversation " + conversation + " for " + player.getName());
             return Optional.empty();
         }
         ConversationTemplate template = conversations.get(conversation);
-        return Optional.of(template.startConversation(player, new PlayerHost(player)));
+        return Optional.of(startConversation(player, template));
+    }
+
+    @Override
+    public Conversation startConversation(Player player, ConversationTemplate template, ConversationHost<?> host) {
+        return template.startConversation(player, host);
+    }
+
+    @Override
+    public Conversation startConversation(Player player, ConversationTemplate template) {
+        return template.startConversation(player, new PlayerHost(player));
     }
 
     @Override
@@ -562,7 +586,7 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Stage createStage(Conversation conversation, String text, Answer... answers) {
 
-        return new DynamicStage(conversation.getTemplate(), text, answers).create(conversation);
+        return new DynamicStageTemplate(conversation.getTemplate(), text, answers).create(conversation);
     }
 
     @Override
@@ -570,7 +594,7 @@ public class ConversationManager implements ConversationProvider, Component {
 
         SimpleAnswer answer = new SimpleAnswer(text);
         for (Action action : actions) {
-            answer.addAction(action);
+            answer.addActionToAnswer(action);
         }
         return answer;
     }

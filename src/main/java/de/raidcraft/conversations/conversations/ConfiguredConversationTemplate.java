@@ -2,144 +2,70 @@ package de.raidcraft.conversations.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.action.ActionAPI;
-import de.raidcraft.api.action.action.Action;
-import de.raidcraft.api.action.requirement.Requirement;
 import de.raidcraft.api.conversations.Conversations;
+import de.raidcraft.api.conversations.conversation.AbstractConversationTemplate;
 import de.raidcraft.api.conversations.conversation.Conversation;
-import de.raidcraft.api.conversations.conversation.ConversationEndReason;
-import de.raidcraft.api.conversations.conversation.ConversationTemplate;
-import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.stage.StageTemplate;
-import de.raidcraft.util.CaseInsensitiveMap;
 import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author mdoering
  */
 @Data
-@EqualsAndHashCode(callSuper = false, of = {"identifier"})
-public abstract class ConfiguredConversationTemplate implements ConversationTemplate {
-
-    private final String identifier;
-    private final String conversationType;
-    private final boolean persistant;
-    private final boolean autoEnding;
-    private final boolean blockingConversationStart;
-    private final boolean endingOutOfRange;
-    private final boolean exitable;
-    private final int priority;
-    private final ConfigurationSection hostSettings;
-    private final List<Requirement<?>> requirements;
-    private final List<Action<?>> actions;
-    private final Map<String, StageTemplate> stages;
+@EqualsAndHashCode(callSuper = true, of = {"identifier"})
+public class ConfiguredConversationTemplate extends AbstractConversationTemplate {
 
     public ConfiguredConversationTemplate(String identifier, ConfigurationSection config) {
-
-        this.identifier = identifier;
-        this.conversationType = config.getString("conv-type", Conversation.DEFAULT_TYPE);
-        this.persistant = config.getBoolean("persistant", false);
-        this.autoEnding = config.getBoolean("auto-end", false);
-        this.blockingConversationStart = config.getBoolean("block-conv-start", false);
-        this.exitable = !config.getBoolean("block-end", false);
-        this.endingOutOfRange = config.getBoolean("end-out-of-range", exitable);
-        this.priority = config.getInt("priority", 1);
-        this.hostSettings = config.isConfigurationSection("settings") ? config.getConfigurationSection("settings") : new MemoryConfiguration();
-        this.requirements = ActionAPI.createRequirements(identifier, config.getConfigurationSection("requirements"));
-        this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
-        this.stages = loadStages(config.getConfigurationSection("stages"));
-        load(config.getConfigurationSection("args"));
+        super(identifier);
     }
 
-    protected abstract void load(ConfigurationSection args);
+    public void loadConfig(ConfigurationSection config) {
+        this.setConversationType(config.getString("conv-type", Conversation.DEFAULT_TYPE));
+        this.setExitable(!config.getBoolean("block-end", false));
+        this.setBlockingConversationStart(config.getBoolean("block-conv-startStage", false));
+        this.setEndingOutOfRange(config.getBoolean("end-out-of-range", this.isExitable()));
+        this.setPersistent(config.getBoolean("persistent", false));
+        this.setPriority(config.getInt("priority", 1));
+        this.setAutoEnding(config.getBoolean("auto-end", false));
+        this.setHostSettings(config.getConfigurationSection("host-settings"));
 
-    private Map<String, StageTemplate> loadStages(ConfigurationSection config) {
+        this.loadRequirements(config.getConfigurationSection("requirements"));
+        this.loadActions(config.getConfigurationSection("actions"));
+        this.loadStages(config.getConfigurationSection("stages"));
+    }
 
-        Map<String, StageTemplate> stages = new CaseInsensitiveMap<>();
-        if (config == null) return stages;
+    private void loadRequirements(ConfigurationSection config) {
+        getRequirements().clear();
+        if (config != null) {
+            getRequirements().addAll(ActionAPI.createRequirements(getIdentifier(), config));
+        }
+    }
+
+    private void loadActions(ConfigurationSection config) {
+        getActions().clear();
+        if (config != null) {
+            getActions().addAll(ActionAPI.createActions(config));
+        }
+    }
+
+    private void loadStages(ConfigurationSection config) {
+        getStages().clear();
+
+        if (config == null) return;
+
         for (String key : config.getKeys(false)) {
             ConfigurationSection section = config.getConfigurationSection(key);
             Optional<StageTemplate> stageTemplate = Conversations.getStageTemplate(key, this, section);
             if (stageTemplate.isPresent()) {
-                stages.put(key, stageTemplate.get());
+                getStages().put(key, stageTemplate.get());
             } else {
                 RaidCraft.LOGGER.warning("Unknown stage type " + section.getString("type") + " defined in " + ConfigUtil.getFileName(config));
             }
         }
-        return stages;
-    }
-
-    @Override
-    public Map<String, StageTemplate> getStages() {
-
-        return new CaseInsensitiveMap<>(stages);
-    }
-
-    @Override
-    public Optional<StageTemplate> getStage(String name) {
-
-        return Optional.ofNullable(stages.get(name));
-    }
-
-    @Override
-    public Conversation createConversation(Player player, ConversationHost host) {
-
-        return Conversations.createConversation(getConversationType(), player, this, host);
-    }
-
-    @Override
-    public Conversation startConversation(Player player, ConversationHost host) {
-
-        return startConversation(player, host, null);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Conversation startConversation(Player player, ConversationHost host, StageTemplate stage) {
-
-        Optional<Conversation> activeConversation = Conversations.removeActiveConversation(player);
-        if (activeConversation.isPresent()) {
-            if (activeConversation.get().getTemplate().isBlockingConversationStart()) {
-                return activeConversation.get();
-            }
-            if (!activeConversation.get().getTemplate().equals(this)) {
-                activeConversation.get().abort(ConversationEndReason.START_NEW_CONVERSATION);
-            } else {
-                Conversations.setActiveConversation(activeConversation.get());
-                return activeConversation.get();
-            }
-        }
-
-        // lets execute all actions of this conversation
-        Conversation conversation = createConversation(player, host);
-        for (Action<?> action : getActions()) {
-            if (conversation.isAbortActionExecution()) break;
-            if (ActionAPI.matchesType(action, Player.class)) {
-                ((Action<Player>) action).accept(player);
-            } else if (ActionAPI.matchesType(action, Conversation.class)) {
-                ((Action<Conversation>) action).withPlayer(conversation.getOwner()).accept(conversation);
-            }
-        }
-
-        if (stage != null) {
-            conversation.setCurrentStage(stage.create(conversation));
-        }
-
-        conversation.start();
-        return conversation;
-    }
-
-    @Override
-    public int compareTo(ConversationTemplate o) {
-
-        return Integer.compare(getPriority(), o.getPriority());
     }
 }

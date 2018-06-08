@@ -6,12 +6,12 @@ import de.raidcraft.api.config.Comment;
 import de.raidcraft.api.config.ConfigurationBase;
 import de.raidcraft.api.config.Setting;
 import de.raidcraft.api.conversations.Conversations;
+import de.raidcraft.api.conversations.actions.*;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
 import de.raidcraft.api.quests.QuestConfigLoader;
 import de.raidcraft.api.quests.Quests;
-import de.raidcraft.conversations.actions.*;
 import de.raidcraft.conversations.commands.ConversationCommands;
 import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
@@ -70,11 +70,11 @@ public class RCConversationsPlugin extends BasePlugin {
         registerEvents(new PlayerListener(this));
         registerEvents(new ConversationListener(this));
 
-        // register NPC traits, trait listener and load all NPC's
+        // register NPC traits, trait listener and loadConfig all NPC's
         NPC_Manager.getInstance().registerTrait(TalkCloseTrait.class, RC_Traits.TALK_CLOSE);
 
         Bukkit.getPluginManager().registerEvents(new NPCListener(this), this);
-        // load all persistant conversation hosts from the database after everything is properly registered
+        // loadConfig all persistent conversation hosts from the database after everything is properly registered
         Bukkit.getScheduler().runTaskLater(this, this::loadPersistantConversationHosts, 15 * 20L);
     }
 
@@ -137,7 +137,7 @@ public class RCConversationsPlugin extends BasePlugin {
         public boolean debug_proximity = true;
         @Setting("debug.trigger.interact")
         public boolean debug_interact = true;
-        @Setting("debug.conv.start")
+        @Setting("debug.conv.startStage")
         public boolean debug_start = true;
         @Setting("debug.conv.abort")
         public boolean debug_abort = true;

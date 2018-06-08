@@ -1,9 +1,10 @@
 package de.raidcraft.conversations.stages;
 
 import de.raidcraft.api.action.ActionAPI;
+import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.conversations.Conversations;
-import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
+import de.raidcraft.api.conversations.stage.AbstractStageTemplate;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.configuration.ConfigurationSection;
@@ -17,25 +18,39 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public abstract class ConfiguredStageTemplate extends AbstractStageTemplate {
 
-    protected final ConfigurationSection config;
-
-    public ConfiguredStageTemplate(String identifier, ConversationTemplate conversationTemplate, ConfigurationSection config) {
+    public ConfiguredStageTemplate(String identifier, ConversationTemplate conversationTemplate) {
 
         super(identifier, conversationTemplate);
-        this.config = config;
-        setText(config.getString("text"));
-        this.requirements = ActionAPI.createRequirements(getConversationTemplate().getIdentifier() + "." + identifier, config.getConfigurationSection("requirements"));
-        this.actions = ActionAPI.createActions(config.getConfigurationSection("actions"));
-        this.randomActions = ActionAPI.createActions(config.getConfigurationSection("random-actions"));
-        this.answers = loadAnswers(config.getConfigurationSection("answers"));
-        this.autoShowingAnswers = config.getBoolean("auto-show-answers", true);
-        load(config.getConfigurationSection("args"));
     }
 
-    protected abstract void load(ConfigurationSection args);
+    public void loadConfig(ConfigurationSection config) {
+        setText(config.getString("withText"));
+        setAutoShowingAnswers(config.getBoolean("auto-show-answers", true));
 
-    protected List<Answer> loadAnswers(ConfigurationSection config) {
+        this.loadRequirements(config.getConfigurationSection("requirements"));
+        this.loadActions(getActions(), config.getConfigurationSection("actions"));
+        this.loadActions(getRandomActions(), config.getConfigurationSection("random-actions"));
+        this.loadAnswers(config.getConfigurationSection("answers"));
+    }
 
-        return Conversations.createAnswers(this, config);
+    private void loadRequirements(ConfigurationSection config) {
+        getRequirements().clear();
+        if (config == null) return;
+        getRequirements().addAll(ActionAPI.createRequirements(
+                getConversationTemplate().getIdentifier() + "." + getIdentifier(),
+                config)
+        );
+    }
+
+    private void loadActions(List<Action<?>> actions, ConfigurationSection config) {
+        actions.clear();
+        if (config == null) return;
+        actions.addAll(ActionAPI.createActions(config));
+    }
+
+    protected void loadAnswers(ConfigurationSection config) {
+        getAnswers().clear();
+        if (config == null) return;
+        getAnswers().addAll(Conversations.createAnswers(this, config));
     }
 }

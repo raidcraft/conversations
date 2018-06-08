@@ -11,9 +11,4 @@ public class DefaultConversationTemplate extends ConfiguredConversationTemplate 
 
         super(identifier, config);
     }
-
-    @Override
-    protected void load(ConfigurationSection args) {
-
-    }
 }

@@ -9,12 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -57,7 +52,7 @@ public class TPersistentHost {
 
         World world = Bukkit.getWorld(this.world);
         if (world == null) {
-            RaidCraft.LOGGER.warning("world " + this.world + " of persistant host " + id + " is not loaded! Not loading host...");
+            RaidCraft.LOGGER.warning("world " + this.world + " of persistent host " + id + " is not loaded! Not loading host...");
             return Optional.empty();
         }
         return Optional.of(new Location(world, x, y, z));

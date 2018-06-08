@@ -32,7 +32,7 @@ public class NPCListener implements Listener {
         Optional<ConversationHost<NPC>> host = plugin.getConversationManager().getConversationHost(event.getNPC());
         if (!host.isPresent()) return;
         // we are going to track the conversation of the player before the host.interact event
-        // so we can check if the conversation changed during the event (e.g. conversation.start action)
+        // so we can check if the conversation changed during the event (e.g. conversation.startStage withAction)
         Optional<Conversation> activeConversation = Conversations.getActiveConversation(event.getClicker());
         // lets trigger the host interact event to allow actions and stuff to react
         Optional<String> identifier = host.get().getIdentifier();

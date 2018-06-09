@@ -1,8 +1,6 @@
 package de.raidcraft.conversations.stages;
 
-import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import lombok.EqualsAndHashCode;
-import org.bukkit.configuration.ConfigurationSection;
 
 /**
  * @author mdoering
@@ -10,8 +8,8 @@ import org.bukkit.configuration.ConfigurationSection;
 @EqualsAndHashCode(callSuper = true)
 public class DefaultStageTemplate extends ConfiguredStageTemplate {
 
-    public DefaultStageTemplate(String identifier, ConversationTemplate conversationTemplate, ConfigurationSection config) {
+    public DefaultStageTemplate(String identifier) {
 
-        super(identifier, conversationTemplate);
+        super(identifier);
     }
 }

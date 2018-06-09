@@ -250,7 +250,12 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         if (constructor != null) {
             try {
-                return Optional.of(constructor.newInstance(identifier, conversationTemplate, config));
+                Optional<StageTemplate> stageTemplate = Optional.of(constructor.newInstance(identifier));
+                stageTemplate.ifPresent(template -> {
+                    template.loadConfig(config);
+                    template.setConversationTemplate(conversationTemplate);
+                });
+                return stageTemplate;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }

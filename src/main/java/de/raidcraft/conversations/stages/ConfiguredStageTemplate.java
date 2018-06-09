@@ -3,8 +3,8 @@ package de.raidcraft.conversations.stages;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.conversations.Conversations;
-import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.stage.AbstractStageTemplate;
+import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.configuration.ConfigurationSection;
@@ -18,9 +18,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public abstract class ConfiguredStageTemplate extends AbstractStageTemplate {
 
-    public ConfiguredStageTemplate(String identifier, ConversationTemplate conversationTemplate) {
+    public ConfiguredStageTemplate(String identifier) {
 
-        super(identifier, conversationTemplate);
+        super(identifier);
     }
 
     public void loadConfig(ConfigurationSection config) {
@@ -37,7 +37,7 @@ public abstract class ConfiguredStageTemplate extends AbstractStageTemplate {
         getRequirements().clear();
         if (config == null) return;
         getRequirements().addAll(ActionAPI.createRequirements(
-                getConversationTemplate().getIdentifier() + "." + getIdentifier(),
+                getConversationTemplate().map(template -> template.getIdentifier()).orElse(ConfigUtil.getFileName(config)) + "." + getIdentifier(),
                 config)
         );
     }

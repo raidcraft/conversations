@@ -1,7 +1,6 @@
 package de.raidcraft.conversations.stages;
 
 import de.raidcraft.api.conversations.answer.Answer;
-import de.raidcraft.api.conversations.conversation.ConversationTemplate;
 import de.raidcraft.api.conversations.stage.AbstractStageTemplate;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -10,9 +9,9 @@ import org.bukkit.configuration.ConfigurationSection;
  */
 public class DynamicStageTemplate extends AbstractStageTemplate {
 
-    public DynamicStageTemplate(ConversationTemplate conversationTemplate, String text, Answer... answers) {
+    public DynamicStageTemplate(String text, Answer... answers) {
 
-        super("UNKNOWN", conversationTemplate);
+        super("UNKNOWN");
         setText(text);
         for (Answer answer : answers) {
             getAnswers().add(answer);

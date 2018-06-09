@@ -10,6 +10,7 @@ import de.raidcraft.api.conversations.ConversationProvider;
 import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.answer.Answer;
 import de.raidcraft.api.conversations.answer.SimpleAnswer;
+import de.raidcraft.api.conversations.builder.CodedConversationTemplate;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.conversations.conversation.ConversationEndReason;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
@@ -535,10 +536,7 @@ public class ConversationManager implements ConversationProvider, Component {
     public Optional<Conversation> startConversation(Player player, ConversationHost<?> conversationHost) {
 
         Optional<ConversationTemplate> conversation = conversationHost.getConversation(player);
-        if (conversation.isPresent()) {
-            return Optional.of(startConversation(player, conversation.get(), conversationHost));
-        }
-        return Optional.empty();
+        return conversation.map(conversationTemplate -> startConversation(player, conversationTemplate, conversationHost));
     }
 
     @Override
@@ -560,6 +558,11 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Conversation startConversation(Player player, ConversationTemplate template) {
         return template.startConversation(player, new PlayerHost(player));
+    }
+
+    @Override
+    public Conversation startConversation(Player player) {
+        return new CodedConversationTemplate(UUID.randomUUID().toString()).startConversation(player, new PlayerHost(player));
     }
 
     @Override
@@ -591,7 +594,7 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Stage createStage(Conversation conversation, String text, Answer... answers) {
 
-        return new DynamicStageTemplate(conversation.getTemplate(), text, answers).create(conversation);
+        return new DynamicStageTemplate(text, answers).create(conversation);
     }
 
     @Override

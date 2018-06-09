@@ -12,6 +12,7 @@ import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.trait.Equipment;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
@@ -127,6 +128,23 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                 RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
             }
         }
+    }
+
+    @Override
+    public boolean addTrait(Class<? extends Trait> traitClass) {
+        getType().addTrait(traitClass);
+        return true;
+    }
+
+    @Override
+    public boolean addTrait(Trait trait) {
+        getType().addTrait(trait);
+        return true;
+    }
+
+    @Override
+    public <T1 extends Trait> Optional<T1> getTrait(Class<T1> traitClass) {
+        return Optional.ofNullable(getType().getTrait(traitClass));
     }
 
     @Override

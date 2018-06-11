@@ -232,7 +232,7 @@ public class ConversationManager implements ConversationProvider, Component {
     public void registerStageTemplate(String type, Class<? extends StageTemplate> stage) {
 
         try {
-            Constructor<? extends StageTemplate> constructor = stage.getDeclaredConstructor(String.class, ConversationTemplate.class, ConfigurationSection.class);
+            Constructor<? extends StageTemplate> constructor = stage.getDeclaredConstructor(String.class);
             constructor.setAccessible(true);
             stageTemplates.put(type, constructor);
         } catch (NoSuchMethodException e) {

@@ -24,7 +24,7 @@ public abstract class ConfiguredStageTemplate extends AbstractStageTemplate {
     }
 
     public void loadConfig(ConfigurationSection config) {
-        setText(config.getString("withText"));
+        setText(config.getString("text"));
         setAutoShowingAnswers(config.getBoolean("auto-show-answers", true));
 
         this.loadRequirements(config.getConfigurationSection("requirements"));

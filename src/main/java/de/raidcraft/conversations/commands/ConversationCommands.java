@@ -8,6 +8,7 @@ import de.raidcraft.api.conversations.host.PlayerHost;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
+import de.raidcraft.util.PaginatedResult;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +43,7 @@ public class ConversationCommands {
     }
 
     @Command(
-            aliases = {"rcaa"},
+            aliases = {"rcca"},
             desc = "Base command for RCConversations Admin Actions."
     )
     @NestedCommand(NestedConversationAdminCommands.class)
@@ -151,7 +153,7 @@ public class ConversationCommands {
         }
 
         @Command(
-                aliases = {"startStage"},
+                aliases = {"start"},
                 desc = "Starts the given conversation.",
                 min = 1,
                 flags = "p:",
@@ -185,6 +187,24 @@ public class ConversationCommands {
             }
 
             conversationTemplate.get().startConversation(player, conversationHost);
+        }
+
+        @Command(
+                aliases = {"list"},
+                desc = "Lists all configured conversations.",
+                flags = "p:",
+                help = "[-p <page>]"
+        )
+        public void list(CommandContext args, CommandSender sender) throws CommandException {
+
+            Set<String> conversations = plugin.getConversationManager().getLoadedConversations();
+
+            new PaginatedResult<String>("Loaded conversations") {
+                @Override
+                public String format(String entry) {
+                    return entry;
+                }
+            }.display(sender, conversations, args.getFlagInteger('p', 1));
         }
 
         @Command(

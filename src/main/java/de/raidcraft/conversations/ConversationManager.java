@@ -79,15 +79,13 @@ public class ConversationManager implements ConversationProvider, Component {
         RaidCraft.registerPlayerVariable(Pattern.compile("%name"), (matcher, player) -> player.getName());
         RaidCraft.registerPlayerVariable(Pattern.compile("%\\*\\[([\\w_\\-\\d\\.]+)\\]"), (matcher, player) -> {
             Optional<Timer> activeTimer = Timer.getActiveTimer(player, matcher.group(1));
-            if (activeTimer.isPresent()) {
-                return TimeUtil.getAccurrateShortFormatedTime(TimeUtil.ticksToMillis(activeTimer.get().getRemainingTime()));
-            }
-            return "[Invalid Timer]";
+            return activeTimer.map(timer -> TimeUtil.getAccurrateShortFormatedTime(TimeUtil.ticksToMillis(timer.getRemainingTime())))
+                    .orElse("[Invalid Timer]");
         });
 
         registerHostFactory("NPC", new NPCHost.NPCHostFactory());
 
-        Bukkit.getScheduler().runTaskLater(plugin, this::load, 5 * 20L);
+        Bukkit.getScheduler().runTaskLater(plugin, this::load, 1 * 20L);
     }
 
     public void reload() {
@@ -479,6 +477,10 @@ public class ConversationManager implements ConversationProvider, Component {
         return variables;
     }
 
+    public Set<String> getLoadedConversations() {
+        return conversations.keySet();
+    }
+
     @Override
     public Optional<ConversationTemplate> loadConversation(String identifier, ConfigurationSection config) {
 
@@ -623,12 +625,18 @@ public class ConversationManager implements ConversationProvider, Component {
 
         Optional<ConversationHost<?>> npc = createConversationHost(pluginName, UUID.randomUUID().toString(), "NPC", location);
         if (npc.isPresent()) {
-            NPCHost conversationHost = (NPCHost) npc.get();
+            ConversationHost<?> host = npc.get();
+            NPCHost conversationHost = (NPCHost) host;
             conversationHost.getType().setName(name);
             Optional<ConversationTemplate> template = getLoadedConversationTemplate(conversationName);
             if (template.isPresent()) {
                 conversationHost.addDefaultConversation(template.get());
                 conversationHost.load(template.get().getHostSettings());
+                host.load(template.get().getHostSettings());
+                cachedHosts.put(host.getUniqueId().toString(), host);
+            } else {
+                plugin.getLogger().warning("Cannot spawn conversation host npc without valid conversation: " + conversationName + " does not exist!");
+                host.delete();
             }
             return npc;
         }

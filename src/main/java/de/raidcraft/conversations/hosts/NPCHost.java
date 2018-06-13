@@ -143,7 +143,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
     }
 
     @Override
-    public <T1 extends Trait> Optional<T1> getTrait(Class<T1> traitClass) {
+    public <TTrait extends Trait> Optional<TTrait> getTrait(Class<TTrait> traitClass) {
         return Optional.ofNullable(getType().getTrait(traitClass));
     }
 

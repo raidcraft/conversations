@@ -3,6 +3,7 @@ package de.raidcraft.conversations;
 import de.raidcraft.api.BasePlugin;
 import de.raidcraft.api.action.ActionAPI;
 import de.raidcraft.api.config.Comment;
+import de.raidcraft.api.config.ConfigLoader;
 import de.raidcraft.api.config.ConfigurationBase;
 import de.raidcraft.api.config.Setting;
 import de.raidcraft.api.conversations.Conversations;
@@ -10,7 +11,6 @@ import de.raidcraft.api.conversations.actions.*;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
-import de.raidcraft.api.quests.QuestConfigLoader;
 import de.raidcraft.api.quests.Quests;
 import de.raidcraft.conversations.commands.ConversationCommands;
 import de.raidcraft.conversations.listener.ChatListener;
@@ -50,7 +50,7 @@ public class RCConversationsPlugin extends BasePlugin {
         registerCommands(ConversationCommands.class);
         registerActionAPI();
 
-        Quests.registerQuestLoader(new QuestConfigLoader("host", 50) {
+        Quests.registerQuestLoader(new ConfigLoader(this, "host", 50) {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 
@@ -58,7 +58,7 @@ public class RCConversationsPlugin extends BasePlugin {
             }
         });
 
-        Quests.registerQuestLoader(new QuestConfigLoader("conv", 10) {
+        Quests.registerQuestLoader(new ConfigLoader(this, "conv", 10) {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
 

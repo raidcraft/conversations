@@ -64,7 +64,7 @@ public class ConversationCommands {
         @Command(
                 aliases = {"create"},
                 desc = "Create conversation NPC",
-                usage = "<conversation> <npc name>",
+                usage = "<conversation> <npc displayName>",
                 min = 1,
                 flags = "n"
         )

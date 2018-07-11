@@ -14,9 +14,8 @@ build:
   script:
     - mvn $MAVEN_CLI_OPTS compile
   artifacts:
-    name: Plugin
     paths:
-    - target/*.jar
+      - target/*.jar
     expire_in: 1 week
 
 test:

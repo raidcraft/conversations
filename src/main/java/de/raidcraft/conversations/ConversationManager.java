@@ -311,7 +311,7 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
-    public Conversation createConversation(String type, Player player, ConversationTemplate template, ConversationHost host) {
+    public Conversation startConversation(String type, Player player, ConversationTemplate template, ConversationHost host) {
 
         try {
             if (!conversationTypes.containsKey(type)) {
@@ -532,6 +532,12 @@ public class ConversationManager implements ConversationProvider, Component {
             }
         }
         return templates;
+    }
+
+    @Override
+    public <TConversation extends Conversation> Optional<TConversation> startConversation(Player player, String conversation, Class<TConversation> conversationClass) {
+
+        return startConversation(player, conversation).map(conversationClass::cast);
     }
 
     @Override

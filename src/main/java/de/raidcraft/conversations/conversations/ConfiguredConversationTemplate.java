@@ -27,11 +27,11 @@ public class ConfiguredConversationTemplate extends AbstractConversationTemplate
     public void loadConfig(ConfigurationSection config) {
         this.setConversationType(config.getString("conv-type", Conversation.DEFAULT_TYPE));
         this.setExitable(!config.getBoolean("block-end", false));
-        this.setBlockingConversationStart(config.getBoolean("block-conv-startStage", false));
+        this.setBlockingConversationStart(config.getBoolean("block-start", false));
         this.setEndingOutOfRange(config.getBoolean("end-out-of-range", this.isExitable()));
         this.setPersistent(config.getBoolean("persistent", false));
         this.setPriority(config.getInt("priority", 1));
-        this.setAutoEnding(config.getBoolean("auto-end", false));
+        this.setAutoEnding(config.getBoolean("auto-end", true));
         this.setHostSettings(config.getConfigurationSection("host-settings"));
 
         this.loadRequirements(config.getConfigurationSection("requirements"));

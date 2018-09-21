@@ -375,7 +375,7 @@ public class ConversationManager implements ConversationProvider, Component {
         if (cachedHosts.containsKey(identifier)) {
             return Optional.of(cachedHosts.get(identifier));
         }
-        String type = config.getString("type");
+        String type = config.getString("type", "npc");
         if (!hostFactories.containsKey(type)) {
             plugin.getLogger().warning("Could not find host factory " + type + " in " + ConfigUtil.getFileName(config));
             return Optional.empty();

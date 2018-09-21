@@ -652,7 +652,7 @@ public class ConversationManager implements ConversationProvider, Component {
     public void deleteConversationHost(ConversationHost host) {
 
         host.delete();
-        TPersistentHost persistentHost = plugin.getDatabase().find(TPersistentHost.class).where().eq("host", host.getUniqueId()).findUnique();
+        TPersistentHost persistentHost = plugin.getDatabase().find(TPersistentHost.class).where().eq("host", host.getUniqueId()).findOne();
         if (persistentHost != null) {
             plugin.getDatabase().delete(persistentHost);
         }

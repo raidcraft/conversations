@@ -1,6 +1,5 @@
 package de.raidcraft.conversations.conversations;
 
-import com.avaje.ebean.EbeanServer;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.conversation.AbstractConversation;
 import de.raidcraft.api.conversations.conversation.ConversationTemplate;
@@ -9,6 +8,7 @@ import de.raidcraft.api.conversations.stage.Stage;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
+import io.ebean.EbeanServer;
 import org.bukkit.entity.Player;
 
 import java.sql.Timestamp;
@@ -35,7 +35,7 @@ public class PlayerConversation extends AbstractConversation {
         return Optional.ofNullable(database.find(TPlayerVariable.class).where()
                 .eq("player", getOwner().getUniqueId())
                 .eq("name", name)
-                .findUnique());
+                .findOne());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class PlayerConversation extends AbstractConversation {
                 .eq("player", getOwner().getUniqueId())
                 .eq("host", getHost().getUniqueId())
                 .eq("conversation", getIdentifier())
-                .findUnique();
+                .findOne();
         if (entry == null) {
             entry = new TPlayerConversation();
             entry.setPlayer(getOwner().getUniqueId());
@@ -113,7 +113,7 @@ public class PlayerConversation extends AbstractConversation {
                 .eq("player", getOwner().getUniqueId())
                 .eq("host", getHost().getUniqueId())
                 .eq("conversation", getIdentifier())
-                .findUnique();
+                .findOne();
         if (entry != null && entry.getStage() != null) {
             Optional<Stage> stage = getStage(entry.getStage());
             if (stage.isPresent()) {

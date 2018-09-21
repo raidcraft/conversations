@@ -4,11 +4,9 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
-import de.raidcraft.api.items.CustomItemException;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
-import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
@@ -82,51 +80,11 @@ public class NPCHost extends AbstractConversationHost<NPC> {
 
         Equipment equipmentTrait = getType().getTrait(Equipment.class);
         if (equipment != null && equipmentTrait != null) {
-            String itemName;
-            try {
-                itemName = equipment.getString("hand");
-                if (itemName != null && !itemName.equals("")) {
-                    equipmentTrait.set(0, RaidCraft.getItem(itemName));
-                }
-            } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
-            }
-
-            try {
-                itemName = equipment.getString("head");
-                if (itemName != null && !itemName.equals("")) {
-                    equipmentTrait.set(1, RaidCraft.getItem(itemName));
-                }
-            } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
-            }
-
-            try {
-                itemName = equipment.getString("chest");
-                if (itemName != null && !itemName.equals("")) {
-                    equipmentTrait.set(2, RaidCraft.getItem(itemName));
-                }
-            } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
-            }
-
-            try {
-                itemName = equipment.getString("legs");
-                if (itemName != null && !itemName.equals("")) {
-                    equipmentTrait.set(3, RaidCraft.getItem(itemName));
-                }
-            } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
-            }
-
-            try {
-                itemName = equipment.getString("boots");
-                if (itemName != null && !itemName.equals("")) {
-                    equipmentTrait.set(4, RaidCraft.getItem(itemName));
-                }
-            } catch (CustomItemException e) {
-                RaidCraft.LOGGER.warning(e.getMessage() + " in host " + ConfigUtil.getFileName(equipment));
-            }
+            RaidCraft.getItem(equipment.getString("hand")).ifPresent(item -> equipmentTrait.set(0, item));
+            RaidCraft.getItem(equipment.getString("head")).ifPresent(item -> equipmentTrait.set(1, item));
+            RaidCraft.getItem(equipment.getString("chest")).ifPresent(item -> equipmentTrait.set(2, item));
+            RaidCraft.getItem(equipment.getString("legs")).ifPresent(item -> equipmentTrait.set(3, item));
+            RaidCraft.getItem(equipment.getString("boots")).ifPresent(item -> equipmentTrait.set(4, item));
         }
     }
 

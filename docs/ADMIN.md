@@ -143,18 +143,20 @@ stages:
     start:
         # Mann kan den Text auch direkt als Action anzeigen, anstatt in der Stage Config...
         actions:
-            - '!text Hallo mein Freund. Was kann ich für dich tun?'
-            - ':"Nichts, danke!"'
-            - '!end'
-            - ':"Ich brauche Geld..."'
-            - '!stage geld'
+            flow:
+                - '!text Hallo mein Freund. Was kann ich für dich tun?'
+                - ':"Nichts, danke!"'
+                - '!end'
+                - ':"Ich brauche Geld..."'
+                - '!stage geld'
     geld:
         # ...oder normal in der Stage und dann entsprechende Actions ausführen.
         text: 'Hah, geh sterben!'
         actions:
-            - '!player.kill'
-            - '~2s'
-            - '!text "Wer bettelt, der stirbt..."'
+            flow:
+                - '!player.kill'
+                - '~2s'
+                - '!text "Wer bettelt, der stirbt..."'
 ```
 
 ## Conversation Actions
@@ -167,15 +169,16 @@ Startet die angegebene Unterhaltung, optional mit einem Host und einer Stage.
 
 ```yml
 actions:
-    # Startet die Unterhaltung mit der Config im selben Ordner und dem Dateinamen
-    # conv-template.conv.yml. Default wird die Stage 'start' gestartet.
-    - '!conversation.start this.conv-template'
-    # Startet die Unterhaltung aus einem Überordner mit dem Namen conv-template.conv.yml
-    # Als Host wird der NPC mit der Config im gleichen Ordner
-    # und dem Dateinamen host.host.yml verwendet.
-    - '!conversation.start ../conv-template this.host'
-    # Analog der anderen, mit dem Unterschied dass direkt die Stage 'stage1' gestartet wird.
-    - '!conversation.start conv:this.conv-template host:this.host stage:stage1'
+    flow:
+        # Startet die Unterhaltung mit der Config im selben Ordner und dem Dateinamen
+        # conv-template.conv.yml. Default wird die Stage 'start' gestartet.
+        - '!conversation.start this.conv-template'
+        # Startet die Unterhaltung aus einem Überordner mit dem Namen conv-template.conv.yml
+        # Als Host wird der NPC mit der Config im gleichen Ordner
+        # und dem Dateinamen host.host.yml verwendet.
+        - '!conversation.start ../conv-template this.host'
+        # Analog der anderen, mit dem Unterschied dass direkt die Stage 'stage1' gestartet wird.
+        - '!conversation.start conv:this.conv-template host:this.host stage:stage1'
 ```
 
 ### conversation.set
@@ -184,6 +187,7 @@ Setzt für den Spieler und Host eine Conversation die bei der nächsten Interakt
 
 ```yml
 actions:
+  flow:
     # Setzt für den Spieler die angegbene Unterhaltung am angegebenen Host.
     '!conversation.set conv:this.conv-template host:this.host'
 ```
@@ -194,6 +198,7 @@ Entfernt manuelle gesetzt Unterhaltungen auf einem Host. Nützlich wenn man mit 
 
 ```yml
 actions:
+  flow:
     # Entfernt alle manuell gesetzten Unterhaltungen am NPC host.
     '!conversation.clear this.host'
 ```
@@ -204,6 +209,7 @@ Mit der `stage` Action lässt es sich innerhalb einer Conversation die Stage wec
 
 ```yml
 actions:
+  flow:
     # Wechselt in die Foobar Stage
     - '!stage foobar'
 ```

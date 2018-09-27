@@ -113,6 +113,9 @@ public class RCConversationsPlugin extends BasePlugin {
                 .action(new EndConversationAction(), Conversation.class)
                 .action(new AbortConversationAction(), Conversation.class)
                 .action(new SetVariableAction(), Conversation.class)
+                .action(new SetConversationAction())
+                .action(new UnsetConversationAction())
+                .action(new ClearConversationAction())
                 .requirement(new CompareVariableRequirement(), Conversation.class);
     }
 

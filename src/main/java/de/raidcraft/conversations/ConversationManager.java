@@ -2,7 +2,6 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.Component;
-import de.raidcraft.api.action.Timer;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.flow.Flow;
 import de.raidcraft.api.config.SimpleConfiguration;
@@ -340,7 +339,7 @@ public class ConversationManager implements ConversationProvider, Component {
     private void loadSavedHostConversations(ConversationHost host) {
 
         // lets loadConfig all saved player conversations
-        List<TPlayerConversation> conversationList = plugin.getDatabase().find(TPlayerConversation.class).where()
+        List<TPlayerConversation> conversationList = plugin.getRcDatabase().find(TPlayerConversation.class).where()
                 .eq("host", host.getUniqueId())
                 .findList();
         for (TPlayerConversation savedConversation : conversationList) {
@@ -652,9 +651,9 @@ public class ConversationManager implements ConversationProvider, Component {
     public void deleteConversationHost(ConversationHost host) {
 
         host.delete();
-        TPersistentHost persistentHost = plugin.getDatabase().find(TPersistentHost.class).where().eq("host", host.getUniqueId()).findOne();
+        TPersistentHost persistentHost = plugin.getRcDatabase().find(TPersistentHost.class).where().eq("host", host.getUniqueId()).findOne();
         if (persistentHost != null) {
-            plugin.getDatabase().delete(persistentHost);
+            plugin.getRcDatabase().delete(persistentHost);
         }
         for (Map.Entry<String, ConversationHost<?>> entry : cachedHosts.entrySet()) {
             if (entry.getValue().equals(host)) {

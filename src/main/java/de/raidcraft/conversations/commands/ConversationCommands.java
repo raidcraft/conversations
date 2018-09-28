@@ -116,8 +116,8 @@ public class ConversationCommands {
                 option.setConfValue(settings.getString(key));
                 persistentHost.getOptions().add(option);
             }
-            plugin.getDatabase().save(persistentHost);
-            plugin.getDatabase().save(persistentHost.getOptions());
+            plugin.getRcDatabase().save(persistentHost);
+            plugin.getRcDatabase().save(persistentHost.getOptions());
 
             sender.sendMessage(org.bukkit.ChatColor.GREEN + "Der NPC wurde erfolgreich erstellt!");
         }

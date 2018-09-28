@@ -96,7 +96,7 @@ public class RCConversationsPlugin extends BasePlugin {
 
     private void loadPersistantConversationHosts() {
 
-        List<TPersistentHost> list = getDatabase().find(TPersistentHost.class).findList();
+        List<TPersistentHost> list = getRcDatabase().find(TPersistentHost.class).findList();
         for (TPersistentHost host : list) {
             getConversationManager().createConversationHost(host);
         }

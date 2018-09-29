@@ -2,6 +2,7 @@ package de.raidcraft.conversations;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.Component;
+import de.raidcraft.api.action.Timer;
 import de.raidcraft.api.action.action.Action;
 import de.raidcraft.api.action.flow.Flow;
 import de.raidcraft.api.config.SimpleConfiguration;

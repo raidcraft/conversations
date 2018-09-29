@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="rc_player_placed_blocks" pkName="pk_rc_player_placed_blocks">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="world" type="uuid"/>
+            <column name="chunk_x" type="integer" notnull="true"/>
+            <column name="chunk_z" type="integer" notnull="true"/>
+            <column name="x" type="integer" notnull="true"/>
+            <column name="y" type="integer" notnull="true"/>
+            <column name="z" type="integer" notnull="true"/>
+            <column name="timestamp" type="timestamp"/>
+        </createTable>
+        <createTable name="rc_actionapi" pkName="pk_rc_actionapi">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="action_type" type="varchar"/>
+            <column name="name" type="varchar"/>
+            <column name="description" type="varchar"/>
+            <column name="server" type="varchar"/>
+            <column name="conf" type="clob"/>
+            <column name="active" type="boolean" defaultValue="false" notnull="true"/>
+            <column name="last_active" type="timestamp"/>
+        </createTable>
+        <createTable name="rc_commands" pkName="pk_rc_commands">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="host" type="varchar"/>
+            <column name="base" type="varchar"/>
+            <column name="aliases" type="varchar"/>
+            <column name="description" type="varchar"/>
+            <column name="usage_" type="varchar"/>
+            <column name="min" type="integer" notnull="true"/>
+            <column name="max" type="integer" notnull="true"/>
+            <column name="flags" type="varchar"/>
+            <column name="help_" type="TEXT"/>
+            <column name="permission" type="varchar"/>
+            <column name="server" type="varchar"/>
+        </createTable>
+        <createTable name="rc_listener" pkName="pk_rc_listener">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="listener" type="varchar"/>
+            <column name="plugin" type="varchar"/>
+            <column name="last_loaded" type="timestamp"/>
+            <column name="server" type="varchar"/>
+            <uniqueConstraint name="uq_rc_listener_listener_server" columnNames="listener,server" oneToOne="false"
+                              nullableColumns="listener,server"/>
+        </createTable>
+        <createTable name="rc_log" pkName="pk_rc_log">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="level" type="integer" checkConstraint="check ( level in (0,1,2,3))"
+                    checkConstraintName="ck_rc_log_level"/>
+            <column name="category" type="varchar"/>
+            <column name="log" type="TEXT"/>
+            <column name="last" type="timestamp"/>
+            <column name="server" type="varchar"/>
+        </createTable>
+        <createTable name="rc_object_storage" pkName="pk_rc_object_storage">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="storage_name" type="varchar" notnull="true"/>
+            <column name="serialization" type="TEXT" notnull="true"/>
+        </createTable>
+        <createTable name="raidcraft_peristant_requirements" pkName="pk_raidcraft_peristant_requirements">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="plugin" type="varchar"/>
+            <column name="requirement" type="varchar"/>
+            <column name="uuid" type="uuid"/>
+        </createTable>
+        <createTable name="raidcraft_persistant_requirement_mappings"
+                     pkName="pk_raidcraft_persistant_requirement_mappings">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="requirement_id" type="integer" references="raidcraft_peristant_requirements.id"
+                    foreignKeyName="fk_raidcraft_persistant_requirement_mappings_requirement_id"
+                    foreignKeyIndex="ix_raidcraft_persistant_requirement_mappings_requirement_id"/>
+            <column name="mapped_key" type="varchar"/>
+            <column name="mapped_value" type="varchar"/>
+        </createTable>
+        <createTable name="conversation_persistent_hosts" pkName="pk_conversation_persistent_hosts">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="host" type="uuid"/>
+            <column name="creator" type="uuid"/>
+            <column name="conversation" type="varchar"/>
+            <column name="host_type" type="varchar"/>
+            <column name="world" type="varchar"/>
+            <column name="x" type="integer" notnull="true"/>
+            <column name="y" type="integer" notnull="true"/>
+            <column name="z" type="integer" notnull="true"/>
+        </createTable>
+        <createTable name="conversation_persistent_host_options" pkName="pk_conversation_persistent_host_options">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="conf_key" type="varchar"/>
+            <column name="conf_value" type="varchar"/>
+            <column name="host_id" type="integer" references="conversation_persistent_hosts.id"
+                    foreignKeyName="fk_conversation_persistent_host_options_host_id"
+                    foreignKeyIndex="ix_conversation_persistent_host_options_host_id"/>
+        </createTable>
+        <createTable name="rcinv_inventories" pkName="pk_rcinv_inventories">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="title" type="varchar"/>
+            <column name="created" type="timestamp"/>
+            <column name="last_update" type="timestamp"/>
+            <column name="size" type="integer" notnull="true"/>
+        </createTable>
+        <createTable name="rcinv_slots" pkName="pk_rcinv_slots">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="inventory_id" type="integer" references="rcinv_inventories.id"
+                    foreignKeyName="fk_rcinv_slots_inventory_id" foreignKeyIndex="ix_rcinv_slots_inventory_id"/>
+            <column name="object_id" type="integer" notnull="true"/>
+            <column name="slot" type="integer" notnull="true"/>
+        </createTable>
+        <createTable name="conversation_saved_conversations" pkName="pk_conversation_saved_conversations">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="player" type="uuid"/>
+            <column name="host" type="uuid"/>
+            <column name="conversation" type="varchar"/>
+            <column name="stage" type="varchar"/>
+            <column name="timestamp" type="timestamp"/>
+        </createTable>
+        <createTable name="rc_player_inventories" pkName="pk_rc_player_inventories">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="player" type="uuid" notnull="true"/>
+            <column name="inventory_id" type="integer" notnull="true"/>
+            <column name="object_helmet" type="integer" notnull="true"/>
+            <column name="object_chestplate" type="integer" notnull="true"/>
+            <column name="object_leggings" type="integer" notnull="true"/>
+            <column name="object_boots" type="integer" notnull="true"/>
+            <column name="exp" type="float" notnull="true"/>
+            <column name="level" type="integer" notnull="true"/>
+            <column name="locked" type="boolean" defaultValue="false" notnull="true"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="version" type="bigint" notnull="true"/>
+        </createTable>
+        <createTable name="rc_player_logs" pkName="pk_rc_player_logs">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="player" type="uuid"/>
+            <column name="name" type="varchar"/>
+            <column name="join_time" type="timestamp"/>
+            <column name="quit_time" type="timestamp"/>
+            <column name="world" type="varchar"/>
+        </createTable>
+        <createTable name="rc_player_log_stats" pkName="pk_rc_player_log_stats">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="log_id" type="integer" references="rc_player_logs.id"
+                    foreignKeyName="fk_rc_player_log_stats_log_id" foreignKeyIndex="ix_rc_player_log_stats_log_id"/>
+            <column name="statistic" type="varchar"/>
+            <column name="logon_value" type="integer" notnull="true"/>
+            <column name="logoff_value" type="integer" notnull="true"/>
+        </createTable>
+        <createTable name="conversation_player_variables" pkName="pk_conversation_player_variables">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="player" type="uuid" notnull="true"/>
+            <column name="conversation" type="varchar"/>
+            <column name="stage" type="varchar"/>
+            <column name="name" type="varchar" notnull="true"/>
+            <column name="value" type="varchar"/>
+            <column name="last_update" type="timestamp"/>
+            <uniqueConstraint name="uq_conversation_player_variables_player_name" columnNames="player,name"
+                              oneToOne="false" nullableColumns=""/>
+        </createTable>
+        <createTable name="rc_plugin" pkName="pk_rc_plugin">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="name" type="varchar"/>
+            <column name="description" type="varchar"/>
+            <column name="version" type="varchar"/>
+            <column name="author" type="varchar"/>
+            <column name="last_active" type="timestamp"/>
+        </createTable>
+        <createTable name="rc_players" pkName="pk_rc_players">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="uuid" type="uuid"/>
+            <column name="last_name" type="varchar"/>
+            <column name="last_joined" type="timestamp"/>
+            <column name="first_joined" type="timestamp"/>
+        </createTable>
+    </changeSet>
+</migration>

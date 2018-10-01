@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "conversation_persistent_host_options")
+@Table(name = "rc_conversation_persistent_host_options")
 public class TPersistentHostOption {
 
     @Id

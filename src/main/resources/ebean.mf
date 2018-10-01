@@ -1,0 +1,3 @@
+entity-packages: de.raidcraft.conversations
+transactional-packages: de.raidcraft.conversations
+querybean-packages: de.raidcraft.conversations

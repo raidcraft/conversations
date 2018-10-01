@@ -18,7 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "conversation_persistent_hosts")
+@Table(name = "rc_conversation_persistent_hosts")
 public class TPersistentHost {
 
     @Id

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="rc_conversation_persistent_hosts" pkName="pk_rc_conversation_persistent_hosts">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="host" type="uuid"/>
+            <column name="creator" type="uuid"/>
+            <column name="conversation" type="varchar"/>
+            <column name="host_type" type="varchar"/>
+            <column name="world" type="varchar"/>
+            <column name="x" type="integer" notnull="true"/>
+            <column name="y" type="integer" notnull="true"/>
+            <column name="z" type="integer" notnull="true"/>
+        </createTable>
+        <createTable name="rc_conversation_persistent_host_options" pkName="pk_rc_conversation_persistent_host_options">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="conf_key" type="varchar"/>
+            <column name="conf_value" type="varchar"/>
+            <column name="host_id" type="integer" references="rc_conversation_persistent_hosts.id"
+                    foreignKeyName="fk_rc_conversation_persistent_host_options_host_id"
+                    foreignKeyIndex="ix_rc_conversation_persistent_host_options_host_id"/>
+        </createTable>
+        <createTable name="rc_conversation_saved_conversations" pkName="pk_rc_conversation_saved_conversations">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="player" type="uuid"/>
+            <column name="host" type="uuid"/>
+            <column name="conversation" type="varchar"/>
+            <column name="stage" type="varchar"/>
+            <column name="timestamp" type="timestamp"/>
+        </createTable>
+        <createTable name="rc_conversation_player_variables" pkName="pk_rc_conversation_player_variables">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="player" type="uuid" notnull="true"/>
+            <column name="conversation" type="varchar"/>
+            <column name="stage" type="varchar"/>
+            <column name="name" type="varchar" notnull="true"/>
+            <column name="value" type="varchar"/>
+            <column name="last_update" type="timestamp"/>
+            <uniqueConstraint name="uq_rc_conversation_player_variables_player_name" columnNames="player,name"
+                              oneToOne="false" nullableColumns=""/>
+        </createTable>
+    </changeSet>
+</migration>

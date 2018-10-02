@@ -14,7 +14,9 @@ public class DynamicStageTemplate extends AbstractStageTemplate {
         super("UNKNOWN");
         setText(text);
         for (Answer answer : answers) {
-            getAnswers().add(answer);
+            if (answer != null) {
+                getAnswers().add(answer);
+            }
         }
     }
 

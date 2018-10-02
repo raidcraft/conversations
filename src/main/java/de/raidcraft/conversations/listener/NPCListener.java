@@ -37,8 +37,13 @@ public class NPCListener implements Listener {
         // lets trigger the host interact event to allow actions and stuff to react
         Optional<String> identifier = host.get().getIdentifier();
         if (!identifier.isPresent()) return;
+        // check if the player has a previous conversation before the interact
         ConversationHostInteractEvent hostInteractEvent = new ConversationHostInteractEvent(identifier.get(), host.get(), event.getClicker());
         RaidCraft.callEvent(hostInteractEvent);
+        if (hostInteractEvent.isCancelled()) {
+            event.setCancelled(true);
+            return;
+        }
         // lets get the now active conversation and compare it to the previous one
         Optional<Conversation> newActiveConversation = Conversations.getActiveConversation(event.getClicker());
         // nothing changed if both conversation are equal

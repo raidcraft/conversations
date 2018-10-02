@@ -32,7 +32,13 @@ public class HostTrigger extends Trigger implements Listener {
     public void onQuestHostInteract(ConversationHostInteractEvent event) {
 
         informListeners("interact", event.getPlayer(),
-                config -> event.getHostIdentifier().equalsIgnoreCase(config.getString("host")));
+                config ->{
+                    if (event.getHostIdentifier().equalsIgnoreCase(config.getString("host"))) {
+                        event.setCancelled(true);
+                        return true;
+                    }
+                    return false;
+                });
     }
 
     @Information(

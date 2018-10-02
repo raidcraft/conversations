@@ -76,7 +76,7 @@ public class ConversationManager implements ConversationProvider, Component {
 
         registerConversationVariable(Pattern.compile("%\\[([\\w_\\-\\d]+)\\]"), (matcher, conversation) -> conversation.getString(matcher.group(1)));
 
-        RaidCraft.registerPlayerVariable(Pattern.compile("%name"), (matcher, player) -> player.getName());
+        RaidCraft.registerPlayerVariable(Pattern.compile("%player"), (matcher, player) -> player.getName());
         RaidCraft.registerPlayerVariable(Pattern.compile("%\\*\\[([\\w_\\-\\d\\.]+)\\]"), (matcher, player) -> {
             Optional<Timer> activeTimer = Timer.getActiveTimer(player, matcher.group(1));
             return activeTimer.map(timer -> TimeUtil.getAccurrateShortFormatedTime(TimeUtil.ticksToMillis(timer.getRemainingTime())))

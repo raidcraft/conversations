@@ -11,7 +11,7 @@ public class DynamicStageTemplate extends AbstractStageTemplate {
 
     public DynamicStageTemplate(String text, Answer... answers) {
 
-        super("UNKNOWN");
+        super("DYNAMIC_CODE");
         setText(text);
         for (Answer answer : answers) {
             if (answer != null) {

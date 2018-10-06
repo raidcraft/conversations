@@ -110,7 +110,7 @@ public class RCConversationsPlugin extends BasePlugin {
                 .action(new ShowAnswersAction(), Conversation.class)
                 .action(new ChangeStageAction(), Conversation.class)
                 .action(new StartConversationAction())
-                .action(new EndConversationAction(), Conversation.class)
+                .action(new EndConversationAction())
                 .action(new AbortConversationAction(), Conversation.class)
                 .action(new SetVariableAction(), Conversation.class)
                 .action(new SetConversationAction())

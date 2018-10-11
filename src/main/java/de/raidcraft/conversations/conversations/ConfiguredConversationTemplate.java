@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author mdoering
  */
 @Data
-@EqualsAndHashCode(callSuper = true, of = {"identifier"})
+@EqualsAndHashCode(callSuper = true)
 public class ConfiguredConversationTemplate extends AbstractConversationTemplate {
 
     public ConfiguredConversationTemplate(String identifier, ConfigurationSection config) {

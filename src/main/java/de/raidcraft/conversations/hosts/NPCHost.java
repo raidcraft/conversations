@@ -48,7 +48,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
 
     public NPCHost(String identifier, NPC npc) {
 
-        super(npc.getUniqueId(), Optional.ofNullable(identifier), npc);
+        super(npc.getUniqueId(), identifier, npc);
         setName(npc.getName());
     }
 
@@ -63,7 +63,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));
         if (config.getBoolean("talk-close")) getType().addTrait(TalkCloseTrait.class);
-        if (config.getBoolean("look-close")) getType().addTrait(LookClose.class);
+        if (config.getBoolean("look-close", true)) getType().addTrait(LookClose.class);
 
         if (config.isConfigurationSection("equipment")) {
             loadEquipment(config.getConfigurationSection("equipment"));

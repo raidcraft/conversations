@@ -68,7 +68,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                 RaidCraft.LOGGER.warning("Invalid SKIN for Host " + ConfigUtil.getFileName(config));
             } else {
                 SkinnableEntity entity = (SkinnableEntity) getType().getEntity();
-                entity.setSkinPersistent(UUID.randomUUID().toString(), config.getString("skin.value"), config.getString("skin.signature"));
+                entity.setSkinPersistent(getUniqueId().toString(), config.getString("skin.value"), config.getString("skin.signature"));
             }
         }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));

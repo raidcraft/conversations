@@ -7,11 +7,13 @@ import de.raidcraft.api.conversations.host.ConversationHostFactory;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
+import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.trait.Equipment;
+import net.citizensnpcs.npc.skin.SkinnableEntity;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,6 +21,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author mdoering
@@ -60,10 +63,33 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             getType().setName(config.getString("name"));
             setName(getType().getName());
         }
+        if (config.isSet("skin") && getType().getEntity() instanceof SkinnableEntity) {
+            if (!config.isSet("skin.value") || !config.isSet("skin.signature")) {
+                RaidCraft.LOGGER.warning("Invalid SKIN for Host " + ConfigUtil.getFileName(config));
+            } else {
+                SkinnableEntity entity = (SkinnableEntity) getType().getEntity();
+                entity.setSkinPersistent(UUID.randomUUID().toString(), config.getString("skin.value"), config.getString("skin.signature"));
+            }
+        }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));
-        if (config.getBoolean("talk-close")) getType().addTrait(TalkCloseTrait.class);
-        if (config.getBoolean("look-close", true)) getType().addTrait(LookClose.class);
+        if (config.isConfigurationSection("talk-close")) {
+            int radius = config.getInt("talk-close.radius", 5);
+            if (radius > 0) {
+                getType().addTrait(TalkCloseTrait.class);
+                getType().getTrait(TalkCloseTrait.class).setRadius(radius);
+            }
+        } else if (config.getBoolean("talk-close", false)) {
+            getType().addTrait(TalkCloseTrait.class);
+        }
+        if (config.isConfigurationSection("look-close")) {
+            getType().addTrait(LookClose.class);
+            LookClose lookClose = getType().getTrait(LookClose.class);
+            lookClose.setRealisticLooking(config.getBoolean("look-close.realistic", true));
+            lookClose.setRange(config.getInt("look-close.radius", 7));
+        } else if (config.getBoolean("look-close", true)) {
+            getType().addTrait(LookClose.class);
+        }
 
         if (config.isConfigurationSection("equipment")) {
             loadEquipment(config.getConfigurationSection("equipment"));

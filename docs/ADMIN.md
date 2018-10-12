@@ -102,14 +102,28 @@ name: 'Host Name'
 # Kann verwendet werden um den NPC zu verwandeln.
 # Muss ein valider Type von https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html sein.
 entity-type: PLAYER
+# Optional kann für jeden NPC ein Skin definiert werden.
+# Dafür den "value" und "signature" Wert von https://mineskin.org/ kopieren.
+# skin:
+#   value: eyJ0aW1lc3RhbXAiOjE1Mzk...
+#   signature: NraIS/dNYeQXx0euZtv...
+#   # Wird nur für Referenz Zwecke benötigt.
+#   url: https://mineskin.org/391488
 # Definiert eine Standard Unterhaltung für den Host.
 default-conv: this.host.default
 # Wenn auf false kann der NPC angegriffen werden.
 protected: true
 # Wenn true redet der NPC automatisch mit Spielern in der Nähe.
 talk-close: false
+# Alternativ kann wie folgt auch der Radius angegeben werden
+# talk-close:
+#   radius: 5
 # Wenn true verfolgt der NPC den Spieler mit den Augen.
-look-close: false
+look-close: true
+# Alternativ kann wie folgt auch der Radius und das Verhalten angegeben werden.
+# look-close:
+#   radius: 7
+#   realistic: true
 # Die Ausrüstung des NPCs
 equipment:
     # Hier können auch Custom Items equiped werden.

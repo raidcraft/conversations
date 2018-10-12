@@ -152,8 +152,10 @@ public class TalkCloseTask implements Runnable {
             // talk
             Optional<ConversationHost<NPC>> host = conversationManager.getConversationHost(nearest_npc);
             if (host.isPresent() && nearest_npc.hasTrait(TalkCloseTrait.class)) {
-                host.get().startConversation(player);
-                playerTalkedMap.put(player.getUniqueId(), nearest_npc.getUniqueId());
+                if (LocationUtil.isWithinRadius(player.getLocation(), nearest_npc.getEntity().getLocation(), nearest_npc.getTrait(TalkCloseTrait.class).getRadius())) {
+                    host.get().startConversation(player);
+                    playerTalkedMap.put(player.getUniqueId(), nearest_npc.getUniqueId());
+                }
             }
         }
     }

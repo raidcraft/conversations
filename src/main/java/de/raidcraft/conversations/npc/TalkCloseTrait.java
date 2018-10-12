@@ -1,6 +1,7 @@
 package de.raidcraft.conversations.npc;
 
 import de.raidcraft.api.npc.RC_Traits;
+import lombok.Data;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 
@@ -10,9 +11,12 @@ import java.util.List;
 /**
  * @author Dragonfire
  */
+@Data
 public class TalkCloseTrait extends Trait {
 
     private static List<NPC> talkCloseNpcs = new ArrayList<>();
+
+    private int radius = 5;
 
     public TalkCloseTrait() {
 

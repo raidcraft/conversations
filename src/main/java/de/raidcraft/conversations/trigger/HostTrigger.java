@@ -25,7 +25,8 @@ public class HostTrigger extends Trigger implements Listener {
             value = "host.interact",
             desc = "Is triggered when the player interacts with the given host.",
             conf = {
-                    "host: <id>"
+                    "host: <id>",
+                    "conv: optional conversation to start"
             }
     )
     @EventHandler(ignoreCancelled = true)
@@ -34,6 +35,9 @@ public class HostTrigger extends Trigger implements Listener {
         informListeners("interact", event.getPlayer(),
                 config ->{
                     if (event.getHostIdentifier().equalsIgnoreCase(config.getString("host"))) {
+                        if (config.isSet("conv")) {
+                            event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
+                        }
                         event.setCancelled(true);
                         return true;
                     }

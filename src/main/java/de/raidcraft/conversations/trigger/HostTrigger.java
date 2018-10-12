@@ -50,14 +50,23 @@ public class HostTrigger extends Trigger implements Listener {
             desc = "Is triggered when the player walks by a host.",
             conf = {
                     "host: <id>",
-                    "radius: [3]"
+                    "radius: [3]",
+                    "conv: optional conversation to start"
             }
     )
     @EventHandler(ignoreCancelled = true)
     public void onHostProximity(ConversationHostProximityEvent event) {
 
         informListeners("proximity", event.getPlayer(),
-                config -> event.getHostIdentifier().equalsIgnoreCase(config.getString("host"))
-                        && event.getRadius() <= config.getInt("radius", 3));
+                config -> {
+                    if (event.getHostIdentifier().equalsIgnoreCase(config.getString("host"))
+                            && event.getRadius() <= config.getInt("radius", 3)) {
+                        if (config.isSet("conv")) {
+                            event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
+                        }
+                        return true;
+                    }
+                    return false;
+                });
     }
 }

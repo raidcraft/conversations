@@ -17,6 +17,7 @@ import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
 import de.raidcraft.conversations.listener.NPCListener;
 import de.raidcraft.conversations.listener.PlayerListener;
+import de.raidcraft.conversations.npc.TalkCloseTask;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import de.raidcraft.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.conversations.tables.TPersistentHost;
@@ -76,6 +77,9 @@ public class RCConversationsPlugin extends BasePlugin {
         Bukkit.getPluginManager().registerEvents(new NPCListener(this), this);
         // loadConfig all persistent conversation hosts from the database after everything is properly registered
         Bukkit.getScheduler().runTaskLater(this, this::loadPersistantConversationHosts, 15 * 20L);
+
+        // this starts the talk-close task
+        TalkCloseTask.getInstance().regenerateAllTalkChunks();
     }
 
     @Override
@@ -156,6 +160,9 @@ public class RCConversationsPlugin extends BasePlugin {
         @Setting("talk-close.cooldown")
         @Comment("cooldown in seconds to trigger talk close")
         public double talkCloseCooldown = 30;
+        @Setting("talk-close.interval")
+        @Comment("Interval in ticks to check talk close npcs.")
+        public long talkCloseTaskInterval = 20L;
 
         @Setting("conversation.abort-warn-radius")
         public int conversationAbortWarnRadius = 5;

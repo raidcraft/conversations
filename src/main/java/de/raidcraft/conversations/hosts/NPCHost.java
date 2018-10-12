@@ -132,6 +132,11 @@ public class NPCHost extends AbstractConversationHost<NPC> {
     }
 
     @Override
+    public boolean hasTrait(Class<? extends Trait> traitClass) {
+        return getType().hasTrait(traitClass);
+    }
+
+    @Override
     public Location getLocation() {
 
         if (getType().isSpawned() && getType().getEntity() != null) {

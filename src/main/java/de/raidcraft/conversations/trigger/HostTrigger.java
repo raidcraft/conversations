@@ -64,6 +64,7 @@ public class HostTrigger extends Trigger implements Listener {
                         if (config.isSet("conv")) {
                             event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
                         }
+                        event.setCancelled(true);
                         return true;
                     }
                     return false;

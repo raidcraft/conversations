@@ -13,14 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Dragonfire
@@ -90,25 +84,32 @@ public class TalkCloseTask implements Runnable {
             Bukkit.getScheduler().cancelTask(taskid);
         }
         talkChunks.clear();
-        if (TalkCloseTrait.getNPCs().size() == 0) {
-            return;
-        }
+
         new ArrayList<>(TalkCloseTrait.getNPCs()).forEach(this::generateTalkChunk);
-        taskid = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-                plugin, this, -1, 20L * 10);
+        taskid = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, -1, plugin.getConfiguration().talkCloseTaskInterval);
     }
 
-    private NPC getNPCinRange(Player player) {
+    private ConversationHost getNearestConversationHost(Player player, Collection<ConversationHost> validHosts) {
 
         double currentRange = Double.MAX_VALUE;
-        NPC nearest_npc = null;
+        ConversationHost nearest_npc = null;
         double tmpDistance = -1;
         UUID lastNpcTalk = playerTalkedMap.get(player.getUniqueId());
-        for (NPC npc : this.talkChunks.get(new ChunkLocation(player.getLocation()))) {
-            if (lastNpcTalk == npc.getUniqueId()) {
+        for (ConversationHost npc : this.talkChunks.get(new ChunkLocation(player.getLocation())).stream()
+                .map(npc -> plugin.getConversationManager().getConversationHost(npc).orElse(null))
+                .filter(Objects::nonNull)
+                .filter(npcConversationHost -> npcConversationHost.hasTrait(TalkCloseTrait.class))
+                .collect(Collectors.toList())) {
+            if (lastNpcTalk == npc.getUniqueId() || !validHosts.contains(npc)) {
                 continue;
             }
-            tmpDistance = npc.getEntity().getLocation().distance(player.getLocation());
+            Optional<TalkCloseTrait> trait = npc.getTrait(TalkCloseTrait.class);
+
+            if (!LocationUtil.isWithinRadius(player.getLocation(), npc.getLocation(), trait.get().getRadius())) {
+                continue;
+            }
+
+            tmpDistance = npc.getLocation().distance(player.getLocation());
             if (tmpDistance < currentRange) {
                 currentRange = tmpDistance;
                 nearest_npc = npc;
@@ -123,40 +124,41 @@ public class TalkCloseTask implements Runnable {
         //  iter over all player
         ConversationManager conversationManager = plugin.getConversationManager();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            // lets fire our host proximity events
-            List<ConversationHost> hosts = plugin.getConversationManager().getNearbyHosts(player.getLocation(), plugin.getConfiguration().maxHostProximityRange);
-            for (ConversationHost host : hosts) {
-                Optional<String> identifier = host.getIdentifier();
-                if (identifier.isPresent()) {
-                    RaidCraft.callEvent(new ConversationHostProximityEvent(
-                            identifier.get(),
-                            host,
-                            LocationUtil.getBlockDistance(player.getLocation(), host.getLocation()),
-                            player));
-                }
-            }
             // if no npc in your current chunk
             if (!talkChunks.containsKey(new ChunkLocation(player.getLocation().getChunk()))) {
                 continue;
             }
+            // lets fire our host proximity events
+            List<ConversationHost> hosts = plugin.getConversationManager().getNearbyHosts(player.getLocation(), plugin.getConfiguration().maxHostProximityRange);
+            List<ConversationHost> validHosts = new ArrayList<>();
+            for (ConversationHost host : hosts) {
+                Optional<String> identifier = host.getIdentifier();
+                if (identifier.isPresent()) {
+                    ConversationHostProximityEvent event = new ConversationHostProximityEvent(
+                            identifier.get(),
+                            host,
+                            LocationUtil.getBlockDistance(player.getLocation(), host.getLocation()),
+                            player);
+                    RaidCraft.callEvent(event);
+                    if (!event.isCancelled()) {
+                        validHosts.add(host);
+                    }
+                }
+            }
+
             Optional<Conversation> activeConversation = conversationManager.getActiveConversation(player);
             if (activeConversation.isPresent()) {
                 playerTalkedMap.put(player.getUniqueId(), activeConversation.get().getHost().getUniqueId());
                 continue;
             }
             // check distance
-            NPC nearest_npc = getNPCinRange(player);
+            ConversationHost nearest_npc = getNearestConversationHost(player, validHosts);
             if (nearest_npc == null) {
                 return;
             }
             // talk
-            Optional<ConversationHost<NPC>> host = conversationManager.getConversationHost(nearest_npc);
-            if (host.isPresent() && nearest_npc.hasTrait(TalkCloseTrait.class)) {
-                if (LocationUtil.isWithinRadius(player.getLocation(), nearest_npc.getEntity().getLocation(), nearest_npc.getTrait(TalkCloseTrait.class).getRadius())) {
-                    host.get().startConversation(player);
-                    playerTalkedMap.put(player.getUniqueId(), nearest_npc.getUniqueId());
-                }
-            }
+            nearest_npc.startConversation(player);
+            playerTalkedMap.put(player.getUniqueId(), nearest_npc.getUniqueId());
         }
     }
 }

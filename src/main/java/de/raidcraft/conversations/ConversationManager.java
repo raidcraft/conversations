@@ -448,6 +448,7 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<ConversationHost<T>> getConversationHost(T host) {
+        if (host == null) return Optional.empty();
 
         for (ConversationHost<?> conversationHost : cachedHosts.values()) {
             if (conversationHost.getType().equals(host)) {

@@ -35,6 +35,10 @@
             <id>faldoria-deps</id>
             <url>http://repo.faldoria.de/artifactory/faldoria-repo/</url>
         </repository>
+        <repository>
+            <id>robingrether-repo</id>
+            <url>http://repo.robingrether.de/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -47,6 +51,11 @@
             <groupId>net.citizensnpcs</groupId>
             <artifactId>citizens</artifactId>
             <version>2.0.23-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.robingrether.idisguise</groupId>
+            <artifactId>idisguise-core</artifactId>
+            <version>5.7.3</version>
         </dependency>
     </dependencies>
 </project>

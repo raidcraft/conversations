@@ -8,6 +8,9 @@ import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import de.raidcraft.util.ConfigUtil;
+import de.robingrether.idisguise.api.DisguiseAPI;
+import de.robingrether.idisguise.disguise.Disguise;
+import de.robingrether.idisguise.iDisguise;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
@@ -18,6 +21,7 @@ import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Optional;
@@ -63,13 +67,9 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             getType().setName(config.getString("name"));
             setName(getType().getName());
         }
-        if (config.isSet("skin") && getType().getEntity() instanceof SkinnableEntity) {
-            if (!config.isSet("skin.value") || !config.isSet("skin.signature")) {
-                RaidCraft.LOGGER.warning("Invalid SKIN for Host " + ConfigUtil.getFileName(config));
-            } else {
-                SkinnableEntity entity = (SkinnableEntity) getType().getEntity();
-                entity.setSkinPersistent(getUniqueId().toString(), config.getString("skin.value"), config.getString("skin.signature"));
-            }
+        if (config.isSet("disguise") && getType().getEntity() instanceof LivingEntity) {
+            DisguiseAPI disguiseAPI = iDisguise.getInstance().getAPI();
+            disguiseAPI.disguise((LivingEntity) getType().getEntity(), Disguise.fromString(config.getString("disguise")));
         }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));

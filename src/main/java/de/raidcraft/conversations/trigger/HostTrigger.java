@@ -33,15 +33,16 @@ public class HostTrigger extends Trigger implements Listener {
     public void onQuestHostInteract(ConversationHostInteractEvent event) {
 
         informListeners("interact", event.getPlayer(),
-                config ->{
+                config -> {
                     if (event.getHostIdentifier().equalsIgnoreCase(config.getString("host"))) {
-                        if (config.isSet("conv")) {
-                            event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
-                        }
                         event.setCancelled(true);
                         return true;
                     }
                     return false;
+                }, (config) -> {
+                    if (config.isSet("conv")) {
+                        event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
+                    }
                 });
     }
 
@@ -61,13 +62,14 @@ public class HostTrigger extends Trigger implements Listener {
                 config -> {
                     if (event.getHostIdentifier().equalsIgnoreCase(config.getString("host"))
                             && event.getRadius() <= config.getInt("radius", 3)) {
-                        if (config.isSet("conv")) {
-                            event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
-                        }
                         event.setCancelled(true);
                         return true;
                     }
                     return false;
+                }, config -> {
+                    if (config.isSet("conv")) {
+                        event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
+                    }
                 });
     }
 }

@@ -4,19 +4,15 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
+import de.raidcraft.api.disguise.Disguise;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
-import de.raidcraft.util.ConfigUtil;
-import de.robingrether.idisguise.api.DisguiseAPI;
-import de.robingrether.idisguise.disguise.Disguise;
-import de.robingrether.idisguise.iDisguise;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.trait.Equipment;
-import net.citizensnpcs.npc.skin.SkinnableEntity;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -25,7 +21,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * @author mdoering
@@ -68,8 +63,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             setName(getType().getName());
         }
         if (config.isSet("disguise") && getType().getEntity() instanceof LivingEntity) {
-            DisguiseAPI disguiseAPI = iDisguise.getInstance().getAPI();
-            disguiseAPI.disguise((LivingEntity) getType().getEntity(), Disguise.fromString(config.getString("disguise")));
+            Disguise.fromAlias(config.getString("disguise")).ifPresent(disguise -> disguise.applyToEntity(getType().getEntity()));
         }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));

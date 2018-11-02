@@ -62,7 +62,7 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             getType().setName(config.getString("name"));
             setName(getType().getName());
         }
-        if (config.isSet("disguise") && getType().getEntity() instanceof LivingEntity) {
+        if (config.isSet("disguise")) {
             Disguise.fromAlias(config.getString("disguise")).ifPresent(disguise -> disguise.applyToEntity(getType().getEntity()));
         }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));

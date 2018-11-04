@@ -54,16 +54,24 @@ public class RCConversationsPlugin extends BasePlugin {
         Quests.registerQuestLoader(new ConfigLoader(this, "host", 50) {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
-
                 Conversations.createConversationHost("Quests", id, config);
+            }
+
+            @Override
+            public void unloadConfig(String id) {
+                Conversations.removeConversationHost("Quests", id);
             }
         });
 
         Quests.registerQuestLoader(new ConfigLoader(this, "conv", 10) {
             @Override
             public void loadConfig(String id, ConfigurationSection config) {
-
                 Conversations.loadConversation(id, config);
+            }
+
+            @Override
+            public void unloadConfig(String id) {
+                Conversations.unloadConversation(id);
             }
         });
 

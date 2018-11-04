@@ -440,6 +440,14 @@ public class ConversationManager implements ConversationProvider, Component {
     }
 
     @Override
+    public void removeConversationHost(String holder, String id) {
+        getConversationHost(id).ifPresent(host -> {
+            host.delete();
+            cachedHosts.remove(id);
+        });
+    }
+
+    @Override
     public Optional<ConversationHost<?>> getConversationHost(String id) {
 
         return Optional.ofNullable(cachedHosts.get(id));
@@ -503,6 +511,11 @@ public class ConversationManager implements ConversationProvider, Component {
         template.get().loadConfig(config);
 
         return Optional.of(registerConversationTemplate(template.get()));
+    }
+
+    @Override
+    public void unregisterConversationTemplate(String id) {
+        conversations.remove(id);
     }
 
     @Override

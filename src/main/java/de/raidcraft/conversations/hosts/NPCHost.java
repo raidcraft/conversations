@@ -8,8 +8,10 @@ import de.raidcraft.api.disguise.Disguise;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
+import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import me.libraryaddict.disguise.DisguiseAPI;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
@@ -67,7 +69,14 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             setName(getType().getName());
         }
         if (config.isSet("disguise")) {
-            Disguise.fromAlias(config.getString("disguise")).ifPresent(disguise -> disguise.applyToEntity(getType().getEntity()));
+            if (config.isInt("disguise")) {
+                Disguise.fromId(config.getInt("disguise")).ifPresent(disguise -> disguise.applyToEntity(getType().getEntity()));
+            } else {
+                Disguise.fromAlias(config.getString("disguise")).ifPresent(disguise -> disguise.applyToEntity(getType().getEntity()));
+            }
+            if (!DisguiseAPI.isDisguised(getType().getEntity())) {
+                RaidCraft.LOGGER.warning("Could not disguise " + getIdentifier().orElse("UNKNOWN") + " with disguise " + config.getString("disguise") + ": " + ConfigUtil.getFileName(config));
+            }
         }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));

@@ -10,9 +10,12 @@ import de.raidcraft.conversations.RCConversationsPlugin;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
+import net.citizensnpcs.api.trait.TraitFactory;
 import net.citizensnpcs.api.trait.trait.Equipment;
+import net.citizensnpcs.api.util.DataKey;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,6 +23,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -93,6 +97,15 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             config.getStringList("entity-metakeys").forEach(key -> {
                 getType().getEntity().setMetadata(key, new FixedMetadataValue(RaidCraft.getComponent(RCConversationsPlugin.class), true));
             });
+        }
+
+        if (config.isList("traits")) {
+            TraitFactory traitFactory = CitizensAPI.getTraitFactory();
+            config.getStringList("traits").stream()
+                    .map(traitFactory::getTrait)
+                    .filter(Objects::nonNull)
+                    .map(trait -> (Trait)trait)
+                    .forEach(this::addTrait);
         }
     }
 

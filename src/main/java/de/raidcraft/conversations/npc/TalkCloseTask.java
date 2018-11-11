@@ -49,6 +49,7 @@ public class TalkCloseTask implements Runnable {
 
     private void generateTalkChunk(NPC npc) {
 
+        if (npc == null || !npc.isSpawned()) return;
         ChunkLocation[] locs = this.getChunTalkArea(npc.getEntity().getLocation());
         for (ChunkLocation chunk : locs) {
             if (this.talkChunks.containsKey(chunk)) {

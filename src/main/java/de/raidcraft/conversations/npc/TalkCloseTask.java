@@ -92,11 +92,13 @@ public class TalkCloseTask implements Runnable {
 
     private ConversationHost getNearestConversationHost(Player player, Collection<ConversationHost> validHosts) {
 
+        if (player == null || player.getLocation() == null) return null;
         double currentRange = Double.MAX_VALUE;
         ConversationHost nearest_npc = null;
         double tmpDistance = -1;
         UUID lastNpcTalk = playerTalkedMap.get(player.getUniqueId());
-        for (ConversationHost npc : this.talkChunks.get(new ChunkLocation(player.getLocation())).stream()
+        Set<NPC> npcs = this.talkChunks.getOrDefault(new ChunkLocation(player.getLocation()), new HashSet<>());
+        for (ConversationHost npc : npcs.stream()
                 .map(npc -> plugin.getConversationManager().getConversationHost(npc).orElse(null))
                 .filter(Objects::nonNull)
                 .filter(npcConversationHost -> npcConversationHost.hasTrait(TalkCloseTrait.class))

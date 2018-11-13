@@ -36,7 +36,7 @@ public class ConversationListener implements Listener {
     public void onConversationEnd(RCConversationEndedEvent event) {
 
         if (event.getReason().isSilent()) return;
-        event.getPlayer().sendMessage(ChatColor.GRAY + "Unterhaltung beendet: " + ChatColor.DARK_GRAY + event.getReason().getMessage());
+        event.getPlayer().sendMessage(ChatColor.DARK_GRAY + event.getReason().getMessage());
     }
     
     /*

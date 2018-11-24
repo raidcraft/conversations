@@ -7,3 +7,4 @@ website: http://www.raid-craft.de
 depend: [RaidCraft-API]
 softdepend: [Citizens]
 database: true
+api-version: 1.13

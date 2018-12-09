@@ -17,6 +17,7 @@ import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
 import de.raidcraft.conversations.listener.NPCListener;
 import de.raidcraft.conversations.listener.PlayerListener;
+import de.raidcraft.conversations.npc.DisguiseTrait;
 import de.raidcraft.conversations.npc.TalkCloseTask;
 import de.raidcraft.conversations.npc.TalkCloseTrait;
 import de.raidcraft.conversations.requirements.CompareVariableRequirement;
@@ -81,6 +82,7 @@ public class RCConversationsPlugin extends BasePlugin {
 
         // register NPC traits, trait listener and loadConfig all NPC's
         NPC_Manager.getInstance().registerTrait(TalkCloseTrait.class, RC_Traits.TALK_CLOSE);
+        NPC_Manager.getInstance().registerTrait(DisguiseTrait.class, RC_Traits.DISGUISE);
 
         Bukkit.getPluginManager().registerEvents(new NPCListener(this), this);
         // loadConfig all persistent conversation hosts from the database after everything is properly registered

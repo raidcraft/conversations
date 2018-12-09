@@ -2,6 +2,7 @@ package de.raidcraft.conversations.npc;
 
 import de.raidcraft.api.npc.RC_Traits;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * @author Dragonfire
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class TalkCloseTrait extends Trait {
 
     private static List<NPC> talkCloseNpcs = new ArrayList<>();

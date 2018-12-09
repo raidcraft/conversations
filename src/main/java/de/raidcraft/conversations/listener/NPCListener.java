@@ -7,6 +7,7 @@ import de.raidcraft.api.conversations.events.ConversationHostInteractEvent;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.conversations.RCConversationsPlugin;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
+import net.citizensnpcs.api.event.NPCSpawnEvent;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

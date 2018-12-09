@@ -27,7 +27,7 @@
     <parent>
         <groupId>de.faldoria</groupId>
         <artifactId>FaldoriaMasterPom</artifactId>
-        <version>1.13.2-SNAPSHOT</version>
+        <version>1.13.3+b21</version>
     </parent>
 
     <repositories>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>de.faldoria</groupId>
             <artifactId>raidcraft-api</artifactId>
-            <version>1.13.2-SNAPSHOT</version>
+            <version>1.13.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

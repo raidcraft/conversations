@@ -91,10 +91,10 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             getType().addTrait(TalkCloseTrait.class);
         }
         if (config.isConfigurationSection("look-close")) {
-            getType().addTrait(LookClose.class);
-            LookClose lookClose = getType().getTrait(LookClose.class);
+            LookClose lookClose = new LookClose();
             lookClose.setRealisticLooking(config.getBoolean("look-close.realistic", true));
             lookClose.setRange(config.getInt("look-close.radius", 7));
+            getType().addTrait(lookClose);
         } else if (config.getBoolean("look-close", true)) {
             getType().addTrait(LookClose.class);
         }

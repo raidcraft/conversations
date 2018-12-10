@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import me.libraryaddict.disguise.DisguiseAPI;
 import net.citizensnpcs.api.trait.Trait;
+import net.citizensnpcs.npc.skin.SkinnableEntity;
 
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class DisguiseTrait extends Trait {
 
     private Disguise disguise;
+    private boolean appliedSkin = false;
 
     public DisguiseTrait() {
         super(RC_Traits.DISGUISE);
@@ -23,9 +25,7 @@ public class DisguiseTrait extends Trait {
 
     public void setDisguise(Disguise disguise) {
         this.disguise = disguise;
-        if (disguise != null && getNPC() != null && getNPC().isSpawned()) {
-            disguise.applyToEntity(getNPC().getEntity());
-        }
+        disguise();
     }
 
     public Optional<Disguise> getDisguise() {
@@ -35,9 +35,28 @@ public class DisguiseTrait extends Trait {
     @Override
     public void onSpawn() {
 
-        getDisguise().ifPresent(disguise -> disguise.applyToEntity(getNPC().getEntity()));
-        if (!DisguiseAPI.isDisguised(getNPC().getEntity())) {
-            RaidCraft.LOGGER.warning("Could not disguise " + getNPC().getName() + " with disguise " + getDisguise().orElse(null));
+        disguise();
+    }
+
+    private void disguise() {
+
+        if (getNPC() == null || !getNPC().isSpawned() || !(getNPC().getEntity() instanceof SkinnableEntity)) {
+            return;
         }
+
+        // citizens will respawn the NPC after changing its skin
+        // not checking this will cause an endless loop
+        if (appliedSkin) return;
+
+        getDisguise().ifPresent(disguise -> {
+            appliedSkin = true;
+//            disguise.applyToEntity(getNPC().getEntity());
+            SkinnableEntity skinnableEntity = (SkinnableEntity) getNPC().getEntity();
+            skinnableEntity.setSkinPersistent(disguise.getSkinOwner(), disguise.getSkinSignature(), disguise.getSkinTexture());
+
+//            if (!DisguiseAPI.isDisguised(getNPC().getEntity())) {
+//                RaidCraft.LOGGER.warning("Could not disguise " + getNPC().getName() + " with disguise " + getDisguise().orElse(null));
+//            }
+        });
     }
 }

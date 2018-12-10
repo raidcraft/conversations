@@ -50,13 +50,8 @@ public class DisguiseTrait extends Trait {
 
         getDisguise().ifPresent(disguise -> {
             appliedSkin = true;
-//            disguise.applyToEntity(getNPC().getEntity());
             SkinnableEntity skinnableEntity = (SkinnableEntity) getNPC().getEntity();
             skinnableEntity.setSkinPersistent(disguise.getSkinOwner(), disguise.getSkinSignature(), disguise.getSkinTexture());
-
-//            if (!DisguiseAPI.isDisguised(getNPC().getEntity())) {
-//                RaidCraft.LOGGER.warning("Could not disguise " + getNPC().getName() + " with disguise " + getDisguise().orElse(null));
-//            }
         });
     }
 }

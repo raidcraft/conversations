@@ -1,5 +1,6 @@
 package de.raidcraft.conversations.listener;
 
+import de.raidcraft.api.action.requirement.tables.TTag;
 import de.raidcraft.api.conversations.events.ConversationHostInteractEvent;
 import de.raidcraft.api.conversations.events.ConversationHostProximityEvent;
 import de.raidcraft.api.conversations.events.RCConversationAbortedEvent;
@@ -43,8 +44,14 @@ public class ConversationListener implements Listener {
     Do some debugging if defined
      */
 
+    @SuppressWarnings("unchecked")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void convStart(RCConversationStartEvent event) {
+
+        String id = event.getHost().getIdentifier().orElse(event.getHost().getName().orElse("UNKNOWN")).toString();
+        String hostName = event.getHost().getName().orElse("UNKNOWN").toString();
+        TTag.findOrCreateTag("conv-start:" + id + ":" + event.getConversation().getIdentifier(),
+                "Conversation START " + event.getConversation().getIdentifier() + " mit dem NPC " + id + " (" + hostName + ")");
 
         if (!plugin.getConfiguration().debug_start) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
@@ -112,6 +119,10 @@ public class ConversationListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void hostProximity(ConversationHostInteractEvent event) {
+
+        String id = event.getHost().getIdentifier().orElse("UNKNOWN");
+        TTag.findOrCreateTag("host-interact:" + id,
+                "Host INTERACT: " + event.getHost().getName().orElse("UNKNOWN") + " (" + id + ")");
 
         if (!plugin.getConfiguration().debug_interact) return;
         plugin.getLogger().info("Host INTERACT FIRED"

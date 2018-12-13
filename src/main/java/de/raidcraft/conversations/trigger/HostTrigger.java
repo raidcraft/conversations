@@ -41,7 +41,7 @@ public class HostTrigger extends Trigger implements Listener {
                     return false;
                 }, (config) -> {
                     if (config.isSet("conv")) {
-                        event.getQuestHost().startConversation(event.getPlayer(), config.getString("conv"));
+                        event.getHost().startConversation(event.getPlayer(), config.getString("conv"));
                     }
                 });
     }

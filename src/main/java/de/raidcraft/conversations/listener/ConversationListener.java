@@ -51,7 +51,7 @@ public class ConversationListener implements Listener {
         String id = event.getHost().getIdentifier().orElse(event.getHost().getName().orElse("UNKNOWN")).toString();
         String hostName = event.getHost().getName().orElse("UNKNOWN").toString();
         TTag.findOrCreateTag("conv-start:" + id + ":" + event.getConversation().getIdentifier(),
-                "Conversation START " + event.getConversation().getIdentifier() + " mit dem NPC " + id + " (" + hostName + ")");
+                "Conversation START " + event.getConversation().getIdentifier() + " mit dem NPC " + id + " (" + hostName + ")", true);
 
         if (!plugin.getConfiguration().debug_start) return;
         plugin.getLogger().info("Conversation " + event.getConversation().getIdentifier()
@@ -122,7 +122,7 @@ public class ConversationListener implements Listener {
 
         String id = event.getHost().getIdentifier().orElse("UNKNOWN");
         TTag.findOrCreateTag("host-interact:" + id,
-                "Host INTERACT: " + event.getHost().getName().orElse("UNKNOWN") + " (" + id + ")");
+                "Host INTERACT: " + event.getHost().getName().orElse("UNKNOWN") + " (" + id + ")", true);
 
         if (!plugin.getConfiguration().debug_interact) return;
         plugin.getLogger().info("Host INTERACT FIRED"

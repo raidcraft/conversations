@@ -450,7 +450,15 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Optional<ConversationHost<?>> getConversationHost(String id) {
 
-        return Optional.ofNullable(cachedHosts.get(id));
+        Optional<ConversationHost<?>> conversationHost = Optional.ofNullable(cachedHosts.get(id));
+        if (!conversationHost.isPresent()) {
+            List<String> matchingHosts = cachedHosts.keySet().stream()
+                    .filter(key -> key.startsWith(id))
+                    .collect(Collectors.toList());
+            if (matchingHosts.size() != 1) return Optional.empty();
+            return Optional.ofNullable(cachedHosts.get(matchingHosts.get(0)));
+        }
+        return conversationHost;
     }
 
     @Override

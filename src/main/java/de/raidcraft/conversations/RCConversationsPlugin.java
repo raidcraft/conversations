@@ -12,6 +12,7 @@ import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.api.npc.RC_Traits;
 import de.raidcraft.api.quests.Quests;
+import de.raidcraft.conversations.actions.NpcEmoteAction;
 import de.raidcraft.conversations.commands.ConversationCommands;
 import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
@@ -130,6 +131,7 @@ public class RCConversationsPlugin extends BasePlugin {
                 .action(new SetConversationAction())
                 .action(new UnsetConversationAction())
                 .action(new ClearConversationAction())
+                .action(new NpcEmoteAction())
                 .requirement(new CompareVariableRequirement(), Conversation.class);
     }
 

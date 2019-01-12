@@ -2,6 +2,7 @@ package de.raidcraft.conversations.tables;
 
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.ConversationHost;
+import de.raidcraft.util.LocationUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -50,7 +51,7 @@ public class TPersistentHost {
 
     public Optional<Location> getLocation() {
 
-        World world = Bukkit.getWorld(this.world);
+        World world = LocationUtil.getCaseInsensitiveWorld(this.world);
         if (world == null) {
             RaidCraft.LOGGER.warning("world " + this.world + " of persistent host " + id + " is not loaded! Not loading host...");
             return Optional.empty();

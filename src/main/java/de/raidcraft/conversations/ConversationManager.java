@@ -382,7 +382,9 @@ public class ConversationManager implements ConversationProvider, Component {
         }
         Location location = ConfigUtil.getLocationFromConfig(config.getConfigurationSection("location"));
         if (location == null) {
-            plugin.getLogger().warning("Location in " + ConfigUtil.getFileName(config) + " not defined!");
+            if (plugin.getConfiguration().debug_startup) {
+                plugin.getLogger().warning("Location in " + ConfigUtil.getFileName(config) + " not defined!");
+            }
             return Optional.empty();
         }
         Optional<ConversationHost<?>> host = createConversationHost(creatingPlugin, identifier, type, location);

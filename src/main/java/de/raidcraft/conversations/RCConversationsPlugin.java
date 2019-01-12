@@ -166,6 +166,8 @@ public class RCConversationsPlugin extends BasePlugin {
         public boolean debug_stage_trigger = true;
         @Setting("debug.stage.change")
         public boolean debug_stage_change = true;
+        @Setting("debug.startup")
+        public boolean debug_startup = false;
 
         @Setting("talk-close.distance")
         public int talkCloseDistance = 3;

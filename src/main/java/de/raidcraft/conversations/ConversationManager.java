@@ -1,5 +1,6 @@
 package de.raidcraft.conversations;
 
+import com.google.common.base.Strings;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.Component;
 import de.raidcraft.api.action.Timer;
@@ -390,6 +391,8 @@ public class ConversationManager implements ConversationProvider, Component {
         Optional<ConversationHost<?>> host = createConversationHost(creatingPlugin, identifier, type, location);
         if (host.isPresent()) {
             host.get().load(config);
+            getLoadedConversationTemplate(host.get().getIdentifier().map(id -> id + ".default").orElse(null))
+                    .ifPresent(conversationTemplate -> host.get().addDefaultConversation(conversationTemplate));
             loadSavedHostConversations(host.get());
             cachedHosts.put(identifier, host.get());
         }
@@ -451,6 +454,8 @@ public class ConversationManager implements ConversationProvider, Component {
 
     @Override
     public Optional<ConversationHost<?>> getConversationHost(String id) {
+
+        if (Strings.isNullOrEmpty(id)) return Optional.empty();
 
         Optional<ConversationHost<?>> conversationHost = Optional.ofNullable(cachedHosts.get(id));
         if (!conversationHost.isPresent()) {
@@ -537,6 +542,7 @@ public class ConversationManager implements ConversationProvider, Component {
     @Override
     public Optional<ConversationTemplate> getLoadedConversationTemplate(String identifier) {
 
+        if (Strings.isNullOrEmpty(identifier)) return Optional.empty();
         return Optional.ofNullable(conversations.get(identifier));
     }
 

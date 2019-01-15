@@ -1,6 +1,6 @@
 package de.raidcraft.conversations.listener;
 
-import de.raidcraft.api.action.requirement.tables.TTag;
+import de.raidcraft.api.tags.TTag;
 import de.raidcraft.api.conversations.events.ConversationHostInteractEvent;
 import de.raidcraft.api.conversations.events.ConversationHostProximityEvent;
 import de.raidcraft.api.conversations.events.RCConversationAbortedEvent;

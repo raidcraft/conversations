@@ -53,9 +53,9 @@ public class RCConversationsPlugin extends BasePlugin {
         registerCommands(ConversationCommands.class);
         registerActionAPI();
 
-        Quests.registerQuestLoader(new ConfigLoader(this, "host", 50) {
+        Quests.registerQuestLoader(new ConfigLoader<RCConversationsPlugin>(this, "host", 50) {
             @Override
-            public void loadConfig(String id, ConfigurationSection config) {
+            public void loadConfig(String id, ConfigurationBase<RCConversationsPlugin> config) {
                 Conversations.createConversationHost("Quests", id, config);
             }
 
@@ -65,9 +65,9 @@ public class RCConversationsPlugin extends BasePlugin {
             }
         });
 
-        Quests.registerQuestLoader(new ConfigLoader(this, "conv", 10) {
+        Quests.registerQuestLoader(new ConfigLoader<RCConversationsPlugin>(this, "conv", 10) {
             @Override
-            public void loadConfig(String id, ConfigurationSection config) {
+            public void loadConfig(String id, ConfigurationBase<RCConversationsPlugin> config) {
                 Conversations.loadConversation(id, config);
             }
 

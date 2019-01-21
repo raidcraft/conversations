@@ -4,31 +4,17 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
-import de.raidcraft.api.disguise.Disguise;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
-import de.raidcraft.conversations.npc.DisguiseTrait;
-import de.raidcraft.conversations.npc.TalkCloseTrait;
-import de.raidcraft.util.ConfigUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.libraryaddict.disguise.DisguiseAPI;
-import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.api.trait.Trait;
-import net.citizensnpcs.api.trait.TraitFactory;
 import net.citizensnpcs.api.trait.trait.Equipment;
-import net.citizensnpcs.api.util.DataKey;
-import net.citizensnpcs.npc.skin.SkinnableEntity;
 import net.citizensnpcs.trait.LookClose;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
-
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author mdoering
@@ -70,26 +56,8 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             getType().setName(config.getString("name"));
             setName(getType().getName());
         }
-        if (config.isSet("disguise")) {
-            Optional.ofNullable(Disguise.fromId(config.getInt("disguise"))
-                    .orElseGet(() -> Disguise.fromAlias(config.getString("disguise")).orElse(null)))
-                    .ifPresent(disguise -> {
-                        DisguiseTrait trait = new DisguiseTrait();
-                        trait.setDisguise(disguise);
-                        getType().addTrait(trait);
-                    });
-        }
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));
-        if (config.isConfigurationSection("talk-close")) {
-            int radius = config.getInt("talk-close.radius", 5);
-            if (radius > 0) {
-                getType().addTrait(TalkCloseTrait.class);
-                getType().getTrait(TalkCloseTrait.class).setRadius(radius);
-            }
-        } else if (config.getBoolean("talk-close", false)) {
-            getType().addTrait(TalkCloseTrait.class);
-        }
         if (config.isConfigurationSection("look-close")) {
             LookClose lookClose = new LookClose();
             lookClose.setRealisticLooking(config.getBoolean("look-close.realistic", true));
@@ -108,15 +76,6 @@ public class NPCHost extends AbstractConversationHost<NPC> {
                 getType().getEntity().setMetadata(key, new FixedMetadataValue(RaidCraft.getComponent(RCConversationsPlugin.class), true));
             });
         }
-
-        if (config.isList("traits")) {
-            TraitFactory traitFactory = CitizensAPI.getTraitFactory();
-            config.getStringList("traits").stream()
-                    .map(traitFactory::getTrait)
-                    .filter(Objects::nonNull)
-                    .map(trait -> (Trait)trait)
-                    .forEach(this::addTrait);
-        }
     }
 
     private void loadEquipment(ConfigurationSection equipment) {
@@ -129,28 +88,6 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             RaidCraft.getItem(equipment.getString("legs")).ifPresent(item -> equipmentTrait.set(3, item));
             RaidCraft.getItem(equipment.getString("boots")).ifPresent(item -> equipmentTrait.set(4, item));
         }
-    }
-
-    @Override
-    public boolean addTrait(Class<? extends Trait> traitClass) {
-        getType().addTrait(traitClass);
-        return true;
-    }
-
-    @Override
-    public boolean addTrait(Trait trait) {
-        getType().addTrait(trait);
-        return true;
-    }
-
-    @Override
-    public <TTrait extends Trait> Optional<TTrait> getTrait(Class<TTrait> traitClass) {
-        return Optional.ofNullable(getType().getTrait(traitClass));
-    }
-
-    @Override
-    public boolean hasTrait(Class<? extends Trait> traitClass) {
-        return getType().hasTrait(traitClass);
     }
 
     @Override

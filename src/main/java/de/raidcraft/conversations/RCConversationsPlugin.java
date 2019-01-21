@@ -10,7 +10,6 @@ import de.raidcraft.api.conversations.Conversations;
 import de.raidcraft.api.conversations.actions.*;
 import de.raidcraft.api.conversations.conversation.Conversation;
 import de.raidcraft.api.npc.NPC_Manager;
-import de.raidcraft.api.npc.RC_Traits;
 import de.raidcraft.api.quests.Quests;
 import de.raidcraft.conversations.actions.NpcEmoteAction;
 import de.raidcraft.conversations.commands.ConversationCommands;
@@ -18,18 +17,17 @@ import de.raidcraft.conversations.listener.ChatListener;
 import de.raidcraft.conversations.listener.ConversationListener;
 import de.raidcraft.conversations.listener.NPCListener;
 import de.raidcraft.conversations.listener.PlayerListener;
-import de.raidcraft.conversations.npc.DisguiseTrait;
-import de.raidcraft.conversations.npc.TalkCloseTask;
-import de.raidcraft.conversations.npc.TalkCloseTrait;
 import de.raidcraft.conversations.requirements.CompareVariableRequirement;
 import de.raidcraft.conversations.tables.TPersistentHost;
 import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.conversations.tables.TPlayerVariable;
+import de.raidcraft.conversations.traits.ConversationHostTrait;
 import de.raidcraft.conversations.trigger.HostTrigger;
 import lombok.Getter;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.trait.TraitInfo;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,20 +75,15 @@ public class RCConversationsPlugin extends BasePlugin {
             }
         });
 
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(ConversationHostTrait.class));
+
         registerEvents(new ChatListener(this));
         registerEvents(new PlayerListener(this));
         registerEvents(new ConversationListener(this));
 
-        // register NPC traits, trait listener and loadConfig all NPC's
-        NPC_Manager.getInstance().registerTrait(TalkCloseTrait.class, RC_Traits.TALK_CLOSE);
-        NPC_Manager.getInstance().registerTrait(DisguiseTrait.class, RC_Traits.DISGUISE);
-
         Bukkit.getPluginManager().registerEvents(new NPCListener(this), this);
         // loadConfig all persistent conversation hosts from the database after everything is properly registered
         Bukkit.getScheduler().runTaskLater(this, this::loadPersistantConversationHosts, 15 * 20L);
-
-        // this starts the talk-close task
-        TalkCloseTask.getInstance().regenerateAllTalkChunks();
     }
 
     @Override

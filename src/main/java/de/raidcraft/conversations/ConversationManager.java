@@ -33,6 +33,7 @@ import de.raidcraft.conversations.tables.TPersistentHostOption;
 import de.raidcraft.conversations.tables.TPlayerConversation;
 import de.raidcraft.util.*;
 import de.raidcraft.util.fanciful.FancyMessage;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -394,7 +395,7 @@ public class ConversationManager implements ConversationProvider, Component {
             getLoadedConversationTemplate(host.get().getIdentifier().map(id -> id + ".default").orElse(null))
                     .ifPresent(conversationTemplate -> host.get().addDefaultConversation(conversationTemplate));
             loadSavedHostConversations(host.get());
-            cachedHosts.put(identifier, host.get());
+            registerConversationHost(identifier, host.get());
         }
         return host;
     }
@@ -437,11 +438,18 @@ public class ConversationManager implements ConversationProvider, Component {
                     config.set(option.getConfKey(), option.getConfValue());
                 }
                 loadedHost.load(config);
-                cachedHosts.put(loadedHost.getUniqueId().toString(), loadedHost);
+                registerConversationHost(loadedHost.getUniqueId().toString(), loadedHost);
             }
             return conversationHost;
         }
         return Optional.empty();
+    }
+
+    public void registerConversationHost(String identifier, ConversationHost<?> host) {
+        Validate.notEmpty(identifier);
+        Validate.notNull(host);
+
+        cachedHosts.put(identifier, host);
     }
 
     @Override
@@ -669,7 +677,7 @@ public class ConversationManager implements ConversationProvider, Component {
                 conversationHost.addDefaultConversation(template.get());
                 conversationHost.load(template.get().getHostSettings());
                 host.load(template.get().getHostSettings());
-                cachedHosts.put(host.getUniqueId().toString(), host);
+                registerConversationHost(host.getUniqueId().toString(), host);
             } else {
                 plugin.getLogger().warning("Cannot spawn conversation host npc without valid conversation: " + conversationName + " does not exist!");
                 host.delete();

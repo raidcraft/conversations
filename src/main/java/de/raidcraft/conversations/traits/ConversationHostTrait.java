@@ -18,7 +18,7 @@ public class ConversationHostTrait extends Trait {
 
     private String id;
 
-    protected ConversationHostTrait() {
+    public ConversationHostTrait() {
         super("host");
     }
 

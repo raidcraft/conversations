@@ -4,8 +4,10 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHost;
 import de.raidcraft.api.conversations.host.ConversationHostFactory;
+import de.raidcraft.api.disguise.Disguise;
 import de.raidcraft.api.npc.NPC_Manager;
 import de.raidcraft.conversations.RCConversationsPlugin;
+import de.raidcraft.npcs.traits.DisguiseTrait;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.citizensnpcs.api.npc.NPC;
@@ -15,6 +17,8 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.metadata.FixedMetadataValue;
+
+import java.util.Optional;
 
 /**
  * @author mdoering
@@ -56,6 +60,16 @@ public class NPCHost extends AbstractConversationHost<NPC> {
             getType().setName(config.getString("name"));
             setName(getType().getName());
         }
+        if (config.isSet("disguise")) {
+            Optional.ofNullable(Disguise.fromId(config.getInt("disguise"))
+                    .orElseGet(() -> Disguise.fromAlias(config.getString("disguise")).orElse(null)))
+                    .ifPresent(disguise -> {
+                        DisguiseTrait trait = new DisguiseTrait();
+                        trait.setDisguise(disguise);
+                        getType().addTrait(trait);
+                    });
+        }
+
         if (config.isSet("entity-type")) getType().setBukkitEntityType(EntityType.valueOf(config.getString("entity-type")));
         if (config.isSet("protected")) getType().setProtected(config.getBoolean("protected", true));
         if (config.isConfigurationSection("look-close")) {

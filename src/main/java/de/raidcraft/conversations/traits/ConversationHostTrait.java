@@ -3,6 +3,7 @@ package de.raidcraft.conversations.traits;
 import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.conversations.ConversationManager;
+import de.raidcraft.npcs.ConfigStorage;
 import de.raidcraft.npcs.traits.ToFNPCTrait;
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.npc.NPC;
@@ -24,6 +25,10 @@ public class ConversationHostTrait extends Trait {
 
     @Override
     public void load(DataKey key) throws NPCLoadException {
+        if (key instanceof ConfigStorage.YamlKey) {
+            this.id = ((ConfigStorage.YamlKey) key).getId();
+            return;
+        }
         if (!getNPC().hasTrait(ToFNPCTrait.class)) {
             throw new NPCLoadException("Cannot spawn conversation host without ToF trait!");
         }

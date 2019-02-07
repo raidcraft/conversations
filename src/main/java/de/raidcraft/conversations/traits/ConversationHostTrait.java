@@ -4,7 +4,9 @@ import de.raidcraft.RaidCraft;
 import de.raidcraft.api.conversations.host.AbstractConversationHost;
 import de.raidcraft.conversations.ConversationManager;
 import de.raidcraft.npcs.ConfigStorage;
+import de.raidcraft.npcs.RCNPCsPlugin;
 import de.raidcraft.npcs.traits.ToFNPCTrait;
+import jdk.internal.joptsimple.internal.Strings;
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
@@ -21,6 +23,13 @@ public class ConversationHostTrait extends Trait {
 
     public ConversationHostTrait() {
         super("host");
+    }
+
+    public String getId() {
+        if (Strings.isNullOrEmpty(id)) {
+            return getNPC().data().get(RCNPCsPlugin.NPC_TOF_ID);
+        }
+        return id;
     }
 
     @Override
